@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Check, ArrowRight } from "lucide-react";
 
@@ -7,10 +8,16 @@ interface PricingCardProps {
   duration: string;
   price: string;
   featured?: boolean;
+  index: number;
 }
 
-const PricingCard = ({ name, photos, duration, price, featured = false }: PricingCardProps) => (
-  <div
+const PricingCard = ({ name, photos, duration, price, featured = false, index }: PricingCardProps) => (
+  <motion.div
+    initial={{ opacity: 0, y: 30 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true }}
+    transition={{ duration: 0.5, delay: index * 0.1 }}
+    whileHover={{ y: -5 }}
     className={`relative p-6 rounded-2xl transition-all duration-300 ${
       featured
         ? "bg-primary text-primary-foreground shadow-xl scale-105"
@@ -18,9 +25,13 @@ const PricingCard = ({ name, photos, duration, price, featured = false }: Pricin
     }`}
   >
     {featured && (
-      <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-secondary text-secondary-foreground text-xs font-semibold rounded-full">
+      <motion.span
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-secondary text-secondary-foreground text-xs font-semibold rounded-full"
+      >
         Popular
-      </span>
+      </motion.span>
     )}
     
     <div className="text-center mb-6">
@@ -62,7 +73,7 @@ const PricingCard = ({ name, photos, duration, price, featured = false }: Pricin
     >
       Escolher plano
     </Button>
-  </div>
+  </motion.div>
 );
 
 const Pricing = () => {
@@ -91,7 +102,13 @@ const Pricing = () => {
   return (
     <section id="precos" className="py-section bg-thisday-white">
       <div className="container px-6">
-        <div className="text-center mb-12">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="text-center mb-12"
+        >
           <span className="inline-block text-sm font-medium tracking-wide uppercase text-primary/70 mb-4">
             Planos e preços
           </span>
@@ -101,20 +118,26 @@ const Pricing = () => {
           <p className="text-muted-foreground max-w-md mx-auto">
             Escolha o plano ideal para o tamanho do seu evento.
           </p>
-        </div>
+        </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto items-center">
           {plans.map((plan, index) => (
-            <PricingCard key={index} {...plan} />
+            <PricingCard key={index} {...plan} index={index} />
           ))}
         </div>
 
-        <div className="text-center mt-10">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="text-center mt-10"
+        >
           <Button variant="cta" size="xl">
             Criar evento agora
             <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
-        </div>
+        </motion.div>
       </div>
     </section>
   );
