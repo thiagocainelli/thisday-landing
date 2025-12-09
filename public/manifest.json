@@ -1,0 +1,17 @@
+{
+  "name": "THISDAY",
+  "short_name": "THISDAY",
+  "description": "Um dia. Todas as fotos. Centralize todas as fotos do seu evento em um único lugar.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F9FAFB",
+  "theme_color": "#1E3A8A",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64",
+      "type": "image/x-icon"
+    }
+  ]
+}
