@@ -1,15 +1,24 @@
+import { Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import Terms from "./pages/Terms";
-import Privacy from "./pages/Privacy";
-import Contact from "./pages/Contact";
-import NotFound from "./pages/NotFound";
+import { BrowserRouter, useRoutes } from "react-router-dom";
+import useScrollToTop from "./hooks/use-scroll-to-top";
+import { routes } from "./routes";
+import PageLoader from "./components/ui/PageLoader";
 
 const queryClient = new QueryClient();
+
+const ScrollToTop = () => {
+  useScrollToTop();
+  return null;
+};
+
+const AppRoutes = () => {
+  const element = useRoutes(routes);
+  return element;
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -17,14 +26,10 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/termos" element={<Terms />} />
-          <Route path="/privacidade" element={<Privacy />} />
-          <Route path="/contato" element={<Contact />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <ScrollToTop />
+        <Suspense fallback={<PageLoader />}>
+          <AppRoutes />
+        </Suspense>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

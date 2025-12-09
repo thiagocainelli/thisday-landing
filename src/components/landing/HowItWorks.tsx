@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { QrCode, Upload, Images } from "lucide-react";
 import qrScanImage from "@/assets/qr-scan-illustration.png";
 import galleryImage from "@/assets/gallery-illustration.png";
+import heroImage from "@/assets/hero-illustration.png";
 
 interface StepProps {
   number: string;
@@ -12,7 +13,7 @@ interface StepProps {
 }
 
 const Step = ({ number, icon, title, description, image }: StepProps) => (
-  <motion.div 
+  <motion.div
     initial={{ opacity: 0, y: 30 }}
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true, margin: "-50px" }}
@@ -28,7 +29,7 @@ const Step = ({ number, icon, title, description, image }: StepProps) => (
       </div>
     ) : (
       <div className="relative mb-6">
-        <motion.div 
+        <motion.div
           whileHover={{ scale: 1.1 }}
           transition={{ type: "spring", stiffness: 300 }}
           className="w-16 h-16 rounded-2xl bg-secondary flex items-center justify-center text-primary"
@@ -53,27 +54,33 @@ const HowItWorks = () => {
       number: "1",
       icon: <QrCode className="h-7 w-7" />,
       title: "Crie o evento",
-      description: "Receba um QR Code único para compartilhar com seus convidados.",
+      description:
+        "Receba um QR Code único para compartilhar com seus convidados.",
+      image: heroImage,
     },
     {
       number: "2",
       icon: <Upload className="h-7 w-7" />,
       title: "Convidados enviam",
-      description: "Eles escaneiam e enviam as fotos direto do celular.",
+      description:
+        "Eles escaneiam e enviam as fotos e vídeos direto do celular.",
       image: qrScanImage,
     },
     {
       number: "3",
       icon: <Images className="h-7 w-7" />,
       title: "Tudo reunido",
-      description: "Todas as fotos ficam em um só lugar, naquele dia.",
+      description: "Todas as fotos e vídeos ficam em um só lugar, naquele dia.",
       image: galleryImage,
     },
   ];
 
   return (
-    <section id="como-funciona" className="py-section bg-thisday-white">
-      <div className="container px-6">
+    <section
+      id="como-funciona"
+      className="py-section bg-gradient-to-br from-[#eef4ff] via-thisday-white to-[#e9f7ff]"
+    >
+      <div className="container">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -91,10 +98,7 @@ const HowItWorks = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
           {steps.map((step, index) => (
-            <Step
-              key={step.number}
-              {...step}
-            />
+            <Step key={step.number} {...step} />
           ))}
         </div>
       </div>

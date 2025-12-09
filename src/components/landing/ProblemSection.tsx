@@ -1,81 +1,181 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { MessageSquare, Search, Puzzle } from "lucide-react";
+import {
+  MessageSquare,
+  Search,
+  Puzzle,
+  AlertCircle,
+  TrendingDown,
+  Users,
+} from "lucide-react";
 
 const ProblemSection = () => {
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
   const problems = [
     {
-      icon: <MessageSquare className="h-5 w-5" />,
-      text: "Fotos se perdem no WhatsApp",
+      icon: MessageSquare,
+      title: "Memórias perdidas",
+      description: "As melhores fotos ficam espalhadas em dezenas de celulares",
+      stat: "73%",
+      statLabel: "das fotos nunca são compartilhadas",
+      color: "from-blue-600 to-cyan-500",
+      delay: 0,
     },
     {
-      icon: <Search className="h-5 w-5" />,
-      text: "Ninguém reúne tudo depois do evento",
+      icon: Search,
+      title: "Busca sem fim",
+      description: "Ninguém reúne tudo depois do evento",
+      stat: "2h+",
+      statLabel: "tempo gasto procurando fotos",
+      color: "from-indigo-600 to-blue-500",
+      delay: 0.1,
     },
     {
-      icon: <Puzzle className="h-5 w-5" />,
-      text: "Cada pessoa fica com um pedaço do dia",
+      icon: Puzzle,
+      title: "História fragmentada",
+      description: "Cada pessoa fica com um pedaço do dia",
+      stat: "85%",
+      statLabel: "dos eventos têm fotos incompletas",
+      color: "from-cyan-500 to-blue-500",
+      delay: 0.2,
     },
   ];
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 },
-  };
-
   return (
-    <section className="py-section bg-secondary/30">
-      <div className="container px-6">
+    <section className="relative py-section overflow-hidden bg-gradient-to-br from-primary via-[#1f4fd8] to-[#38bdf8] text-white">
+      {/* Background decoration */}
+      <div className="absolute inset-0 overflow-hidden">
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 0.15 }}
+          viewport={{ once: true }}
+          className="absolute -top-24 -right-24 w-96 h-96 bg-white/40 rounded-full blur-3xl"
+        />
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 0.15 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.2 }}
+          className="absolute -bottom-24 -left-24 w-80 h-80 bg-white/30 rounded-full blur-3xl"
+        />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.15),transparent_45%),radial-gradient(circle_at_80%_10%,rgba(255,255,255,0.12),transparent_40%)]" />
+      </div>
+
+      <div className="container relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="max-w-2xl mx-auto text-center"
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16"
         >
-          <span className="inline-block text-sm font-medium tracking-wide uppercase text-primary/70 mb-4">
-            O problema
-          </span>
-          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-6">
-            Você conhece essa história?
-          </h2>
-          <p className="text-muted-foreground text-lg mb-10 leading-relaxed">
-            Depois de todo evento, as melhores fotos ficam espalhadas 
-            em dezenas de celulares. E a maioria nunca é compartilhada.
-          </p>
-
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
+          <motion.span
+            initial={{ opacity: 0, scale: 0.8 }}
+            whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8"
+            className="inline-flex items-center gap-2 text-sm font-medium tracking-wide uppercase text-white/80 mb-4"
           >
-            {problems.map((problem, index) => (
+            <AlertCircle className="h-4 w-4" />O problema
+          </motion.span>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6 leading-tight">
+            Você conhece essa{" "}
+            <span className="bg-gradient-to-r from-white via-blue-100 to-cyan-100 bg-clip-text text-transparent">
+              história?
+            </span>
+          </h2>
+          <p className="text-white/90 text-lg md:text-xl max-w-3xl mx-auto leading-relaxed">
+            Depois de todo evento, as melhores fotos ficam espalhadas em dezenas
+            de celulares. E a maioria nunca é compartilhada.
+          </p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {problems.map((problem, index) => {
+            const Icon = problem.icon;
+            const isHovered = hoveredIndex === index;
+
+            return (
               <motion.div
                 key={index}
-                variants={itemVariants}
-                className="flex items-center gap-3 text-foreground/80"
+                initial={{ opacity: 0, y: 50, scale: 0.9 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: true, amount: 0.3 }}
+                transition={{ duration: 0.6, delay: problem.delay }}
+                onHoverStart={() => setHoveredIndex(index)}
+                onHoverEnd={() => setHoveredIndex(null)}
+                className="group relative"
               >
-                <motion.div 
-                  whileHover={{ scale: 1.1, rotate: 5 }}
-                  className="w-10 h-10 rounded-lg bg-thisday-white flex items-center justify-center text-primary shadow-sm"
+                <motion.div
+                  whileHover={{ y: -8, scale: 1.02 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                  className="relative h-full p-8 rounded-2xl bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 text-gray-900"
                 >
-                  {problem.icon}
+                  {/* Content */}
+                  <div className="relative z-10 flex flex-col h-full">
+                    {/* Icon - centered at top */}
+                    <div className="flex justify-center mb-6">
+                      <motion.div
+                        className={`w-14 h-14 rounded-xl bg-gradient-to-br ${problem.color} flex items-center justify-center shadow-md`}
+                        whileHover={{ scale: 1.1, rotate: 5 }}
+                        transition={{ type: "spring", stiffness: 300 }}
+                      >
+                        <Icon className="h-7 w-7 text-white" />
+                      </motion.div>
+                    </div>
+
+                    {/* Stat - large and prominent with gradient */}
+                    <div className="text-center mb-4">
+                      <motion.div
+                        className={`text-6xl font-bold bg-gradient-to-r ${problem.color} bg-clip-text text-transparent mb-2`}
+                        animate={isHovered ? { scale: 1.05 } : { scale: 1 }}
+                      >
+                        {problem.stat}
+                      </motion.div>
+                      <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">
+                        {problem.statLabel}
+                      </p>
+                    </div>
+
+                    {/* Title and description */}
+                    <div className="space-y-2 mt-auto">
+                      <motion.h3
+                        className="text-lg font-bold text-gray-900 text-center"
+                        animate={isHovered ? { scale: 1.02 } : { scale: 1 }}
+                      >
+                        {problem.title}
+                      </motion.h3>
+                      <motion.p
+                        className="text-sm text-gray-600 leading-relaxed text-center"
+                        animate={
+                          isHovered ? { opacity: 0.9 } : { opacity: 0.8 }
+                        }
+                      >
+                        {problem.description}
+                      </motion.p>
+                    </div>
+                  </div>
+
+                  {/* Subtle shine effect on hover */}
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-500/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 rounded-2xl"
+                    style={{ skewX: -20 }}
+                  />
                 </motion.div>
-                <span className="text-sm font-medium">{problem.text}</span>
               </motion.div>
-            ))}
-          </motion.div>
+            );
+          })}
+        </div>
+
+        {/* Bottom CTA hint */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.5 }}
+          className="mt-16 text-center"
+        >
+          <p className="text-white/80 text-lg">Mas existe uma solução... 👇</p>
         </motion.div>
       </div>
     </section>

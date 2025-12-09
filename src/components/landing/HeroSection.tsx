@@ -1,109 +1,74 @@
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Play } from "lucide-react";
-import heroImage from "@/assets/hero-illustration.png";
+import { ArrowRight, Play, Sparkles, ShieldCheck } from "lucide-react";
+import Header from "./Header";
+
+const heroBgUrl =
+  "https://images.unsplash.com/photo-1501238295340-c810d3c156d2?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
 
 const HeroSection = () => {
   return (
-    <section className="relative min-h-[90vh] flex items-center justify-center bg-background overflow-hidden">
-      {/* Subtle background decoration */}
-      <div className="absolute inset-0 overflow-hidden">
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1.2, ease: "easeOut" }}
-          className="absolute top-1/4 -right-32 w-96 h-96 bg-secondary/50 rounded-full blur-3xl" 
-        />
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1.2, delay: 0.2, ease: "easeOut" }}
-          className="absolute bottom-1/4 -left-32 w-80 h-80 bg-secondary/30 rounded-full blur-3xl" 
-        />
-      </div>
+    <section
+      className="relative min-h-[100vh] flex items-center justify-center overflow-hidden bg-fixed bg-cover bg-center"
+      style={{
+        backgroundImage: `linear-gradient(135deg, rgba(11,16,32,0.75), rgba(12,30,88,0.70)), url(${heroBgUrl})`,
+      }}
+    >
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/40 via-transparent to-secondary/40" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.08),transparent_42%),radial-gradient(circle_at_80%_0%,rgba(255,255,255,0.05),transparent_38%)]" />
 
-      <div className="container relative z-10 px-6 py-20 md:py-32">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          <div className="text-center lg:text-left">
-            {/* Logo/Brand */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="mb-8"
-            >
-              <span className="inline-block text-sm font-semibold tracking-[0.2em] uppercase text-primary/70">
-                THISDAY
-              </span>
-            </motion.div>
+      <Header />
 
-            {/* Main Headline */}
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight tracking-tight mb-6"
-            >
-              Um dia.{" "}
-              <span className="text-primary">Todas as fotos.</span>
-            </motion.h1>
+      <div className="container relative z-10">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7 }}
+          className="max-w-4xl mx-auto text-center space-y-8"
+        >
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight tracking-tight drop-shadow-md">
+            Registre cada momento{" "}
+            <span className="text-gradient-primary">
+              sem caçar no WhatsApp.
+            </span>
+          </h1>
 
-            {/* Subheadline */}
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-lg md:text-xl text-muted-foreground max-w-xl mx-auto lg:mx-0 mb-10 leading-relaxed"
-            >
-              Centralize todas as fotos do seu evento em um único lugar, 
-              usando apenas um QR Code.
-            </motion.p>
+          <p className="text-lg md:text-xl text-white/90 max-w-3xl mx-auto leading-relaxed">
+            Um QR Code para reunir todas as fotos e vídeos do seu evento em
+            segundos. Pronto para convidados, equipes, marcas e experiências ao
+            vivo.
+          </p>
 
-            {/* CTAs */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4"
-            >
-              <Button variant="hero" size="xl">
-                Criar evento
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-center gap-4">
+            <Button variant="hero" size="xl" asChild className="shadow-xl">
+              <Link to="/criar-evento">
+                Criar evento agora
                 <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-              <Button variant="hero-outline" size="lg">
-                <Play className="mr-2 h-4 w-4" />
-                Ver como funciona
-              </Button>
-            </motion.div>
-
-            {/* Trust indicator */}
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.5 }}
-              className="mt-12 text-sm text-muted-foreground"
+              </Link>
+            </Button>
+            <Button
+              variant="hero-outline"
+              size="lg"
+              asChild
+              className="bg-white/10 text-white border-white/40 hover:bg-white/15 h-14"
             >
-              Simples. Rápido. Sem complicação.
-            </motion.p>
+              <a href="#como-funciona">
+                <Play className="mr-2 h-4 w-4" />
+                Ver demo
+              </a>
+            </Button>
           </div>
 
-          {/* Hero Image */}
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="hidden lg:block"
-          >
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-secondary/30 rounded-3xl blur-2xl transform scale-95" />
-              <img
-                src={heroImage}
-                alt="Pessoas em evento tirando fotos com smartphones"
-                className="relative w-full h-auto rounded-3xl shadow-2xl"
-              />
-            </div>
-          </motion.div>
-        </div>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 text-sm text-white/80">
+            <span className="inline-flex items-center gap-2 font-medium">
+              <ShieldCheck className="h-4 w-4 text-white" />
+              Seguro, temporário e pronto
+            </span>
+            <span className="hidden sm:block h-px w-8 bg-white/40" />
+            <span>Sem app. Sem cadastro. Só escanear e enviar.</span>
+          </div>
+        </motion.div>
       </div>
     </section>
   );

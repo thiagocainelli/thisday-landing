@@ -1,12 +1,71 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Mail, MessageSquare, Send } from "lucide-react";
+import {
+  ArrowLeft,
+  Mail,
+  MessageSquare,
+  Send,
+  Instagram,
+  Linkedin,
+  LucideIcon,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import SEO from "@/components/seo/SEO";
+import ScrollToTopButton from "@/components/ui/ScrollToTopButton";
+
+interface ContactInfoItem {
+  icon: LucideIcon;
+  title: string;
+  content: string;
+  href?: string;
+  isExternal?: boolean;
+}
+
+interface ContactInfoCardProps {
+  icon: LucideIcon;
+  title: string;
+  content: string;
+  href?: string;
+  isExternal?: boolean;
+}
+
+const ContactInfoCard = ({
+  icon: Icon,
+  title,
+  content,
+  href,
+  isExternal = false,
+}: ContactInfoCardProps) => {
+  const contentElement = href ? (
+    <a
+      href={href}
+      target={isExternal ? "_blank" : undefined}
+      rel={isExternal ? "noreferrer" : undefined}
+      className="text-primary hover:underline"
+    >
+      {content}
+    </a>
+  ) : (
+    <p className="text-muted-foreground">{content}</p>
+  );
+
+  return (
+    <div className="flex items-start gap-4">
+      <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center text-primary shrink-0">
+        <Icon className="h-5 w-5" />
+      </div>
+      <div>
+        <h3 className="font-semibold text-foreground mb-1">{title}</h3>
+        {contentElement}
+      </div>
+    </div>
+  );
+};
 
 const Contact = () => {
   const { toast } = useToast();
@@ -17,6 +76,34 @@ const Contact = () => {
     subject: "",
     message: "",
   });
+
+  const contactInfo: ContactInfoItem[] = [
+    {
+      icon: Mail,
+      title: "E-mail",
+      content: "contato@thisday.com.br",
+      href: "mailto:contato@thisday.com.br",
+    },
+    {
+      icon: MessageSquare,
+      title: "Tempo de resposta",
+      content: "Geralmente respondemos em até 24 horas úteis",
+    },
+    {
+      icon: Instagram,
+      title: "Instagram",
+      content: "@thisday",
+      href: "https://www.instagram.com/thisday",
+      isExternal: true,
+    },
+    {
+      icon: Linkedin,
+      title: "LinkedIn",
+      content: "/company/thisday",
+      href: "https://www.linkedin.com/company/thisday",
+      isExternal: true,
+    },
+  ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,23 +131,29 @@ const Contact = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b border-border/50 bg-background/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="container px-6 py-4">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Voltar
-              </Link>
-            </Button>
-            <span className="text-xl font-bold text-foreground">THISDAY</span>
+    <>
+      <SEO
+        title="Contato - THISDAY | Fale conosco"
+        description="Entre em contato com a equipe THISDAY. Tire suas dúvidas, envie sugestões ou solicite ajuda. Respondemos em até 24 horas úteis."
+        keywords="contato THISDAY, suporte THISDAY, ajuda THISDAY, dúvidas THISDAY"
+        url="https://thisday.app/contato"
+      />
+      <div className="min-h-screen bg-background">
+        <header className="border-b border-border/50 bg-background/80 backdrop-blur-md sticky top-0 z-50">
+          <div className="container px-6 py-4">
+            <div className="flex items-center gap-4">
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/">
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Voltar
+                </Link>
+              </Button>
+              <span className="text-xl font-bold text-foreground">THISDAY</span>
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      <main className="container px-6 py-16">
-        <div className="max-w-5xl mx-auto">
+        <main className="container px-6 py-16">
           <div className="grid md:grid-cols-2 gap-12 items-start">
             {/* Contact Info */}
             <motion.div
@@ -72,47 +165,14 @@ const Contact = () => {
                 Fale conosco
               </h1>
               <p className="text-muted-foreground text-lg mb-8 leading-relaxed">
-                Tem alguma dúvida, sugestão ou precisa de ajuda? Estamos aqui 
+                Tem alguma dúvida, sugestão ou precisa de ajuda? Estamos aqui
                 para ajudar. Envie sua mensagem e responderemos em breve.
               </p>
 
               <div className="space-y-6">
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center text-primary shrink-0">
-                    <Mail className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-foreground mb-1">E-mail</h3>
-                    <p className="text-muted-foreground">contato@thisday.app</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center text-primary shrink-0">
-                    <MessageSquare className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-foreground mb-1">
-                      Tempo de resposta
-                    </h3>
-                    <p className="text-muted-foreground">
-                      Geralmente respondemos em até 24 horas úteis
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-10 p-6 rounded-2xl bg-secondary/50 border border-border/30">
-                <h3 className="font-semibold text-foreground mb-2">
-                  Perguntas frequentes
-                </h3>
-                <p className="text-muted-foreground text-sm mb-4">
-                  Antes de enviar sua mensagem, confira se sua dúvida já foi 
-                  respondida em nossa seção de perguntas frequentes.
-                </p>
-                <Button variant="outline" size="sm">
-                  Ver FAQ
-                </Button>
+                {contactInfo.map((item, index) => (
+                  <ContactInfoCard key={index} {...item} />
+                ))}
               </div>
             </motion.div>
 
@@ -199,9 +259,10 @@ const Contact = () => {
               </form>
             </motion.div>
           </div>
-        </div>
-      </main>
-    </div>
+        </main>
+        <ScrollToTopButton />
+      </div>
+    </>
   );
 };
 

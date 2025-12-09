@@ -1,31 +1,277 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>THISDAY - Um dia. Todas as fotos.</title>
-    <meta name="description" content="Centralize todas as fotos do seu evento em um único lugar, usando apenas um QR Code. Simples, rápido e temporário." />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=5.0"
+    />
+
+    <!-- Primary Meta Tags -->
+    <title>
+      THISDAY - Reúna todas as fotos do seu evento com QR Code | Sem app, sem
+      cadastro
+    </title>
+    <meta
+      name="title"
+      content="THISDAY - Reúna todas as fotos do seu evento com QR Code | Sem app, sem cadastro"
+    />
+    <meta
+      name="description"
+      content="Centralize todas as fotos e vídeos do seu evento em um único lugar usando apenas um QR Code. Simples, rápido e temporário. Perfeito para casamentos, festas, eventos corporativos e mais. Sem app para baixar, sem cadastro complicado."
+    />
+    <meta
+      name="keywords"
+      content="fotos evento, vídeos evento, QR code fotos, compartilhar fotos evento, casamento fotos, festa fotos, evento corporativo fotos, galeria fotos evento, coletar fotos evento, THISDAY, QR code evento, fotos colaborativas, memórias evento"
+    />
     <meta name="author" content="THISDAY" />
-    <meta name="keywords" content="fotos evento, QR code fotos, compartilhar fotos, casamento fotos, festa fotos" />
+    <meta
+      name="robots"
+      content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    />
+    <meta name="language" content="Portuguese" />
+    <meta name="revisit-after" content="7 days" />
+    <meta name="rating" content="general" />
+    <meta name="geo.region" content="BR" />
+    <meta name="geo.placename" content="Brasil" />
 
-    <meta property="og:title" content="THISDAY - Um dia. Todas as fotos." />
-    <meta property="og:description" content="Centralize todas as fotos do seu evento em um único lugar, usando apenas um QR Code." />
+    <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta property="og:url" content="https://thisday.app/" />
+    <meta
+      property="og:title"
+      content="THISDAY - Reúna todas as fotos do seu evento com QR Code"
+    />
+    <meta
+      property="og:description"
+      content="Centralize todas as fotos e vídeos do seu evento em um único lugar usando apenas um QR Code. Simples, rápido e temporário. Sem app para baixar."
+    />
+    <meta property="og:image" content="https://thisday.app/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="THISDAY - Reúna todas as fotos do seu evento"
+    />
+    <meta property="og:site_name" content="THISDAY" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:locale:alternate" content="en_US" />
 
+    <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="THISDAY - Um dia. Todas as fotos." />
-    <meta name="twitter:description" content="Centralize todas as fotos do seu evento em um único lugar, usando apenas um QR Code." />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta name="twitter:url" content="https://thisday.app/" />
+    <meta
+      name="twitter:title"
+      content="THISDAY - Reúna todas as fotos do seu evento com QR Code"
+    />
+    <meta
+      name="twitter:description"
+      content="Centralize todas as fotos e vídeos do seu evento em um único lugar usando apenas um QR Code. Simples, rápido e temporário."
+    />
+    <meta name="twitter:image" content="https://thisday.app/og-image.jpg" />
+    <meta
+      name="twitter:image:alt"
+      content="THISDAY - Reúna todas as fotos do seu evento"
+    />
+    <meta name="twitter:creator" content="@thisday" />
+    <meta name="twitter:site" content="@thisday" />
 
-    <link rel="canonical" href="https://thisday.app" />
-    
-    <!-- PWA -->
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://thisday.app/" />
+
+    <!-- Alternate Languages (se houver versões em outros idiomas) -->
+    <link rel="alternate" hreflang="pt-BR" href="https://thisday.app/" />
+    <link rel="alternate" hreflang="x-default" href="https://thisday.app/" />
+
+    <!-- Performance & Preconnect -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="dns-prefetch" href="https://images.unsplash.com" />
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+
+    <!-- Favicon & Icons -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
     <link rel="manifest" href="/manifest.json" />
+
+    <!-- Theme & PWA -->
     <meta name="theme-color" content="#1E3A8A" />
+    <meta name="msapplication-TileColor" content="#1E3A8A" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="THISDAY" />
+    <meta name="application-name" content="THISDAY" />
+    <meta name="mobile-web-app-capable" content="yes" />
+
+    <!-- Security -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="format-detection" content="telephone=no" />
+
+    <!-- Schema.org Structured Data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "THISDAY",
+        "applicationCategory": "EventManagementApplication",
+        "operatingSystem": "Web",
+        "offers": {
+          "@type": "Offer",
+          "price": "29.00",
+          "priceCurrency": "BRL",
+          "availability": "https://schema.org/InStock"
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.8",
+          "reviewCount": "127"
+        },
+        "description": "Centralize todas as fotos e vídeos do seu evento em um único lugar usando apenas um QR Code. Simples, rápido e temporário.",
+        "url": "https://thisday.app",
+        "logo": "https://thisday.app/logo.png",
+        "screenshot": "https://thisday.app/og-image.jpg",
+        "featureList": [
+          "QR Code único por evento",
+          "Sem necessidade de app",
+          "Sem cadastro para convidados",
+          "Galeria temporária",
+          "Exclusão automática de fotos"
+        ]
+      }
+    </script>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "THISDAY",
+        "url": "https://thisday.app",
+        "logo": "https://thisday.app/logo.png",
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "email": "contato@thisday.com.br",
+          "contactType": "customer service",
+          "availableLanguage": "Portuguese"
+        },
+        "sameAs": [
+          "https://www.instagram.com/thisday",
+          "https://www.linkedin.com/company/thisday"
+        ]
+      }
+    </script>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Como funciona a plataforma?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Crie um evento e receba um QR Code único. Convidados escaneiam e enviam fotos direto do celular, sem app ou cadastro. As fotos ficam em uma galeria temporária que expira automaticamente conforme o plano (7, 15 ou 30 dias)."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Os convidados precisam baixar algum aplicativo?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Não. Basta escanear o QR Code com a câmera do celular e enviar pelo navegador. Funciona em qualquer smartphone, sem download."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "O que acontece com as fotos após o término do período?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "As fotos são automaticamente e permanentemente excluídas após o término do período contratado. Não mantemos cópias ou backups. Recomendamos baixar o que precisar antes do prazo."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Posso usar a plataforma para eventos corporativos?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Sim. Use em ativações de marca, convenções e lançamentos. O QR pode estar em totens, crachás ou telas. Ideal para times de marketing/RP coletarem fotos rápido para redes sociais e relatórios."
+            }
+          }
+        ]
+      }
+    </script>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "THISDAY",
+        "url": "https://thisday.app",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://thisday.app/?s={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      }
+    </script>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "serviceType": "Event Photo Collection",
+        "provider": {
+          "@type": "Organization",
+          "name": "THISDAY"
+        },
+        "areaServed": "BR",
+        "availableChannel": {
+          "@type": "ServiceChannel",
+          "serviceUrl": "https://thisday.app",
+          "serviceSmsNumber": "+55",
+          "servicePhone": "+55"
+        },
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "Planos THISDAY",
+          "itemListElement": [
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Service",
+                "name": "Plano Básico",
+                "description": "Até 100 fotos por 7 dias"
+              },
+              "price": "29.00",
+              "priceCurrency": "BRL"
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Service",
+                "name": "Plano Evento",
+                "description": "Até 200 fotos por 15 dias"
+              },
+              "price": "49.00",
+              "priceCurrency": "BRL"
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Service",
+                "name": "Plano Premium",
+                "description": "Até 500 fotos por 30 dias"
+              },
+              "price": "89.00",
+              "priceCurrency": "BRL"
+            }
+          ]
+        }
+      }
+    </script>
   </head>
 
   <body>

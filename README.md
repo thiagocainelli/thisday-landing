@@ -1,73 +1,111 @@
-# Welcome to your Lovable project
+# THISDAY - Landing Page
 
-## Project info
+Landing page moderna para a plataforma THISDAY, uma solução que permite reunir todas as fotos e vídeos de eventos através de QR Code, sem necessidade de app ou cadastro.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## 🚀 Tecnologias
 
-## How can I edit this code?
+- **React 18** + **TypeScript** - Framework e tipagem
+- **Vite** - Build tool e dev server
+- **React Router v6** - Roteamento com code splitting
+- **Tailwind CSS** - Estilização utilitária
+- **shadcn/ui** - Componentes UI baseados em Radix UI
+- **Framer Motion** - Animações e transições
+- **React Hook Form** + **Zod** - Formulários e validação
+- **TanStack Query** - Gerenciamento de estado assíncrono
 
-There are several ways of editing your application.
+## 📋 Pré-requisitos
 
-**Use Lovable**
+- Node.js 18+ e npm (ou yarn/pnpm)
+- Git
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+## 🛠️ Instalação e Execução
 
-Changes made via Lovable will be committed automatically to this repo.
+```bash
+# Clone o repositório
+git clone <repository-url>
+cd thisday-landing
 
-**Use your preferred IDE**
+# Instale as dependências
+npm install
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Inicie o servidor de desenvolvimento
 npm run dev
+
+# Acesse http://localhost:8080
 ```
 
-**Edit a file directly in GitHub**
+## 📜 Scripts Disponíveis
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```bash
+npm run dev          # Inicia servidor de desenvolvimento
+npm run build        # Build para produção
+npm run build:dev    # Build em modo desenvolvimento
+npm run preview      # Preview do build de produção
+npm run lint         # Executa o linter
+```
 
-**Use GitHub Codespaces**
+## 📁 Estrutura do Projeto
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+```
+src/
+├── components/       # Componentes React
+│   ├── landing/     # Componentes da landing page
+│   ├── ui/          # Componentes UI base (shadcn)
+│   └── seo/         # Componentes de SEO
+├── pages/           # Páginas da aplicação
+├── hooks/           # Custom hooks
+├── utils/           # Funções utilitárias
+├── constants/       # Constantes e configurações
+├── routes.tsx       # Configuração de rotas
+└── App.tsx          # Componente principal
+```
 
-## What technologies are used for this project?
+## 🎨 Funcionalidades
 
-This project is built with:
+- ✅ Landing page completa com múltiplas seções
+- ✅ Fluxo de criação de evento com validação
+- ✅ Checkout com pagamento Pix e cartão de crédito
+- ✅ Cartão de crédito 3D interativo
+- ✅ Páginas legais (Termos e Privacidade)
+- ✅ Página de contato com formulário
+- ✅ SEO otimizado (meta tags, Open Graph, Schema.org)
+- ✅ Code splitting e lazy loading
+- ✅ Responsivo e acessível
+- ✅ Animações suaves com Framer Motion
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## 🔧 Configuração
 
-## How can I deploy this project?
+O projeto utiliza variáveis de ambiente através de `import.meta.env`. Para produção, configure:
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+- `VITE_API_URL` - URL da API (se aplicável)
+- Outras variáveis conforme necessário
 
-## Can I connect a custom domain to my Lovable project?
+## 📦 Build para Produção
 
-Yes, you can!
+```bash
+npm run build
+```
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+Os arquivos otimizados serão gerados na pasta `dist/`.
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+## 🚢 Deploy
+
+O projeto pode ser deployado em qualquer plataforma que suporte aplicações React estáticas:
+
+- **Vercel** (recomendado)
+- **Netlify**
+- **GitHub Pages**
+- **AWS S3 + CloudFront**
+- **Outros serviços de hospedagem estática**
+
+## 📝 Licença
+
+Este projeto é privado e proprietário.
+
+## 👥 Contribuindo
+
+Este é um projeto privado. Para contribuições, entre em contato com a equipe de desenvolvimento.
+
+---
+
+**Desenvolvido com ❤️ para THISDAY**

@@ -1,14 +1,23 @@
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
+# robots.txt para THISDAY
+# https://thisday.app/robots.txt
 
 User-agent: *
 Allow: /
+Disallow: /checkout
+Disallow: /criar-evento
+
+# Sitemap
+Sitemap: https://thisday.app/sitemap.xml
+
+# Crawl-delay (opcional, ajuste conforme necessário)
+Crawl-delay: 1
+
+# Bloquear bots maliciosos conhecidos
+User-agent: AhrefsBot
+Crawl-delay: 10
+
+User-agent: SemrushBot
+Crawl-delay: 10
+
+User-agent: DotBot
+Crawl-delay: 10

@@ -1,7 +1,7 @@
 {
   "name": "THISDAY",
   "short_name": "THISDAY",
-  "description": "Um dia. Todas as fotos. Centralize todas as fotos do seu evento em um único lugar.",
+  "description": "Um dia. Várias memórias. Centralize todas as fotos e vídeos do seu evento em um único lugar.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#F9FAFB",
