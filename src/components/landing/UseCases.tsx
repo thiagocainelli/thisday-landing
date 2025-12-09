@@ -105,7 +105,7 @@ const UseCases = () => {
             Perfeito para qualquer evento
           </h2>
           <p className="text-muted-foreground mt-3">
-            De celebrações íntimas a ativações de marca, o THISDAY adapta-se a
+            De celebrações íntimas a ativações de marca, o thisday adapta-se a
             cada formato.
           </p>
         </motion.div>

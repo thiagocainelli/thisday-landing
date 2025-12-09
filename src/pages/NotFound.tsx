@@ -31,7 +31,7 @@ const NotFound = () => {
   return (
     <>
       <SEO
-        title="Página não encontrada - THISDAY"
+        title="Página não encontrada - thisday"
         description="A página que você está procurando não foi encontrada. Volte para a página inicial ou explore nossos recursos."
         noindex={true}
         nofollow={true}

@@ -82,7 +82,7 @@ const Benefits = () => {
             Benefícios
           </motion.span>
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Por que escolher THISDAY
+            Por que escolher thisday
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
             Mais engajamento, menos trabalho manual e privacidade garantida.

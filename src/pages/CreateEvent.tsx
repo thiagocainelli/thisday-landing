@@ -137,7 +137,7 @@ const CreateEvent = () => {
   return (
     <>
       <SEO
-        title="Criar Evento - THISDAY | Escolha seu plano e crie seu evento"
+        title="Criar Evento - thisday | Escolha seu plano e crie seu evento"
         description="Crie seu evento em poucos passos. Escolha o plano ideal, preencha os dados do evento e comece a coletar fotos com QR Code."
         keywords="criar evento, plano evento, QR code evento, coletar fotos evento"
         url="https://thisday.app/criar-evento"
@@ -153,7 +153,7 @@ const CreateEvent = () => {
                   Voltar
                 </Link>
               </Button>
-              <span className="text-xl font-bold text-foreground">THISDAY</span>
+              <span className="text-xl font-bold text-foreground">thisday</span>
             </div>
           </div>
         </header>

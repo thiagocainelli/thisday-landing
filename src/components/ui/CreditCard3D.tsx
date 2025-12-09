@@ -88,7 +88,7 @@ const CreditCard3D = ({
                 <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
                   <CreditCard className="h-6 w-6" />
                 </div>
-                <div className="text-xs font-medium opacity-80">THISDAY</div>
+                <div className="text-xs font-medium opacity-80">thisday</div>
               </div>
 
               {/* Número do cartão */}
@@ -155,7 +155,7 @@ const CreditCard3D = ({
 
               {/* Logo */}
               <div className="mt-4 text-xs font-medium opacity-80 text-right">
-                THISDAY
+                thisday
               </div>
             </div>
           </div>

@@ -135,7 +135,7 @@ const Footer = () => {
             className="pt-6 border-t border-white/15 text-center"
           >
             <p className="text-white/60 text-xs">
-              © {new Date().getFullYear()} THISDAY. Todos os direitos
+              © {new Date().getFullYear()} thisday. Todos os direitos
               reservados.
             </p>
           </motion.div>

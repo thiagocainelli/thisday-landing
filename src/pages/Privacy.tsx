@@ -20,7 +20,7 @@ const Privacy = () => {
   return (
     <>
       <SEO
-        title="Privacidade - THISDAY"
+        title="Privacidade - thisday"
         description="Leia a Política de Privacidade da plataforma. Conheça como coletamos, usamos, armazenamos e protegemos seus dados pessoais."
         keywords="política de privacidade plataforma, privacidade plataforma, proteção de dados, política de proteção de dados"
         url="https://thisday.app/privacidade"
@@ -35,7 +35,7 @@ const Privacy = () => {
                   Voltar
                 </Link>
               </Button>
-              <span className="text-xl font-bold text-foreground">THISDAY</span>
+              <span className="text-xl font-bold text-foreground">thisday</span>
             </div>
           </div>
         </header>
@@ -88,7 +88,7 @@ const Privacy = () => {
                 </div>
                 <div className="space-y-3 text-muted-foreground leading-relaxed">
                   <p>
-                    THISDAY ("nós", "nosso", "Plataforma") é operado por [NOME
+                    thisday ("nós", "nosso", "Plataforma") é operado por [NOME
                     DA EMPRESA], inscrita no CNPJ sob o nº [CNPJ], com sede em
                     [ENDEREÇO COMPLETO], atuando como Controladora dos dados
                     pessoais coletados através desta Plataforma.
@@ -876,7 +876,7 @@ const Privacy = () => {
                 <p className="text-sm text-muted-foreground text-center">
                   Esta Política de Privacidade está em conformidade com a Lei
                   Geral de Proteção de Dados (Lei nº 13.709/2018). Ao utilizar o
-                  THISDAY, você confirma que leu, compreendeu e aceita esta
+                  thisday, você confirma que leu, compreendeu e aceita esta
                   Política e nossos{" "}
                   <Link
                     to="/termos"

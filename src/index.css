@@ -6,7 +6,7 @@
 
 @layer base {
   :root {
-    /* THISDAY Color System */
+    /* thisday Color System */
     --background: 210 20% 98%; /* Off-white #F9FAFB */
     --foreground: 221 39% 11%; /* Graphite #111827 */
 
@@ -37,7 +37,7 @@
 
     --radius: 0.75rem;
 
-    /* Custom THISDAY tokens */
+    /* Custom thisday tokens */
     --thisday-blue-deep: 224 64% 33%;
     --thisday-blue-soft: 214 95% 93%;
     --thisday-graphite: 221 39% 11%;

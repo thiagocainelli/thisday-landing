@@ -1,6 +1,6 @@
-# THISDAY - Landing Page
+# thisday - Landing Page
 
-Landing page moderna para a plataforma THISDAY, uma solução que permite reunir todas as fotos e vídeos de eventos através de QR Code, sem necessidade de app ou cadastro.
+Landing page moderna para a plataforma thisday, uma solução que permite reunir todas as fotos e vídeos de eventos através de QR Code, sem necessidade de app ou cadastro.
 
 ## 🚀 Tecnologias
 
@@ -108,4 +108,4 @@ Este é um projeto privado. Para contribuições, entre em contato com a equipe 
 
 ---
 
-**Desenvolvido com ❤️ para THISDAY**
+**Desenvolvido com ❤️ para thisday**

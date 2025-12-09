@@ -133,9 +133,9 @@ const Contact = () => {
   return (
     <>
       <SEO
-        title="Contato - THISDAY | Fale conosco"
-        description="Entre em contato com a equipe THISDAY. Tire suas dúvidas, envie sugestões ou solicite ajuda. Respondemos em até 24 horas úteis."
-        keywords="contato THISDAY, suporte THISDAY, ajuda THISDAY, dúvidas THISDAY"
+        title="Contato - thisday | Fale conosco"
+        description="Entre em contato com a equipe thisday. Tire suas dúvidas, envie sugestões ou solicite ajuda. Respondemos em até 24 horas úteis."
+        keywords="contato thisday, suporte thisday, ajuda thisday, dúvidas thisday"
         url="https://thisday.app/contato"
       />
       <div className="min-h-screen bg-background">
@@ -148,7 +148,7 @@ const Contact = () => {
                   Voltar
                 </Link>
               </Button>
-              <span className="text-xl font-bold text-foreground">THISDAY</span>
+              <span className="text-xl font-bold text-foreground">thisday</span>
             </div>
           </div>
         </header>

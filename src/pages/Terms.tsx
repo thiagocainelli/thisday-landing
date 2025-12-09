@@ -13,7 +13,7 @@ const Terms = () => {
   return (
     <>
       <SEO
-        title="Termos de Uso - THISDAY"
+        title="Termos de Uso - thisday"
         description="Leia os Termos de Uso da plataforma. Conheça as regras, direitos e responsabilidades ao utilizar nossa plataforma de coleta de fotos para eventos."
         keywords="termos de uso plataforma, política plataforma, condições de uso, termos e condições"
         url="https://thisday.app/termos"
@@ -28,7 +28,7 @@ const Terms = () => {
                   Voltar
                 </Link>
               </Button>
-              <span className="text-xl font-bold text-foreground">THISDAY</span>
+              <span className="text-xl font-bold text-foreground">thisday</span>
             </div>
           </div>
         </header>
@@ -81,7 +81,7 @@ const Terms = () => {
                 <div className="space-y-3 text-muted-foreground leading-relaxed">
                   <p>
                     Estes Termos de Uso ("Termos") regem o uso da plataforma
-                    THISDAY ("Plataforma", "Serviço", "nós", "nosso"), operada
+                    thisday ("Plataforma", "Serviço", "nós", "nosso"), operada
                     por [NOME DA EMPRESA], inscrita no CNPJ sob o nº [CNPJ], com
                     sede em [ENDEREÇO COMPLETO] ("Empresa").
                   </p>
@@ -155,7 +155,7 @@ const Terms = () => {
                 </h2>
                 <div className="space-y-3 text-muted-foreground leading-relaxed">
                   <p>
-                    THISDAY é uma plataforma digital que permite a coleta e
+                    thisday é uma plataforma digital que permite a coleta e
                     compartilhamento temporário de fotos em eventos através de
                     QR Codes. O serviço permite que:
                   </p>

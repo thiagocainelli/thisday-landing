@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Background -->
+  <rect width="64" height="64" fill="#ffffff" rx="8"/>
+  
+  <!-- QR Code Pattern (stylized) -->
+  <!-- Top-left corner square -->
+  <rect x="8" y="8" width="18" height="18" fill="#1E3A8A" rx="2"/>
+  <rect x="11" y="11" width="12" height="12" fill="#ffffff" rx="1"/>
+  <rect x="14" y="14" width="6" height="6" fill="#1E3A8A"/>
+  
+  <!-- Top-right corner square -->
+  <rect x="38" y="8" width="18" height="18" fill="#1E3A8A" rx="2"/>
+  <rect x="41" y="11" width="12" height="12" fill="#ffffff" rx="1"/>
+  <rect x="44" y="14" width="6" height="6" fill="#1E3A8A"/>
+  
+  <!-- Bottom-left corner square -->
+  <rect x="8" y="38" width="18" height="18" fill="#1E3A8A" rx="2"/>
+  <rect x="11" y="41" width="12" height="12" fill="#ffffff" rx="1"/>
+  <rect x="14" y="44" width="6" height="6" fill="#1E3A8A"/>
+  
+  <!-- Data modules (stylized pattern) -->
+  <rect x="30" y="8" width="4" height="4" fill="#1E3A8A"/>
+  <rect x="30" y="14" width="4" height="4" fill="#1E3A8A"/>
+  <rect x="30" y="20" width="4" height="4" fill="#1E3A8A"/>
+  
+  <rect x="8" y="30" width="4" height="4" fill="#1E3A8A"/>
+  <rect x="14" y="30" width="4" height="4" fill="#1E3A8A"/>
+  <rect x="20" y="30" width="4" height="4" fill="#1E3A8A"/>
+  
+  <rect x="30" y="30" width="4" height="4" fill="#1E3A8A"/>
+  <rect x="36" y="30" width="4" height="4" fill="#1E3A8A"/>
+  
+  <rect x="30" y="38" width="4" height="4" fill="#1E3A8A"/>
+  <rect x="30" y="44" width="4" height="4" fill="#1E3A8A"/>
+  <rect x="30" y="50" width="4" height="4" fill="#1E3A8A"/>
+  
+  <rect x="38" y="30" width="4" height="4" fill="#1E3A8A"/>
+  <rect x="44" y="30" width="4" height="4" fill="#1E3A8A"/>
+  <rect x="50" y="30" width="4" height="4" fill="#1E3A8A"/>
+  
+  <rect x="38" y="38" width="4" height="4" fill="#1E3A8A"/>
+  <rect x="44" y="38" width="4" height="4" fill="#1E3A8A"/>
+  <rect x="50" y="38" width="4" height="4" fill="#1E3A8A"/>
+  
+  <rect x="38" y="44" width="4" height="4" fill="#1E3A8A"/>
+  <rect x="50" y="44" width="4" height="4" fill="#1E3A8A"/>
+  
+  <rect x="38" y="50" width="4" height="4" fill="#1E3A8A"/>
+  <rect x="44" y="50" width="4" height="4" fill="#1E3A8A"/>
+  <rect x="50" y="50" width="4" height="4" fill="#1E3A8A"/>
+</svg>
+

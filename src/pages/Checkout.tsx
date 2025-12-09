@@ -126,7 +126,7 @@ const Checkout = () => {
     if (isPixModalOpen && paymentMethod === "pix") {
       // Gerar código Pix simulado (em produção, viria da API)
       setPixCode(
-        "00020126580014br.gov.bcb.pix0136123e4567-e12b-12d1-a456-4266554400005204000053039865802BR5913THISDAY EVENTO6009SAO PAULO62070503***6304"
+        "00020126580014br.gov.bcb.pix0136123e4567-e12b-12d1-a456-4266554400005204000053039865802BR5913thisday EVENTO6009SAO PAULO62070503***6304"
       );
       setTimeLeft(600);
     }
@@ -227,7 +227,7 @@ const Checkout = () => {
   return (
     <>
       <SEO
-        title="Checkout - THISDAY | Finalize seu pagamento"
+        title="Checkout - thisday | Finalize seu pagamento"
         description="Finalize o pagamento do seu evento. Aceitamos Pix e cartão de crédito com parcelamento em até 10x."
         keywords="checkout plataforma, pagamento evento, pix evento, cartão crédito evento"
         url="https://thisday.app/checkout"
@@ -246,7 +246,7 @@ const Checkout = () => {
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Voltar
               </Button>
-              <span className="text-xl font-bold text-foreground">THISDAY</span>
+              <span className="text-xl font-bold text-foreground">thisday</span>
             </div>
           </div>
         </header>

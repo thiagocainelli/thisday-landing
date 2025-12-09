@@ -1,4 +1,4 @@
-# robots.txt para THISDAY
+# robots.txt para thisday
 # https://thisday.app/robots.txt
 
 User-agent: *
