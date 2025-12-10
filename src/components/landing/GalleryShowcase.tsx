@@ -70,7 +70,7 @@ const GalleryShowcase = () => {
             Resultados reais
           </motion.span>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6">
-            Centenas de fotos em{" "}
+            Centenas de fotos e vídeos em{" "}
             <span className="text-gradient-primary">minutos</span>
           </h2>
           <p className="text-muted-foreground text-lg max-w-3xl mx-auto">
@@ -128,7 +128,7 @@ const GalleryShowcase = () => {
                             {item.photos.toLocaleString()}
                           </motion.div>
                           <p className="text-xs text-white/80 uppercase tracking-wider">
-                            fotos coletadas
+                            fotos e vídeos coletados
                           </p>
                         </div>
                       </div>
@@ -183,7 +183,7 @@ const GalleryShowcase = () => {
                       <TrendingUp className="h-4 w-4 text-green-500" />
                       <span className="text-xs text-muted-foreground">
                         Média de {Math.round(item.photos / item.participants)}{" "}
-                        fotos por pessoa
+                        arquivos por pessoa
                       </span>
                     </div>
                   </div>

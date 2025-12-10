@@ -12,7 +12,7 @@ const faqItems = [
   {
     question: "Como funciona a plataforma?",
     answer:
-      "Crie um evento e receba um QR Code único. Convidados escaneiam e enviam fotos direto do celular, sem app ou cadastro. As fotos ficam em uma galeria temporária que expira automaticamente conforme o plano (7, 15 ou 30 dias).",
+      "Crie um evento e receba um QR Code único. Convidados escaneiam e enviam fotos e vídeos direto do celular, sem app ou cadastro. As fotos ficam em uma galeria temporária que expira automaticamente conforme o plano (7, 15 ou 30 dias).",
   },
   {
     question: "Os convidados precisam baixar algum aplicativo?",
@@ -20,9 +20,9 @@ const faqItems = [
       "Não. Basta escanear o QR Code com a câmera do celular e enviar pelo navegador. Funciona em qualquer smartphone, sem download.",
   },
   {
-    question: "O que acontece com as fotos após o término do período?",
+    question: "O que acontece com os arquivos após o término do período?",
     answer:
-      "As fotos são automaticamente e permanentemente excluídas após o término do período contratado. Não mantemos cópias ou backups. Recomendamos baixar o que precisar antes do prazo.",
+      "Os arquivos são automaticamente e permanentemente excluídas após o término do período contratado. Não mantemos cópias ou backups. Recomendamos baixar o que precisar antes do prazo.",
   },
   {
     question: "Posso usar a plataforma para eventos corporativos?",

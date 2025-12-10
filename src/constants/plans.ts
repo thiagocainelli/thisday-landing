@@ -22,7 +22,7 @@ export const PLANS: Plan[] = [
     price: 29,
     description: "Ideal para eventos pequenos e íntimos",
     features: [
-      "Até 100 fotos",
+      "Até 100 fotos e vídeos",
       "Disponível por 7 dias",
       "QR Code personalizado",
       "Suporte por e-mail",
@@ -37,7 +37,7 @@ export const PLANS: Plan[] = [
     featured: true,
     description: "O mais popular para a maioria dos eventos",
     features: [
-      "Até 200 fotos",
+      "Até 200 fotos e vídeos",
       "Disponível por 15 dias",
       "QR Code personalizado",
       "Suporte prioritário",
@@ -52,7 +52,7 @@ export const PLANS: Plan[] = [
     price: 89,
     description: "Para eventos grandes e corporativos",
     features: [
-      "Até 500 fotos",
+      "Até 500 fotos e vídeos",
       "Disponível por 30 dias",
       "QR Code personalizado",
       "Suporte prioritário 24/7",

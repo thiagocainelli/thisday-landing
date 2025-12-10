@@ -5,7 +5,7 @@ const Security = () => {
   const points = [
     {
       icon: Shield,
-      title: "Fotos pertencem ao evento",
+      title: "Fotos e vídeos pertencem ao evento",
       description: "Acesso restrito apenas a quem tem o link.",
     },
     {

@@ -8,6 +8,8 @@ const Privacy = lazy(() => import("./pages/Privacy"));
 const Contact = lazy(() => import("./pages/Contact"));
 const CreateEvent = lazy(() => import("./pages/CreateEvent"));
 const Checkout = lazy(() => import("./pages/Checkout"));
+const Upload = lazy(() => import("./pages/Upload"));
+const Gallery = lazy(() => import("./pages/Gallery"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 /**
@@ -38,6 +40,14 @@ export const routes: RouteObject[] = [
   {
     path: "/checkout",
     element: <Checkout />,
+  },
+  {
+    path: "/upload/:eventId",
+    element: <Upload />,
+  },
+  {
+    path: "/galeria/:eventId",
+    element: <Gallery />,
   },
   // Rota catch-all deve ser a última
   {

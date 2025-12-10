@@ -8,13 +8,15 @@ import {
   Send,
   Instagram,
   Linkedin,
+  Phone,
   LucideIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/useToast";
+import { applyPhoneMask } from "@/utils/phoneMask";
 import SEO from "@/components/seo/SEO";
 import ScrollToTopButton from "@/components/ui/ScrollToTopButton";
 
@@ -73,6 +75,7 @@ const Contact = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    phone: "",
     subject: "",
     message: "",
   });
@@ -85,9 +88,10 @@ const Contact = () => {
       href: "mailto:contato@thisday.com.br",
     },
     {
-      icon: MessageSquare,
-      title: "Tempo de resposta",
-      content: "Geralmente respondemos em até 24 horas úteis",
+      icon: Phone,
+      title: "Celular",
+      content: "(11) 98765-4321",
+      href: "tel:+5511987654321",
     },
     {
       icon: Instagram,
@@ -103,6 +107,11 @@ const Contact = () => {
       href: "https://www.linkedin.com/company/thisday",
       isExternal: true,
     },
+    {
+      icon: MessageSquare,
+      title: "Tempo de resposta",
+      content: "Geralmente respondemos em até 24 horas úteis",
+    },
   ];
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -117,7 +126,7 @@ const Contact = () => {
       description: "Entraremos em contato em breve.",
     });
 
-    setFormData({ name: "", email: "", subject: "", message: "" });
+    setFormData({ name: "", email: "", phone: "", subject: "", message: "" });
     setIsSubmitting(false);
   };
 
@@ -211,6 +220,22 @@ const Contact = () => {
                         required
                       />
                     </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Celular</Label>
+                    <Input
+                      id="phone"
+                      name="phone"
+                      type="tel"
+                      placeholder="(11) 98765-4321"
+                      value={formData.phone}
+                      onChange={(e) => {
+                        const masked = applyPhoneMask(e.target.value);
+                        setFormData((prev) => ({ ...prev, phone: masked }));
+                      }}
+                      maxLength={15}
+                    />
                   </div>
 
                   <div className="space-y-2">

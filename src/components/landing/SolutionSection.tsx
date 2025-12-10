@@ -96,7 +96,7 @@ const SolutionSection = () => {
                 />
                 <div className="text-center">
                   <p className="text-sm font-medium text-muted-foreground">
-                    Escaneie para enviar fotos
+                    Escaneie para enviar
                   </p>
                   <p className="text-xs text-muted-foreground/60 mt-1">
                     Casamento Ana & Pedro

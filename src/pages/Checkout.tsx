@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -43,8 +43,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/useToast";
 import { applyPhoneMask } from "@/utils/phoneMask";
+import { formatCurrencyBRL } from "@/utils/currencyBRL";
 import CreditCard3D from "@/components/ui/CreditCard3D";
 
 const cardFormSchema = z.object({
@@ -78,12 +79,22 @@ interface EventData {
     photos: string;
     duration: string;
     price: number;
-    priceFormatted: string;
   };
+}
+
+interface AdditionalPhotosPurchase {
+  type: "additionalPhotos";
+  quantity: number;
+  pricePerPhoto: number;
+  totalPrice: number;
+  eventName: string;
+  photoLimit: number;
+  currentFiles: number;
 }
 
 const Checkout = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("pix");
   const [installments, setInstallments] = useState<string>("1");
@@ -91,11 +102,18 @@ const Checkout = () => {
   const [pixCode, setPixCode] = useState("");
   const [timeLeft, setTimeLeft] = useState(600); // 10 minutos em segundos
   const [eventData, setEventData] = useState<EventData | null>(null);
+  const [additionalPhotosPurchase, setAdditionalPhotosPurchase] =
+    useState<AdditionalPhotosPurchase | null>(null);
   const [isPaymentApproved, setIsPaymentApproved] = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [focusedField, setFocusedField] = useState<
     "cardNumber" | "cardName" | "cardExpiry" | "cardCvv" | null
   >(null);
+
+  const isAdditionalPhotosCheckout =
+    searchParams.get("type") === "additionalPhotos";
+
+  const eventId = searchParams.get("eventId");
 
   const {
     register,
@@ -113,14 +131,24 @@ const Checkout = () => {
   const cardCvv = watch("cardCvv") || "";
 
   useEffect(() => {
-    // Carregar dados do evento do localStorage
-    const stored = localStorage.getItem("eventData");
-    if (!stored) {
-      navigate("/criar-evento");
-      return;
+    if (isAdditionalPhotosCheckout) {
+      // Carregar dados da compra de fotos adicionais
+      const stored = localStorage.getItem("additionalPhotosPurchase");
+      if (!stored) {
+        navigate(eventId ? `/galeria/${eventId}` : "/");
+        return;
+      }
+      setAdditionalPhotosPurchase(JSON.parse(stored));
+    } else {
+      // Carregar dados do evento do localStorage
+      const stored = localStorage.getItem("eventData");
+      if (!stored) {
+        navigate("/criar-evento");
+        return;
+      }
+      setEventData(JSON.parse(stored));
     }
-    setEventData(JSON.parse(stored));
-  }, [navigate]);
+  }, [navigate, isAdditionalPhotosCheckout, eventId]);
 
   useEffect(() => {
     if (isPixModalOpen && paymentMethod === "pix") {
@@ -193,7 +221,11 @@ const Checkout = () => {
       setIsPaymentModalOpen(true);
       // Limpar dados após mostrar modal
       setTimeout(() => {
-        localStorage.removeItem("eventData");
+        if (isAdditionalPhotosCheckout && eventId) {
+          localStorage.removeItem("additionalPhotosPurchase");
+        } else {
+          localStorage.removeItem("eventData");
+        }
       }, 100);
     }, 2000);
   };
@@ -213,7 +245,7 @@ const Checkout = () => {
     simulatePaymentApproval();
   };
 
-  if (!eventData) {
+  if (!eventData && !isAdditionalPhotosCheckout) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <p className="text-muted-foreground">Carregando...</p>
@@ -265,7 +297,10 @@ const Checkout = () => {
                   Finalizar pagamento
                 </h1>
                 <p className="text-muted-foreground">
-                  Complete seu pagamento para criar o evento
+                  Complete seu pagamento para{" "}
+                  {isAdditionalPhotosCheckout
+                    ? "liberar os arquivos"
+                    : "criar o evento"}
                 </p>
               </div>
 
@@ -527,68 +562,140 @@ const Checkout = () => {
                   <CardTitle>Resumo do Pedido</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Plano</span>
-                      <span className="font-medium">{eventData.plan.name}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Fotos</span>
-                      <span className="font-medium">
-                        {eventData.plan.photos}
-                      </span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Duração</span>
-                      <span className="font-medium">
-                        {eventData.plan.duration}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="border-t pt-4">
-                    {paymentMethod === "credit" &&
-                    parseInt(installments) > 1 ? (
+                  {isAdditionalPhotosCheckout &&
+                  additionalPhotosPurchase &&
+                  eventId ? (
+                    <>
                       <div className="space-y-2">
                         <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Evento</span>
+                          <span className="font-medium">
+                            {additionalPhotosPurchase.eventName}
+                          </span>
+                        </div>
+                        <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground">
-                            {installments}x de
+                            Arquivos adicionais
                           </span>
                           <span className="font-medium">
-                            {installmentValue.toLocaleString("pt-BR", {
-                              style: "currency",
-                              currency: "BRL",
-                            })}
+                            {additionalPhotosPurchase.quantity} arquivo
+                            {additionalPhotosPurchase.quantity !== 1 ? "s" : ""}
                           </span>
                         </div>
-                        <div className="flex justify-between">
-                          <span className="font-semibold text-foreground">
-                            Total
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">
+                            Preço unitário
                           </span>
-                          <span className="text-xl font-bold text-foreground">
-                            {totalWithInstallments.toLocaleString("pt-BR", {
-                              style: "currency",
-                              currency: "BRL",
-                            })}
+                          <span className="font-medium">
+                            {formatCurrencyBRL(
+                              additionalPhotosPurchase.pricePerPhoto
+                            )}
                           </span>
                         </div>
-                        {parseInt(installments) > 3 && (
-                          <p className="text-xs text-muted-foreground">
-                            * Juros aplicados após 3x
-                          </p>
+                      </div>
+                      <div className="border-t pt-4">
+                        {paymentMethod === "credit" &&
+                        parseInt(installments) > 1 ? (
+                          <div className="space-y-2">
+                            <div className="flex justify-between text-sm">
+                              <span className="text-muted-foreground">
+                                {installments}x de
+                              </span>
+                              <span className="font-medium">
+                                {formatCurrencyBRL(installmentValue)}
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="font-semibold text-foreground">
+                                Total
+                              </span>
+                              <span className="text-xl font-bold text-foreground">
+                                {formatCurrencyBRL(totalWithInstallments)}
+                              </span>
+                            </div>
+                            {parseInt(installments) > 3 && (
+                              <p className="text-xs text-muted-foreground">
+                                * Juros aplicados após 3x
+                              </p>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="flex justify-between">
+                            <span className="font-semibold text-foreground">
+                              Total
+                            </span>
+                            <span className="text-xl font-bold text-foreground">
+                              {formatCurrencyBRL(
+                                additionalPhotosPurchase.totalPrice
+                              )}
+                            </span>
+                          </div>
                         )}
                       </div>
-                    ) : (
-                      <div className="flex justify-between">
-                        <span className="font-semibold text-foreground">
-                          Total
-                        </span>
-                        <span className="text-xl font-bold text-foreground">
-                          {eventData.plan.priceFormatted}
-                        </span>
+                    </>
+                  ) : (
+                    <>
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Plano</span>
+                          <span className="font-medium">
+                            {eventData?.plan.name}
+                          </span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">
+                            Arquivos
+                          </span>
+                          <span className="font-medium">
+                            {eventData?.plan.photos}
+                          </span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Duração</span>
+                          <span className="font-medium">
+                            {eventData?.plan.duration}
+                          </span>
+                        </div>
                       </div>
-                    )}
-                  </div>
+                      <div className="border-t pt-4">
+                        {paymentMethod === "credit" &&
+                        parseInt(installments) > 1 ? (
+                          <div className="space-y-2">
+                            <div className="flex justify-between text-sm">
+                              <span className="text-muted-foreground">
+                                {installments}x de
+                              </span>
+                              <span className="font-medium">
+                                {formatCurrencyBRL(installmentValue)}
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="font-semibold text-foreground">
+                                Total
+                              </span>
+                              <span className="text-xl font-bold text-foreground">
+                                {formatCurrencyBRL(totalWithInstallments)}
+                              </span>
+                            </div>
+                            {parseInt(installments) > 3 && (
+                              <p className="text-xs text-muted-foreground">
+                                * Juros aplicados após 3x
+                              </p>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="flex justify-between">
+                            <span className="font-semibold text-foreground">
+                              Total
+                            </span>
+                            <span className="text-xl font-bold text-foreground">
+                              {formatCurrencyBRL(eventData?.plan.price || 0)}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  )}
                 </CardContent>
               </Card>
             </div>
@@ -647,8 +754,9 @@ const Checkout = () => {
 
               <div className="bg-secondary/30 p-3 rounded-lg">
                 <p className="text-sm text-muted-foreground text-center">
-                  Após o pagamento, seu evento será criado automaticamente. Você
-                  receberá um e-mail de confirmação.
+                  {isAdditionalPhotosCheckout
+                    ? "Após o pagamento, os arquivos serão liberados automaticamente."
+                    : "Após o pagamento, seu evento será criado automaticamente. Você receberá um e-mail de confirmação."}
                 </p>
               </div>
 
@@ -690,7 +798,9 @@ const Checkout = () => {
                 Pagamento aprovado!
               </DialogTitle>
               <DialogDescription className="text-center">
-                Seu evento foi criado com sucesso
+                {isAdditionalPhotosCheckout
+                  ? "Os arquivos foram liberados com sucesso"
+                  : "Seu evento foi criado com sucesso"}
               </DialogDescription>
             </DialogHeader>
 
@@ -702,55 +812,71 @@ const Checkout = () => {
                     {eventData.eventName}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Plano {eventData.plan.name} • {eventData.plan.photos} fotos
-                    • {eventData.plan.duration}
+                    Plano {eventData.plan.name} • {eventData.plan.photos}{" "}
+                    arquivos • {eventData.plan.duration}
                   </p>
                 </div>
               )}
 
               {/* Informações de envio em 2 colunas */}
-              <div className="grid grid-cols-1 gap-3">
-                <div className="flex items-start gap-2 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-900">
-                  <Mail className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-foreground mb-1 text-sm">
-                      E-mail enviado
-                    </p>
-                    <p className="text-xs text-muted-foreground break-words">
-                      Enviamos todas as informações do seu evento, incluindo o
-                      QR Code, para{" "}
-                      <span className="font-medium text-foreground">
-                        {eventData?.email}
-                      </span>
-                    </p>
+              {!isAdditionalPhotosCheckout && (
+                <div className="grid grid-cols-1 gap-3">
+                  <div className="flex items-start gap-2 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-900">
+                    <Mail className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-foreground mb-1 text-sm">
+                        E-mail enviado
+                      </p>
+                      <p className="text-xs text-muted-foreground break-words">
+                        Enviamos todas as informações do seu evento, incluindo o
+                        QR Code, para{" "}
+                        <span className="font-medium text-foreground">
+                          {eventData?.email}
+                        </span>
+                      </p>
+                    </div>
                   </div>
-                </div>
 
-                <div className="flex items-start gap-2 p-3 bg-green-50 dark:bg-green-950/20 rounded-lg border border-green-200 dark:border-green-900">
-                  <MessageCircle className="h-4 w-4 text-green-600 dark:text-green-400 mt-0.5 shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-foreground mb-1 text-sm">
-                      WhatsApp enviado
-                    </p>
-                    <p className="text-xs text-muted-foreground break-words">
-                      Também enviamos um link rápido via WhatsApp para{" "}
-                      <span className="font-medium text-foreground">
-                        {applyPhoneMask(eventData?.phone || "")}
-                      </span>
-                    </p>
+                  <div className="flex items-start gap-2 p-3 bg-green-50 dark:bg-green-950/20 rounded-lg border border-green-200 dark:border-green-900">
+                    <MessageCircle className="h-4 w-4 text-green-600 dark:text-green-400 mt-0.5 shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-foreground mb-1 text-sm">
+                        WhatsApp enviado
+                      </p>
+                      <p className="text-xs text-muted-foreground break-words">
+                        Também enviamos um link rápido via WhatsApp para{" "}
+                        <span className="font-medium text-foreground">
+                          {applyPhoneMask(eventData?.phone || "")}
+                        </span>
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
 
               {/* Próximos passos */}
               <div className="bg-secondary/50 rounded-lg p-3">
                 <p className="text-sm font-medium text-foreground mb-1.5">
-                  Próximos passos:
+                  {isAdditionalPhotosCheckout && eventId
+                    ? "O que fazer agora:"
+                    : "Próximos passos:"}
                 </p>
                 <ul className="text-xs text-muted-foreground space-y-0.5 list-disc list-inside">
-                  <li>Verifique seu e-mail e WhatsApp</li>
-                  <li>Compartilhe o QR Code com seus convidados</li>
-                  <li>As fotos começarão a aparecer na galeria</li>
+                  {isAdditionalPhotosCheckout && eventId ? (
+                    <>
+                      <li>
+                        As fotos selecionadas agora estão sem marca d'água
+                      </li>
+                      <li>Você pode baixar os arquivos em alta qualidade</li>
+                      <li>Volte para a galeria para visualizar as mudanças</li>
+                    </>
+                  ) : (
+                    <>
+                      <li>Verifique seu e-mail e WhatsApp</li>
+                      <li>Compartilhe o QR Code com seus convidados</li>
+                      <li>As fotos começarão a aparecer na galeria</li>
+                    </>
+                  )}
                 </ul>
               </div>
 
@@ -760,10 +886,17 @@ const Checkout = () => {
                 size="lg"
                 onClick={() => {
                   setIsPaymentModalOpen(false);
-                  navigate("/");
+
+                  if (isAdditionalPhotosCheckout && eventId) {
+                    navigate(`/galeria/${eventId}`);
+                  } else {
+                    navigate("/");
+                  }
                 }}
               >
-                Entendi, obrigado!
+                {isAdditionalPhotosCheckout && eventId
+                  ? "Ir para a galeria"
+                  : "Entendi, obrigado!"}
               </Button>
             </div>
           </DialogContent>

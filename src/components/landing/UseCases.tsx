@@ -22,7 +22,7 @@ const cases = [
     icon: <Cake className="h-6 w-6" />,
     title: "Aniversários e festas",
     description:
-      "QR nos convites, fotos fluindo em tempo real para você curtir depois.",
+      "QR nos convites, fotos e vídeos fluindo em tempo real para você curtir depois.",
     image:
       "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=800&q=80",
   },
@@ -45,7 +45,7 @@ const cases = [
     icon: <Camera className="h-6 w-6" />,
     title: "Fotógrafos e buffets",
     description:
-      "Ofereça como add-on e entregue um fluxo de fotos colaborativas.",
+      "Ofereça como add-on e entregue um fluxo de fotos e vídeos colaborativas.",
     image:
       "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=80",
   },

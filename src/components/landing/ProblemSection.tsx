@@ -16,9 +16,10 @@ const ProblemSection = () => {
     {
       icon: MessageSquare,
       title: "Memórias perdidas",
-      description: "As melhores fotos ficam espalhadas em dezenas de celulares",
+      description:
+        "As melhores fotos e vídeos ficam espalhados em dezenas de celulares",
       stat: "73%",
-      statLabel: "das fotos nunca são compartilhadas",
+      statLabel: "das fotos e vídeos nunca são compartilhados",
       color: "from-blue-600 to-cyan-500",
       delay: 0,
     },
@@ -27,7 +28,7 @@ const ProblemSection = () => {
       title: "Busca sem fim",
       description: "Ninguém reúne tudo depois do evento",
       stat: "2h+",
-      statLabel: "tempo gasto procurando fotos",
+      statLabel: "tempo gasto procurando fotos e vídeos",
       color: "from-indigo-600 to-blue-500",
       delay: 0.1,
     },
@@ -36,7 +37,7 @@ const ProblemSection = () => {
       title: "História fragmentada",
       description: "Cada pessoa fica com um pedaço do dia",
       stat: "85%",
-      statLabel: "dos eventos têm fotos incompletas",
+      statLabel: "dos eventos têm fotos e vídeos incompletos",
       color: "from-cyan-500 to-blue-500",
       delay: 0.2,
     },
@@ -85,8 +86,8 @@ const ProblemSection = () => {
             </span>
           </h2>
           <p className="text-white/90 text-lg md:text-xl max-w-3xl mx-auto leading-relaxed">
-            Depois de todo evento, as melhores fotos ficam espalhadas em dezenas
-            de celulares. E a maioria nunca é compartilhada.
+            Depois de todo evento, as melhores fotos e vídeos ficam espalhados
+            em dezenas de celulares e a maioria nunca são compartilhados.
           </p>
         </motion.div>
 

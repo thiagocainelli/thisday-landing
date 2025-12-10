@@ -5,7 +5,7 @@ import { Users, Zap, Smartphone, Clock, Timer, Sparkles } from "lucide-react";
 const benefits = [
   {
     icon: Users,
-    title: "Fotos de todos reunidas",
+    title: "Fotos e vídeos de todos reunidos",
     detail: "Convidados e equipes no mesmo lugar, sem perder nenhum clique.",
     gradient: "from-blue-500 to-cyan-500",
     pulse: true,
@@ -33,7 +33,7 @@ const benefits = [
   },
   {
     icon: Timer,
-    title: "As fotos expiram automaticamente",
+    title: "As fotos e vídeos expiram automaticamente",
     detail: "Galeria temporária para privacidade e segurança dos convidados.",
     gradient: "from-indigo-500 to-blue-500",
     pulse: false,

@@ -77,7 +77,7 @@ const PricingCard = ({
             featured ? "text-primary-foreground/90" : "text-muted-foreground"
           }`}
         >
-          Até {photos} fotos
+          Até {photos} fotos e vídeos
         </span>
       </div>
       <div className="flex items-center gap-2">

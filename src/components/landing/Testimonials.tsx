@@ -6,19 +6,19 @@ const testimonials = [
     name: "Camila Duarte",
     role: "Noiva | Evento 250 convidados",
     quote:
-      "Em 15 minutos tínhamos um álbum inteiro, sem ninguém pedindo foto no grupo.",
+      "Em 15 minutos tínhamos um álbum inteiro, sem ninguém pedindo foto e vídeo no grupo.",
   },
   {
     name: "Lucas Fernandes",
     role: "Marketing | Summit corporativo",
     quote:
-      "Coletamos 1.2k fotos do público para o pós-evento em 1 dia. Zero fricção.",
+      "Coletamos 1.2k fotos e vídeos do público para o pós-evento em 1 dia. Zero fricção.",
   },
   {
     name: "Bia Moretti",
     role: "Produtora de eventos",
     quote:
-      "QR no crachá, fotos fluindo. Cliente aprovou as melhores em tempo real.",
+      "QR no crachá, fotos e vídeos fluindo. Cliente aprovou as melhores em tempo real.",
   },
 ];
 

@@ -32,7 +32,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/useToast";
 import { PLANS, getPlanById } from "@/constants/plans";
 import { formatCurrencyBRL } from "@/utils/currencyBRL";
 import { applyPhoneMask, removePhoneMask } from "@/utils/phoneMask";

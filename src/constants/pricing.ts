@@ -1,0 +1,1 @@
+export const ADDITIONAL_PHOTO_PRICE = 0.3;
