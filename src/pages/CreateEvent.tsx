@@ -4,14 +4,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import {
-  ArrowLeft,
-  Check,
-  ArrowRight,
-  FileText,
-  Shield,
-  AlertCircle,
-} from "lucide-react";
+import { Check, ArrowRight, FileText, Shield, AlertCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,10 +27,20 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/useToast";
 import { PLANS, getPlanById } from "@/constants/plans";
+import { EVENT_TYPES, type EventTypeValue } from "@/constants/eventTypes";
 import { formatCurrencyBRL } from "@/utils/currencyBRL";
 import { applyPhoneMask, removePhoneMask } from "@/utils/phoneMask";
 import SEO from "@/components/seo/SEO";
 import ScrollToTopButton from "@/components/ui/ScrollToTopButton";
+import PageBanner from "@/components/ui/PageBanner";
+import PageContainer from "@/components/ui/PageContainer";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const eventFormSchema = z.object({
   fullName: z.string().min(3, "Nome completo deve ter pelo menos 3 caracteres"),
@@ -53,6 +56,15 @@ const eventFormSchema = z.object({
     .string()
     .min(3, "Nome do evento deve ter pelo menos 3 caracteres"),
   eventDate: z.string().min(1, "Data do evento é obrigatória"),
+  eventType: z.enum(
+    EVENT_TYPES.map((type) => type.value) as [
+      EventTypeValue,
+      ...EventTypeValue[],
+    ],
+    {
+      message: "Selecione o tipo do evento",
+    },
+  ),
 });
 
 type EventFormData = z.infer<typeof eventFormSchema>;
@@ -121,6 +133,7 @@ const CreateEvent = () => {
     const eventData = {
       ...pendingEventData,
       phone: removePhoneMask(pendingEventData.phone),
+      eventType: pendingEventData.eventType,
       plan: {
         ...plan,
         priceFormatted: formatCurrencyBRL(plan.price),
@@ -137,37 +150,22 @@ const CreateEvent = () => {
   return (
     <>
       <SEO
-        title="Criar Evento - thisday | Escolha seu plano e crie seu evento"
+        title="Criar Evento - shareday | Escolha seu plano e crie seu evento"
         description="Crie seu evento em poucos passos. Escolha o plano ideal, preencha os dados do evento e comece a coletar fotos com QR Code."
         keywords="criar evento, plano evento, QR code evento, coletar fotos evento"
-        url="https://thisday.app/criar-evento"
+        url="https://shareday.app/criar-evento"
         noindex={true}
       />
       <div className="min-h-screen bg-background">
-        <header className="border-b border-border/50 bg-background/80 backdrop-blur-md sticky top-0 z-50">
-          <div className="container px-6 py-4">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="sm" asChild>
-                <Link to="/">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Voltar
-                </Link>
-              </Button>
-              <span className="text-xl font-bold text-foreground">thisday</span>
-            </div>
-          </div>
-        </header>
+        <PageBanner title="Criar evento" backTo="/" />
 
-        <main className="container px-6 py-12">
+        <PageContainer>
           <div className="max-w-4xl mx-auto">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
-                Criar evento
-              </h1>
               <p className="text-muted-foreground mb-8">
                 Preencha os dados abaixo para criar seu evento
               </p>
@@ -299,23 +297,23 @@ const CreateEvent = () => {
                         )}
                       </div>
 
-                      <div className="space-y-2">
-                        <Label htmlFor="eventDate">Data do evento *</Label>
-                        <Input
-                          id="eventDate"
-                          type="date"
-                          {...register("eventDate")}
-                          className={
-                            errors.eventDate ? "border-destructive" : ""
-                          }
-                          min={new Date().toISOString().split("T")[0]}
-                        />
-                        {errors.eventDate && (
-                          <p className="text-sm text-destructive">
-                            {errors.eventDate.message}
-                          </p>
-                        )}
-                      </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="eventDate">Data do evento *</Label>
+                      <Input
+                        id="eventDate"
+                        type="date"
+                        {...register("eventDate")}
+                        className={
+                          errors.eventDate ? "border-destructive" : ""
+                        }
+                        min={new Date().toISOString().split("T")[0]}
+                      />
+                      {errors.eventDate && (
+                        <p className="text-sm text-destructive">
+                          {errors.eventDate.message}
+                        </p>
+                      )}
+                    </div>
                     </div>
 
                     <div className="space-y-2">
@@ -329,6 +327,41 @@ const CreateEvent = () => {
                       {errors.eventName && (
                         <p className="text-sm text-destructive">
                           {errors.eventName.message}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="eventType">Tipo do evento *</Label>
+                      <Controller
+                        name="eventType"
+                        control={control}
+                        render={({ field }) => (
+                          <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                          >
+                            <SelectTrigger
+                              id="eventType"
+                              className={
+                                errors.eventType ? "border-destructive" : ""
+                              }
+                            >
+                              <SelectValue placeholder="Selecione o tipo do evento" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {EVENT_TYPES.map((type) => (
+                                <SelectItem key={type.value} value={type.value}>
+                                  {type.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
+                      {errors.eventType && (
+                        <p className="text-sm text-destructive">
+                          {errors.eventType.message}
                         </p>
                       )}
                     </div>
@@ -384,7 +417,7 @@ const CreateEvent = () => {
               </form>
             </motion.div>
           </div>
-        </main>
+        </PageContainer>
         <ScrollToTopButton />
 
         {/* Modal de Confirmação de Termos */}

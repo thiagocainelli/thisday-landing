@@ -1,18 +1,12 @@
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
-import {
-  ArrowLeft,
-  Shield,
-  Lock,
-  Eye,
-  FileText,
-  AlertCircle,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Lock, Eye, FileText, AlertCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import SEO from "@/components/seo/SEO";
 import ScrollToTopButton from "@/components/ui/ScrollToTopButton";
+import PageBanner from "@/components/ui/PageBanner";
+import PageContainer from "@/components/ui/PageContainer";
+import { Link } from "react-router-dom";
 
 const Privacy = () => {
   const lastUpdate = "15 de janeiro de 2024";
@@ -20,27 +14,15 @@ const Privacy = () => {
   return (
     <>
       <SEO
-        title="Privacidade - thisday"
+        title="Privacidade - shareday"
         description="Leia a Política de Privacidade da plataforma. Conheça como coletamos, usamos, armazenamos e protegemos seus dados pessoais."
         keywords="política de privacidade plataforma, privacidade plataforma, proteção de dados, política de proteção de dados"
-        url="https://thisday.app/privacidade"
+        url="https://shareday.app/privacidade"
       />
       <div className="min-h-screen bg-background">
-        <header className="border-b border-border/50 bg-background/80 backdrop-blur-md sticky top-0 z-50">
-          <div className="container px-6 py-4">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="sm" asChild>
-                <Link to="/">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Voltar
-                </Link>
-              </Button>
-              <span className="text-xl font-bold text-foreground">thisday</span>
-            </div>
-          </div>
-        </header>
+        <PageBanner title="Política de Privacidade" backTo="/" />
 
-        <main className="container px-6 py-12">
+        <PageContainer className="-mt-10 md:-mt-14 py-20">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -48,30 +30,21 @@ const Privacy = () => {
           >
             {/* Header */}
             <div className="mb-8">
-              <div className="flex items-center gap-3 mb-4">
-                <Shield className="h-8 w-8 text-primary" />
-                <h1 className="text-3xl md:text-4xl font-bold text-foreground">
-                  Política de Privacidade
-                </h1>
-              </div>
               <Card className="bg-secondary/30 border-border/50">
                 <CardContent className="pt-6">
-                  <div className="flex items-start gap-3">
-                    <Lock className="h-5 w-5 text-primary mt-0.5 shrink-0" />
-                    <div>
-                      <p className="text-sm font-medium text-foreground mb-1">
-                        Conformidade com a LGPD
-                      </p>
-                      <p className="text-sm text-muted-foreground mb-2">
-                        Esta Política está em conformidade com a Lei Geral de
-                        Proteção de Dados (Lei nº 13.709/2018) e descreve como
-                        coletamos, usamos, armazenamos e protegemos seus dados
-                        pessoais.
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        Última atualização: {lastUpdate}
-                      </p>
-                    </div>
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-foreground">
+                      Conformidade com a LGPD
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Esta Política está em conformidade com a Lei Geral de
+                      Proteção de Dados (Lei nº 13.709/2018) e descreve como
+                      coletamos, usamos, armazenamos e protegemos seus dados
+                      pessoais.
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Última atualização: {lastUpdate}
+                    </p>
                   </div>
                 </CardContent>
               </Card>
@@ -80,15 +53,12 @@ const Privacy = () => {
             <div className="prose prose-lg max-w-none space-y-8">
               {/* 1. Introdução */}
               <section className="space-y-4">
-                <div className="flex items-center gap-2 mb-4">
-                  <FileText className="h-5 w-5 text-primary" />
-                  <h2 className="text-2xl font-semibold text-foreground">
-                    1. Introdução e Responsável pelo Tratamento
-                  </h2>
-                </div>
+                <h2 className="text-2xl font-semibold text-foreground mb-4">
+                  1. Introdução e Responsável pelo Tratamento
+                </h2>
                 <div className="space-y-3 text-muted-foreground leading-relaxed">
                   <p>
-                    thisday ("nós", "nosso", "Plataforma") é operado por [NOME
+                    shareday ("nós", "nosso", "Plataforma") é operado por [NOME
                     DA EMPRESA], inscrita no CNPJ sob o nº [CNPJ], com sede em
                     [ENDEREÇO COMPLETO], atuando como Controladora dos dados
                     pessoais coletados através desta Plataforma.
@@ -112,10 +82,10 @@ const Privacy = () => {
                     Para questões relacionadas à proteção de dados, entre em
                     contato com nosso DPO através do e-mail{" "}
                     <a
-                      href="mailto:privacidade@thisday.app"
+                      href="mailto:privacidade@shareday.app"
                       className="text-primary hover:underline"
                     >
-                      privacidade@thisday.app
+                      privacidade@shareday.app
                     </a>
                     .
                   </p>
@@ -429,12 +399,9 @@ const Privacy = () => {
 
               {/* 6. Segurança */}
               <section className="space-y-4">
-                <div className="flex items-center gap-2 mb-4">
-                  <Lock className="h-5 w-5 text-primary" />
-                  <h2 className="text-2xl font-semibold text-foreground">
-                    6. Medidas de Segurança
-                  </h2>
-                </div>
+                <h2 className="text-2xl font-semibold text-foreground mb-4">
+                  6. Medidas de Segurança
+                </h2>
                 <div className="space-y-3 text-muted-foreground leading-relaxed">
                   <p>
                     Implementamos medidas técnicas e organizacionais robustas
@@ -498,22 +465,16 @@ const Privacy = () => {
                     </div>
                   </div>
                   <Card className="bg-yellow-50 dark:bg-yellow-950/20 border-yellow-200 dark:border-yellow-800 mt-4">
-                    <CardContent className="pt-6">
-                      <div className="flex items-start gap-3">
-                        <AlertCircle className="h-5 w-5 text-yellow-600 dark:text-yellow-500 mt-0.5 shrink-0" />
-                        <div>
-                          <p className="text-sm font-medium text-yellow-900 dark:text-yellow-100 mb-1">
-                            Importante
-                          </p>
-                          <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                            Nenhum sistema é 100% seguro. Embora implementemos
-                            medidas robustas, não podemos garantir segurança
-                            absoluta. Recomendamos que você também tome
-                            precauções, como usar senhas fortes e não
-                            compartilhar credenciais.
-                          </p>
-                        </div>
-                      </div>
+                    <CardContent className="pt-6 space-y-2">
+                      <p className="text-sm font-medium text-yellow-900 dark:text-yellow-100">
+                        Importante
+                      </p>
+                      <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                        Nenhum sistema é 100% seguro. Embora implementemos
+                        medidas robustas, não podemos garantir segurança
+                        absoluta. Recomendamos que você também tome precauções,
+                        como usar senhas fortes e não compartilhar credenciais.
+                      </p>
                     </CardContent>
                   </Card>
                 </div>
@@ -632,10 +593,10 @@ const Privacy = () => {
                         <li>
                           E-mail:{" "}
                           <a
-                            href="mailto:privacidade@thisday.app"
+                            href="mailto:privacidade@shareday.app"
                             className="text-primary hover:underline"
                           >
-                            privacidade@thisday.app
+                            privacidade@shareday.app
                           </a>
                         </li>
                         <li>
@@ -812,10 +773,10 @@ const Privacy = () => {
                           <p className="text-sm text-muted-foreground">
                             E-mail:{" "}
                             <a
-                              href="mailto:privacidade@thisday.app"
+                              href="mailto:privacidade@shareday.app"
                               className="text-primary hover:underline"
                             >
-                              privacidade@thisday.app
+                              privacidade@shareday.app
                             </a>
                           </p>
                         </div>
@@ -826,10 +787,10 @@ const Privacy = () => {
                           <p className="text-sm text-muted-foreground">
                             E-mail:{" "}
                             <a
-                              href="mailto:contato@thisday.app"
+                              href="mailto:contato@shareday.app"
                               className="text-primary hover:underline"
                             >
-                              contato@thisday.app
+                              contato@shareday.app
                             </a>
                           </p>
                           <p className="text-sm text-muted-foreground mt-1">
@@ -876,7 +837,7 @@ const Privacy = () => {
                 <p className="text-sm text-muted-foreground text-center">
                   Esta Política de Privacidade está em conformidade com a Lei
                   Geral de Proteção de Dados (Lei nº 13.709/2018). Ao utilizar o
-                  thisday, você confirma que leu, compreendeu e aceita esta
+                  shareday, você confirma que leu, compreendeu e aceita esta
                   Política e nossos{" "}
                   <Link
                     to="/termos"
@@ -889,7 +850,7 @@ const Privacy = () => {
               </CardContent>
             </Card>
           </motion.div>
-        </main>
+        </PageContainer>
         <ScrollToTopButton />
       </div>
     </>

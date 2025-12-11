@@ -11,7 +11,7 @@ const EventBanner = ({ eventName }: EventBannerProps) => {
       initial={{ opacity: 0, y: -50 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className="relative overflow-hidden bg-gradient-to-br from-primary via-[#1f4fd8] to-[#38bdf8] text-white"
+      className="relative overflow-hidden bg-shareday-gradient text-white"
     >
       {/* Efeitos de fundo animados */}
       <div className="absolute inset-0 overflow-hidden">
@@ -105,4 +105,3 @@ const EventBanner = ({ eventName }: EventBannerProps) => {
 };
 
 export default EventBanner;
-

@@ -1,11 +1,12 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, QrCode } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import logoDark from "@/assets/logo_dark_without_bg.png";
 
 const Footer = () => {
   return (
-    <footer className="relative overflow-hidden bg-gradient-to-br from-primary via-[#1f4fd8] to-[#38bdf8] text-white">
+    <footer className="relative overflow-hidden bg-shareday-gradient text-white">
       {/* Background decoration */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
@@ -47,29 +48,11 @@ const Footer = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-white/85 text-lg mb-10 max-w-md mx-auto"
+            className="text-white/85 text-lg max-w-md mx-auto"
           >
             Comece agora e crie a memória coletiva do seu próximo evento com
             fotos e vídeos.
           </motion.p>
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-          >
-            <Button
-              variant="secondary"
-              size="xl"
-              className="shadow-lg hover:shadow-xl"
-              asChild
-            >
-              <Link to="/criar-evento">
-                Criar meu evento
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
-            </Button>
-          </motion.div>
         </motion.div>
 
         {/* Footer Links */}
@@ -79,30 +62,19 @@ const Footer = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="flex flex-col md:flex-row items-center justify-between gap-8"
+            className="flex flex-col md:flex-row items-center justify-between gap-4"
           >
             {/* Logo and tagline */}
-            <div className="text-center md:text-left">
-              <Link
-                to="/"
-                onClick={() => {
-                  // Se já estiver na home, fazer scroll suave para o topo
-                  if (window.location.pathname === "/") {
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                  }
-                }}
-                className="flex items-center justify-center gap-2 text-4xl font-bold mb-2 hover:opacity-80 transition-opacity duration-200"
-              >
-                <QrCode className="h-8 w-8 text-white" />
-                <span>
-                  <span className="text-[#22d3ee] font-extrabold italic tracking-wider drop-shadow-md">
-                    this
-                  </span>
-                  <span className="text-white font-normal">day</span>
-                </span>
-              </Link>
-              <p className="text-white/70 text-sm">Um dia. Várias memórias.</p>
-            </div>
+            <Link
+              to="/"
+              onClick={() => {
+                if (window.location.pathname === "/") {
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }
+              }}
+            >
+              <img src={logoDark} alt="Logo" className="w-52" />
+            </Link>
 
             {/* Links */}
             <nav className="flex items-center gap-8">
@@ -135,7 +107,7 @@ const Footer = () => {
             className="pt-6 border-t border-white/15 text-center"
           >
             <p className="text-white/60 text-xs">
-              © {new Date().getFullYear()} thisday. Todos os direitos
+              © {new Date().getFullYear()} shareday. Todos os direitos
               reservados.
             </p>
           </motion.div>

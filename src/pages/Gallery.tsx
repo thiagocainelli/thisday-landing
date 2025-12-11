@@ -211,7 +211,7 @@ const Gallery = () => {
   return (
     <>
       <SEO
-        title={`Galeria - ${eventName} - thisday`}
+        title={`Galeria - ${eventName} - shareday`}
         description={`Visualize todas as fotos e vídeos do evento ${eventName}. Compartilhe suas memórias!`}
         noindex={true}
         nofollow={true}

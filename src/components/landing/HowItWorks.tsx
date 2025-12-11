@@ -78,7 +78,7 @@ const HowItWorks = () => {
   return (
     <section
       id="como-funciona"
-      className="py-section bg-gradient-to-br from-[#eef4ff] via-thisday-white to-[#e9f7ff]"
+      className="py-section bg-gradient-to-br from-[#eef4ff] via-shareday-white to-[#e9f7ff]"
     >
       <div className="container">
         <motion.div

@@ -29,7 +29,7 @@ const SolutionSection = () => {
   };
 
   return (
-    <section className="py-section bg-gradient-to-br from-[#f7f9ff] via-thisday-white to-[#eef4ff] overflow-hidden">
+    <section className="py-section bg-gradient-to-br from-[#f7f9ff] via-shareday-white to-[#eef4ff] overflow-hidden">
       <div className="container">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           {/* Text content */}
@@ -83,11 +83,11 @@ const SolutionSection = () => {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="relative"
           >
-            <div className="rounded-3xl bg-gradient-to-br from-primary via-[#1f4fd8] to-[#38bdf8] flex items-center justify-center p-8 overflow-hidden">
+            <div className="rounded-3xl bg-shareday-gradient flex items-center justify-center p-8 overflow-hidden">
               <motion.div
                 whileHover={{ rotate: 2, scale: 1.02 }}
                 transition={{ type: "spring", stiffness: 200 }}
-                className="w-full max-w-xs bg-thisday-white rounded-2xl shadow-xl p-4 transform"
+                className="w-full max-w-xs bg-shareday-white rounded-2xl shadow-xl p-4 transform"
               >
                 <img
                   src={solutionImageUrl}

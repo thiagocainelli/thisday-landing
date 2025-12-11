@@ -31,7 +31,7 @@ const NotFound = () => {
   return (
     <>
       <SEO
-        title="Página não encontrada - thisday"
+        title="Página não encontrada - shareday"
         description="A página que você está procurando não foi encontrada. Volte para a página inicial ou explore nossos recursos."
         noindex={true}
         nofollow={true}
@@ -58,7 +58,7 @@ const NotFound = () => {
                   transition={{ duration: 0.5, delay: 0.2 }}
                   className="flex justify-center"
                 >
-                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary/20 via-[#1f4fd8]/20 to-[#38bdf8]/20 flex items-center justify-center">
+                  <div className="w-14 h-14 rounded-full bg-shareday-gradient opacity-20 flex items-center justify-center">
                     <Search className="h-6 w-6 text-primary" />
                   </div>
                 </motion.div>

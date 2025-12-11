@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, QrCode } from "lucide-react";
+import { Menu, X } from "lucide-react";
+import logoDark from "@/assets/logo_dark_without_bg.png";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -35,9 +36,7 @@ const Header = () => {
       animate={{ y: 0 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
       className={`fixed top-0 left-0 right-0 z-50 text-white transition-colors duration-300 ${
-        isScrolled
-          ? "bg-gradient-to-br from-primary via-[#1f4fd8] to-[#38bdf8] backdrop-blur-xl"
-          : "bg-transparent"
+        isScrolled ? "bg-shareday-gradient backdrop-blur-xl" : "bg-transparent"
       }`}
     >
       <div className="container px-6">
@@ -53,13 +52,7 @@ const Header = () => {
             }}
             className="flex items-center gap-2 text-2xl font-bold tracking-tight drop-shadow hover:opacity-90 transition-opacity duration-200"
           >
-            <QrCode className="h-6 w-6 text-white" />
-            <span>
-              <span className="text-[#22d3ee] font-extrabold italic tracking-wider drop-shadow-md">
-                this
-              </span>
-              <span className="text-white font-normal">day</span>
-            </span>
+            <img src={logoDark} alt="Logo" className="w-40" />
           </Link>
 
           {/* Desktop Navigation */}

@@ -6,7 +6,7 @@
   
   <!-- Homepage -->
   <url>
-    <loc>https://thisday.app/</loc>
+    <loc>https://shareday.app/</loc>
     <lastmod>2024-01-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
@@ -14,21 +14,21 @@
   
   <!-- Páginas principais -->
   <url>
-    <loc>https://thisday.app/contato</loc>
+    <loc>https://shareday.app/contato</loc>
     <lastmod>2024-01-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
-    <loc>https://thisday.app/termos</loc>
+    <loc>https://shareday.app/termos</loc>
     <lastmod>2024-01-15</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
   
   <url>
-    <loc>https://thisday.app/privacidade</loc>
+    <loc>https://shareday.app/privacidade</loc>
     <lastmod>2024-01-15</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
@@ -36,7 +36,7 @@
   
   <!-- Páginas de fluxo (menor prioridade, mas indexáveis) -->
   <url>
-    <loc>https://thisday.app/criar-evento</loc>
+    <loc>https://shareday.app/criar-evento</loc>
     <lastmod>2024-01-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>

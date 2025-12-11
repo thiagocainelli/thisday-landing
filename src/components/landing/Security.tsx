@@ -53,7 +53,7 @@ const Security = () => {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: index * 0.08 }}
-                className="flex items-start gap-4 p-4 rounded-lg bg-thisday-white/60 border-l-4 border-primary/30 hover:border-primary/60 hover:bg-thisday-white/80 transition-all duration-300"
+                className="flex items-start gap-4 p-4 rounded-lg bg-shareday-white/60 border-l-4 border-primary/30 hover:border-primary/60 hover:bg-shareday-white/80 transition-all duration-300"
               >
                 <div className="mt-0.5 shrink-0">
                   <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">

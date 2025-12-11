@@ -43,7 +43,7 @@ const ScrollToTopButton = () => {
           <Button
             onClick={scrollToTop}
             size="icon"
-            className="h-12 w-12 rounded-full shadow-lg hover:shadow-xl bg-primary hover:bg-primary/90 text-primary-foreground"
+            className="h-12 w-12 rounded-full shadow-lg hover:shadow-xl bg-shareday-gradient text-white hover:opacity-95"
             aria-label="Voltar ao topo"
           >
             <ArrowUp className="h-5 w-5" />
@@ -55,4 +55,3 @@ const ScrollToTopButton = () => {
 };
 
 export default ScrollToTopButton;
-

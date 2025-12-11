@@ -30,7 +30,7 @@ const PricingCard = ({
     whileHover={{ y: -5 }}
     className={`relative p-6 rounded-2xl transition-all duration-300 ${
       featured
-        ? "bg-gradient-to-br from-primary via-[#1f4fd8] to-[#38bdf8] text-primary-foreground shadow-xl scale-105"
+        ? "bg-shareday-gradient text-primary-foreground shadow-xl scale-105"
         : "bg-gradient-to-br from-white via-[#f7f9ff] to-white border border-border/50 hover:border-primary/30 hover:shadow-lg"
     }`}
   >

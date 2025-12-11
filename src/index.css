@@ -6,7 +6,7 @@
 
 @layer base {
   :root {
-    /* thisday Color System */
+    /* SHAREDAY Color System */
     --background: 210 20% 98%; /* Off-white #F9FAFB */
     --foreground: 221 39% 11%; /* Graphite #111827 */
 
@@ -16,33 +16,64 @@
     --popover: 0 0% 100%;
     --popover-foreground: 221 39% 11%;
 
-    --primary: 224 64% 33%; /* Deep blue #1E3A8A */
+    --primary: 221 83% 54%; /* Azul Confiável #2563EB */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 214 95% 93%; /* Soft blue #DBEAFE */
-    --secondary-foreground: 224 64% 33%;
+    --secondary: 213 95% 78%; /* Azul Suave #93C5FD */
+    --secondary-foreground: 221 39% 20%;
 
-    --muted: 214 32% 91%;
-    --muted-foreground: 215 16% 47%;
+    --muted: 220 14% 92%; /* Cinza suave #E5E7EB */
+    --muted-foreground: 222 19% 30%;
 
-    --accent: 214 95% 93%;
-    --accent-foreground: 224 64% 33%;
+    --accent: 213 95% 78%;
+    --accent-foreground: 221 39% 20%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 224 64% 33%;
+    --border: 220 14% 92%;
+    --input: 220 14% 92%;
+    --ring: 221 83% 54%;
 
     --radius: 0.75rem;
 
-    /* Custom thisday tokens */
-    --thisday-blue-deep: 224 64% 33%;
-    --thisday-blue-soft: 214 95% 93%;
-    --thisday-graphite: 221 39% 11%;
-    --thisday-offwhite: 210 20% 98%;
-    --thisday-white: 0 0% 100%;
+    /* Custom SHAREDAY tokens */
+    --shareday-blue-deep: 221 83% 54%;
+    --shareday-blue-soft: 213 95% 78%;
+    --shareday-graphite: 221 39% 11%;
+    --shareday-offwhite: 210 20% 98%;
+    --shareday-white: 0 0% 100%;
+
+    /* Gradients */
+    --shareday-gradient-angle: 135deg;
+    --shareday-gradient-from: #2563eb;
+    --shareday-gradient-via: #3b82f6;
+    --shareday-gradient-to: #93c5fd;
+    --shareday-gradient-strong: linear-gradient(
+      var(--shareday-gradient-angle),
+      var(--shareday-gradient-from) 0%,
+      var(--shareday-gradient-via) 60%,
+      var(--shareday-gradient-to) 100%
+    );
+    --shareday-gradient-soft: linear-gradient(
+      var(--shareday-gradient-angle),
+      rgba(37, 99, 235, 0.12) 0%,
+      rgba(59, 130, 246, 0.12) 50%,
+      rgba(147, 197, 253, 0.12) 100%
+    );
+    --shareday-gradient-horizontal: linear-gradient(
+      90deg,
+      var(--shareday-gradient-from) 0%,
+      var(--shareday-gradient-via) 60%,
+      var(--shareday-gradient-to) 100%
+    );
+
+    /* Legacy aliases (safe to remove once classes are migrated) */
+    --thisday-blue-deep: var(--shareday-blue-deep);
+    --thisday-blue-soft: var(--shareday-blue-soft);
+    --thisday-graphite: var(--shareday-graphite);
+    --thisday-offwhite: var(--shareday-offwhite);
+    --thisday-white: var(--shareday-white);
 
     /* Spacing */
     --section-padding: 5rem;
@@ -105,7 +136,7 @@
 
 /* Gradiente aplicado em textos primários */
 .text-gradient-primary {
-  background: linear-gradient(120deg, #2563eb, #38bdf8);
+  background: linear-gradient(120deg, #2563eb, #93c5fd);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -128,6 +159,18 @@
 }
 
 @layer utilities {
+  .bg-shareday-gradient {
+    background-image: var(--shareday-gradient-strong);
+  }
+
+  .bg-shareday-gradient-soft {
+    background-image: var(--shareday-gradient-soft);
+  }
+
+  .bg-shareday-gradient-horizontal {
+    background-image: var(--shareday-gradient-horizontal);
+  }
+
   .text-balance {
     text-wrap: balance;
   }

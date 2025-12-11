@@ -74,7 +74,7 @@ const CreditCard3D = ({
             transform: "rotateY(0deg)",
           }}
         >
-          <div className="relative w-full h-full bg-gradient-to-br from-primary via-[#1f4fd8] to-[#38bdf8] rounded-xl p-6 text-white overflow-hidden">
+          <div className="relative w-full h-full bg-shareday-gradient rounded-xl p-6 text-white overflow-hidden">
             {/* Padrão de fundo decorativo */}
             <div className="absolute inset-0 opacity-20">
               <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full -mr-32 -mt-32" />
@@ -88,7 +88,7 @@ const CreditCard3D = ({
                 <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
                   <CreditCard className="h-6 w-6" />
                 </div>
-                <div className="text-xs font-medium opacity-80">thisday</div>
+                <div className="text-xs font-medium opacity-80">shareday</div>
               </div>
 
               {/* Número do cartão */}
@@ -131,7 +131,7 @@ const CreditCard3D = ({
             transform: "rotateY(180deg)",
           }}
         >
-          <div className="relative w-full h-full bg-gradient-to-br from-[#1f4fd8] via-primary to-[#38bdf8] rounded-xl p-6 text-white overflow-hidden">
+          <div className="relative w-full h-full bg-shareday-gradient rounded-xl p-6 text-white overflow-hidden">
             {/* Padrão de fundo decorativo */}
             <div className="absolute inset-0 opacity-20">
               <div className="absolute top-0 left-0 w-64 h-64 bg-white rounded-full -ml-32 -mt-32" />
@@ -155,7 +155,7 @@ const CreditCard3D = ({
 
               {/* Logo */}
               <div className="mt-4 text-xs font-medium opacity-80 text-right">
-                thisday
+                shareday
               </div>
             </div>
           </div>

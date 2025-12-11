@@ -1,6 +1,6 @@
-# thisday - Landing Page
+# shareday - Landing Page
 
-Landing page moderna para a plataforma thisday, uma solução que permite reunir todas as fotos e vídeos de eventos através de QR Code, sem necessidade de app ou cadastro.
+Landing page moderna para a plataforma shareday, uma solução que permite reunir todas as fotos e vídeos de eventos através de QR Code, sem necessidade de app ou cadastro.
 
 ## 🚀 Tecnologias
 
@@ -23,7 +23,7 @@ Landing page moderna para a plataforma thisday, uma solução que permite reunir
 ```bash
 # Clone o repositório
 git clone <repository-url>
-cd thisday-landing
+cd shareday-landing
 
 # Instale as dependências
 npm install
@@ -108,4 +108,4 @@ Este é um projeto privado. Para contribuições, entre em contato com a equipe 
 
 ---
 
-**Desenvolvido com ❤️ para thisday**
+**Desenvolvido com ❤️ para shareday**

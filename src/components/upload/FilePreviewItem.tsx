@@ -145,7 +145,7 @@ const FilePreviewItem = ({
                   className="absolute inset-0 bg-transparent rounded-full blur-2xl -z-10"
                 />
                 {/* Badge principal */}
-                <div className="relative bg-gradient-to-br from-primary via-[#1f4fd8] to-[#38bdf8] text-white px-4 py-3 rounded-xl shadow-2xl border-2 border-white/40 backdrop-blur-md">
+                <div className="relative bg-shareday-gradient text-white px-4 py-3 rounded-xl shadow-2xl border-2 border-white/40 backdrop-blur-md">
                   <div className="flex flex-col items-center gap-2">
                     <Lock className="h-5 w-5" />
                     <div className="text-center">

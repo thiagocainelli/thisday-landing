@@ -84,7 +84,7 @@ const UseCases = () => {
   }, [api]);
 
   return (
-    <section className="relative overflow-hidden py-section bg-gradient-to-br from-[#f7f9ff] via-thisday-white to-[#eef4ff]">
+    <section className="relative overflow-hidden py-section bg-gradient-to-br from-[#f7f9ff] via-shareday-white to-[#eef4ff]">
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute -left-24 top-12 w-72 h-72 bg-primary/10 blur-3xl" />
         <div className="absolute right-0 bottom-0 w-80 h-80 bg-secondary/15 blur-3xl" />
@@ -105,7 +105,7 @@ const UseCases = () => {
             Perfeito para qualquer evento
           </h2>
           <p className="text-muted-foreground mt-3">
-            De celebrações íntimas a ativações de marca, o thisday adapta-se a
+            De celebrações íntimas a ativações de marca, o shareday adapta-se a
             cada formato.
           </p>
         </motion.div>

@@ -47,7 +47,7 @@ const faqItems = [
 
 const FaqSection = () => {
   return (
-    <section className="py-section bg-gradient-to-br from-[#f5f7ff] via-thisday-white to-[#eef4ff]">
+    <section className="py-section bg-gradient-to-br from-[#f5f7ff] via-shareday-white to-[#eef4ff]">
       <div className="container px-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -76,7 +76,7 @@ const FaqSection = () => {
             <AccordionItem
               key={idx}
               value={`item-${idx}`}
-              className="bg-thisday-white rounded-xl border border-border/50 px-6 shadow-sm"
+              className="bg-shareday-white rounded-xl border border-border/50 px-6 shadow-sm"
             >
               <AccordionTrigger className="text-left font-semibold text-foreground hover:no-underline">
                 {item.question}

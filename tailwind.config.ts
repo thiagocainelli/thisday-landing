@@ -58,14 +58,14 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        thisday: {
+        shareday: {
           blue: {
-            deep: "hsl(var(--thisday-blue-deep))",
-            soft: "hsl(var(--thisday-blue-soft))",
+            deep: "hsl(var(--shareday-blue-deep))",
+            soft: "hsl(var(--shareday-blue-soft))",
           },
-          graphite: "hsl(var(--thisday-graphite))",
-          offwhite: "hsl(var(--thisday-offwhite))",
-          white: "hsl(var(--thisday-white))",
+          graphite: "hsl(var(--shareday-graphite))",
+          offwhite: "hsl(var(--shareday-offwhite))",
+          white: "hsl(var(--shareday-white))",
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",

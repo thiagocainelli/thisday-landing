@@ -1,11 +1,12 @@
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
-import { ArrowLeft, FileText, Shield, AlertCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { AlertCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import SEO from "@/components/seo/SEO";
 import ScrollToTopButton from "@/components/ui/ScrollToTopButton";
+import PageBanner from "@/components/ui/PageBanner";
+import PageContainer from "@/components/ui/PageContainer";
+import { Link } from "react-router-dom";
 
 const Terms = () => {
   const lastUpdate = "15 de janeiro de 2024";
@@ -13,27 +14,15 @@ const Terms = () => {
   return (
     <>
       <SEO
-        title="Termos de Uso - thisday"
+        title="Termos de Uso - shareday"
         description="Leia os Termos de Uso da plataforma. Conheça as regras, direitos e responsabilidades ao utilizar nossa plataforma de coleta de fotos para eventos."
         keywords="termos de uso plataforma, política plataforma, condições de uso, termos e condições"
-        url="https://thisday.app/termos"
+        url="https://shareday.app/termos"
       />
       <div className="min-h-screen bg-background">
-        <header className="border-b border-border/50 bg-background/80 backdrop-blur-md sticky top-0 z-50">
-          <div className="container px-6 py-4">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="sm" asChild>
-                <Link to="/">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Voltar
-                </Link>
-              </Button>
-              <span className="text-xl font-bold text-foreground">thisday</span>
-            </div>
-          </div>
-        </header>
+        <PageBanner title="Termos de Uso" backTo="/" />
 
-        <main className="container px-6 py-12">
+        <PageContainer>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -41,29 +30,20 @@ const Terms = () => {
           >
             {/* Header */}
             <div className="mb-8">
-              <div className="flex items-center gap-3 mb-4">
-                <FileText className="h-8 w-8 text-primary" />
-                <h1 className="text-3xl md:text-4xl font-bold text-foreground">
-                  Termos de Uso
-                </h1>
-              </div>
               <Card className="bg-secondary/30 border-border/50">
                 <CardContent className="pt-6">
-                  <div className="flex items-start gap-3">
-                    <AlertCircle className="h-5 w-5 text-primary mt-0.5 shrink-0" />
-                    <div>
-                      <p className="text-sm font-medium text-foreground mb-1">
-                        Última atualização
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {lastUpdate}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-2">
-                        Ao utilizar nossos serviços, você concorda com estes
-                        termos. Recomendamos a leitura completa antes de
-                        prosseguir.
-                      </p>
-                    </div>
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-foreground">
+                      Última atualização
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {lastUpdate}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Ao utilizar nossos serviços, você concorda com estes
+                      termos. Recomendamos a leitura completa antes de
+                      prosseguir.
+                    </p>
                   </div>
                 </CardContent>
               </Card>
@@ -72,16 +52,13 @@ const Terms = () => {
             <div className="prose prose-lg max-w-none space-y-8">
               {/* 1. Informações Gerais */}
               <section className="space-y-4">
-                <div className="flex items-center gap-2 mb-4">
-                  <Shield className="h-5 w-5 text-primary" />
-                  <h2 className="text-2xl font-semibold text-foreground">
-                    1. Informações Gerais e Aceitação
-                  </h2>
-                </div>
+                <h2 className="text-2xl font-semibold text-foreground mb-4">
+                  1. Informações Gerais e Aceitação
+                </h2>
                 <div className="space-y-3 text-muted-foreground leading-relaxed">
                   <p>
                     Estes Termos de Uso ("Termos") regem o uso da plataforma
-                    thisday ("Plataforma", "Serviço", "nós", "nosso"), operada
+                    shareday ("Plataforma", "Serviço", "nós", "nosso"), operada
                     por [NOME DA EMPRESA], inscrita no CNPJ sob o nº [CNPJ], com
                     sede em [ENDEREÇO COMPLETO] ("Empresa").
                   </p>
@@ -155,7 +132,7 @@ const Terms = () => {
                 </h2>
                 <div className="space-y-3 text-muted-foreground leading-relaxed">
                   <p>
-                    thisday é uma plataforma digital que permite a coleta e
+                    shareday é uma plataforma digital que permite a coleta e
                     compartilhamento temporário de fotos em eventos através de
                     QR Codes. O serviço permite que:
                   </p>
@@ -684,10 +661,10 @@ const Terms = () => {
                     <li>
                       <strong className="text-foreground">E-mail:</strong>{" "}
                       <a
-                        href="mailto:contato@thisday.app"
+                        href="mailto:contato@shareday.app"
                         className="text-primary hover:underline"
                       >
-                        contato@thisday.app
+                        contato@shareday.app
                       </a>
                     </li>
                     <li>
@@ -727,7 +704,7 @@ const Terms = () => {
               </CardContent>
             </Card>
           </motion.div>
-        </main>
+        </PageContainer>
         <ScrollToTopButton />
       </div>
     </>

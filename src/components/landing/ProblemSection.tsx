@@ -44,7 +44,7 @@ const ProblemSection = () => {
   ];
 
   return (
-    <section className="relative py-section overflow-hidden bg-gradient-to-br from-primary via-[#1f4fd8] to-[#38bdf8] text-white">
+    <section className="relative py-section overflow-hidden bg-shareday-gradient text-white">
       {/* Background decoration */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div

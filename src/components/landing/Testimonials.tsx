@@ -24,7 +24,7 @@ const testimonials = [
 
 const Testimonials = () => {
   return (
-    <section className="py-section bg-gradient-to-br from-[#f9fbff] via-thisday-white to-[#eef4ff]">
+    <section className="py-section bg-gradient-to-br from-[#f9fbff] via-shareday-white to-[#eef4ff]">
       <div className="container">
         <div className="text-center mb-12">
           <motion.div

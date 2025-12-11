@@ -1,5 +1,5 @@
-# robots.txt para thisday
-# https://thisday.app/robots.txt
+# robots.txt para shareday
+# https://shareday.app/robots.txt
 
 User-agent: *
 Allow: /
@@ -7,7 +7,7 @@ Disallow: /checkout
 Disallow: /criar-evento
 
 # Sitemap
-Sitemap: https://thisday.app/sitemap.xml
+Sitemap: https://shareday.app/sitemap.xml
 
 # Crawl-delay (opcional, ajuste conforme necessário)
 Crawl-delay: 1

@@ -17,10 +17,10 @@ const Index = () => {
   return (
     <>
       <SEO
-        title="thisday - Reúna todas as fotos do seu evento com QR Code | Sem app, sem cadastro"
+        title="shareday - Reúna todas as fotos do seu evento com QR Code | Sem app, sem cadastro"
         description="Centralize todas as fotos e vídeos do seu evento em um único lugar usando apenas um QR Code. Simples, rápido e temporário. Perfeito para casamentos, festas, eventos corporativos e mais."
         keywords="fotos evento, vídeos evento, QR code fotos, compartilhar fotos evento, casamento fotos, festa fotos, evento corporativo fotos, galeria fotos evento"
-        url="https://thisday.app/"
+        url="https://shareday.app/"
       />
       <div className="min-h-screen bg-background">
         <main>

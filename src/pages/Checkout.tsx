@@ -5,7 +5,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import {
-  ArrowLeft,
   Copy,
   Check,
   CreditCard,
@@ -29,6 +28,8 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import SEO from "@/components/seo/SEO";
 import ScrollToTopButton from "@/components/ui/ScrollToTopButton";
+import PageBanner from "@/components/ui/PageBanner";
+import PageContainer from "@/components/ui/PageContainer";
 import {
   Select,
   SelectContent,
@@ -154,7 +155,7 @@ const Checkout = () => {
     if (isPixModalOpen && paymentMethod === "pix") {
       // Gerar código Pix simulado (em produção, viria da API)
       setPixCode(
-        "00020126580014br.gov.bcb.pix0136123e4567-e12b-12d1-a456-4266554400005204000053039865802BR5913thisday EVENTO6009SAO PAULO62070503***6304"
+        "00020126580014br.gov.bcb.pix0136123e4567-e12b-12d1-a456-4266554400005204000053039865802BR5913shareday EVENTO6009SAO PAULO62070503***6304"
       );
       setTimeLeft(600);
     }
@@ -259,31 +260,25 @@ const Checkout = () => {
   return (
     <>
       <SEO
-        title="Checkout - thisday | Finalize seu pagamento"
+        title="Checkout - shareday | Finalize seu pagamento"
         description="Finalize o pagamento do seu evento. Aceitamos Pix e cartão de crédito com parcelamento em até 10x."
         keywords="checkout plataforma, pagamento evento, pix evento, cartão crédito evento"
-        url="https://thisday.app/checkout"
+        url="https://shareday.app/checkout"
         noindex={true}
         nofollow={true}
       />
       <div className="min-h-screen bg-background">
-        <header className="border-b border-border/50 bg-background/80 backdrop-blur-md sticky top-0 z-50">
-          <div className="container px-6 py-4">
-            <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate("/criar-evento")}
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Voltar
-              </Button>
-              <span className="text-xl font-bold text-foreground">thisday</span>
-            </div>
-          </div>
-        </header>
+        <PageBanner
+          title="Finalizar pagamento"
+          backTo="/criar-evento"
+          description={
+            isAdditionalPhotosCheckout
+              ? "Libere seus arquivos adicionais com pagamento rápido e seguro."
+              : "Complete o pagamento para concluir a criação do evento."
+          }
+        />
 
-        <main className="container px-6 py-12">
+        <PageContainer>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -292,18 +287,6 @@ const Checkout = () => {
           >
             {/* Formulário de Pagamento */}
             <div className="md:col-span-2 space-y-6">
-              <div>
-                <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
-                  Finalizar pagamento
-                </h1>
-                <p className="text-muted-foreground">
-                  Complete seu pagamento para{" "}
-                  {isAdditionalPhotosCheckout
-                    ? "liberar os arquivos"
-                    : "criar o evento"}
-                </p>
-              </div>
-
               {/* Método de Pagamento */}
               <Card>
                 <CardHeader>
@@ -700,7 +683,7 @@ const Checkout = () => {
               </Card>
             </div>
           </motion.div>
-        </main>
+        </PageContainer>
 
         {/* Modal Pix */}
         <Dialog open={isPixModalOpen} onOpenChange={setIsPixModalOpen}>
@@ -724,8 +707,8 @@ const Checkout = () => {
                 </div>
 
                 {/* QR Code */}
-                <div className="flex justify-center p-4 bg-thisday-white rounded-lg border border-border">
-                  <div className="w-full max-w-[200px] aspect-square bg-thisday-white flex items-center justify-center border-2 border-dashed border-muted-foreground/20 rounded-lg">
+                <div className="flex justify-center p-4 bg-shareday-white rounded-lg border border-border">
+                  <div className="w-full max-w-[200px] aspect-square bg-shareday-white flex items-center justify-center border-2 border-dashed border-muted-foreground/20 rounded-lg">
                     <QrCode className="h-24 w-24 text-muted-foreground/30" />
                     {/* Em produção, aqui seria uma imagem real do QR Code */}
                   </div>

@@ -67,7 +67,7 @@ const UploadPage = () => {
   return (
     <>
       <SEO
-        title="Enviar fotos e vídeos - thisday"
+        title="Enviar fotos e vídeos - shareday"
         description="Envie suas fotos e vídeos para o evento usando este link. Simples, rápido e sem necessidade de cadastro."
         noindex={true}
         nofollow={true}

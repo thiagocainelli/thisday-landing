@@ -2,7 +2,6 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
-  ArrowLeft,
   Mail,
   MessageSquare,
   Send,
@@ -19,6 +18,8 @@ import { useToast } from "@/hooks/useToast";
 import { applyPhoneMask } from "@/utils/phoneMask";
 import SEO from "@/components/seo/SEO";
 import ScrollToTopButton from "@/components/ui/ScrollToTopButton";
+import PageBanner from "@/components/ui/PageBanner";
+import PageContainer from "@/components/ui/PageContainer";
 
 interface ContactInfoItem {
   icon: LucideIcon;
@@ -84,8 +85,8 @@ const Contact = () => {
     {
       icon: Mail,
       title: "E-mail",
-      content: "contato@thisday.com.br",
-      href: "mailto:contato@thisday.com.br",
+      content: "contato@shareday.com.br",
+      href: "mailto:contato@shareday.com.br",
     },
     {
       icon: Phone,
@@ -96,15 +97,15 @@ const Contact = () => {
     {
       icon: Instagram,
       title: "Instagram",
-      content: "@thisday",
-      href: "https://www.instagram.com/thisday",
+      content: "@shareday",
+      href: "https://www.instagram.com/shareday",
       isExternal: true,
     },
     {
       icon: Linkedin,
       title: "LinkedIn",
-      content: "/company/thisday",
-      href: "https://www.linkedin.com/company/thisday",
+      content: "/company/shareday",
+      href: "https://www.linkedin.com/company/shareday",
       isExternal: true,
     },
     {
@@ -142,27 +143,15 @@ const Contact = () => {
   return (
     <>
       <SEO
-        title="Contato - thisday | Fale conosco"
-        description="Entre em contato com a equipe thisday. Tire suas dúvidas, envie sugestões ou solicite ajuda. Respondemos em até 24 horas úteis."
-        keywords="contato thisday, suporte thisday, ajuda thisday, dúvidas thisday"
-        url="https://thisday.app/contato"
+        title="Contato - shareday | Fale conosco"
+        description="Entre em contato com a equipe shareday. Tire suas dúvidas, envie sugestões ou solicite ajuda. Respondemos em até 24 horas úteis."
+        keywords="contato shareday, suporte shareday, ajuda shareday, dúvidas shareday"
+        url="https://shareday.app/contato"
       />
       <div className="min-h-screen bg-background">
-        <header className="border-b border-border/50 bg-background/80 backdrop-blur-md sticky top-0 z-50">
-          <div className="container px-6 py-4">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="sm" asChild>
-                <Link to="/">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Voltar
-                </Link>
-              </Button>
-              <span className="text-xl font-bold text-foreground">thisday</span>
-            </div>
-          </div>
-        </header>
+        <PageBanner title="Fale conosco" backTo="/" />
 
-        <main className="container px-6 py-16">
+        <PageContainer>
           <div className="grid md:grid-cols-2 gap-12 items-start">
             {/* Contact Info */}
             <motion.div
@@ -170,9 +159,6 @@ const Contact = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-                Fale conosco
-              </h1>
               <p className="text-muted-foreground text-lg mb-8 leading-relaxed">
                 Tem alguma dúvida, sugestão ou precisa de ajuda? Estamos aqui
                 para ajudar. Envie sua mensagem e responderemos em breve.
@@ -193,7 +179,7 @@ const Contact = () => {
             >
               <form
                 onSubmit={handleSubmit}
-                className="bg-thisday-white rounded-2xl border border-border/50 p-8 shadow-sm"
+                className="bg-shareday-white rounded-2xl border border-border/50 p-8 shadow-sm"
               >
                 <div className="space-y-6">
                   <div className="grid sm:grid-cols-2 gap-4">
@@ -284,7 +270,7 @@ const Contact = () => {
               </form>
             </motion.div>
           </div>
-        </main>
+        </PageContainer>
         <ScrollToTopButton />
       </div>
     </>

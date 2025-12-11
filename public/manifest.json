@@ -1,6 +1,6 @@
 {
-  "name": "thisday",
-  "short_name": "thisday",
+  "name": "shareday",
+  "short_name": "shareday",
   "description": "Um dia. Várias memórias. Centralize todas as fotos e vídeos do seu evento em um único lugar.",
   "start_url": "/",
   "display": "standalone",

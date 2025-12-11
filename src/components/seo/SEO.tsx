@@ -16,11 +16,11 @@ interface SEOProps {
  * Melhora o SEO e permite diferentes títulos/descrições por rota
  */
 const SEO = ({
-  title = "thisday - Reúna todas as fotos do seu evento com QR Code",
+  title = "shareday - Reúna todas as fotos do seu evento com QR Code",
   description = "Centralize todas as fotos e vídeos do seu evento em um único lugar usando apenas um QR Code. Simples, rápido e temporário.",
   keywords = "fotos evento, vídeos evento, QR code fotos, compartilhar fotos evento, casamento fotos, festa fotos",
-  image = "https://thisday.app/og-image.jpg",
-  url = "https://thisday.app",
+  image = "https://shareday.app/og-image.jpg",
+  url = "https://shareday.app",
   type = "website",
   noindex = false,
   nofollow = false,

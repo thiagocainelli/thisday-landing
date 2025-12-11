@@ -3,7 +3,7 @@
  */
 export const applyWatermark = (
   imageUrl: string,
-  text: string = "thisday"
+  text: string = "shareday"
 ): Promise<string> => {
   return new Promise((resolve, reject) => {
     const img = new Image();
