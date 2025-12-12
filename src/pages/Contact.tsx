@@ -1,6 +1,7 @@
-import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Mail,
   MessageSquare,
@@ -13,13 +14,16 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/useToast";
-import { applyPhoneMask } from "@/utils/phoneMask";
 import SEO from "@/components/seo/SEO";
 import ScrollToTopButton from "@/components/ui/ScrollToTopButton";
 import PageBanner from "@/components/ui/PageBanner";
 import PageContainer from "@/components/ui/PageContainer";
+import NameField from "@/components/forms/NameField";
+import EmailField from "@/components/forms/EmailField";
+import PhoneField from "@/components/forms/PhoneField";
+import FormFieldWrapper from "@/components/forms/FormFieldWrapper";
+import { contactSchema, type ContactFormData } from "@/schemas/contact.schema";
 
 interface ContactInfoItem {
   icon: LucideIcon;
@@ -72,13 +76,21 @@ const ContactInfoCard = ({
 
 const Contact = () => {
   const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    subject: "",
-    message: "",
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm<ContactFormData>({
+    resolver: zodResolver(contactSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      phone: "",
+      subject: "",
+      message: "",
+    },
   });
 
   const contactInfo: ContactInfoItem[] = [
@@ -115,10 +127,7 @@ const Contact = () => {
     },
   ];
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
+  const onSubmit = async (data: ContactFormData) => {
     // Simulate form submission
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
@@ -127,17 +136,7 @@ const Contact = () => {
       description: "Entraremos em contato em breve.",
     });
 
-    setFormData({ name: "", email: "", phone: "", subject: "", message: "" });
-    setIsSubmitting(false);
-  };
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
+    reset();
   };
 
   return (
@@ -178,77 +177,84 @@ const Contact = () => {
               transition={{ duration: 0.5, delay: 0.1 }}
             >
               <form
-                onSubmit={handleSubmit}
+                onSubmit={handleSubmit(onSubmit)}
                 className="bg-shareday-white rounded-2xl border border-border/50 p-8 shadow-sm"
               >
                 <div className="space-y-6">
                   <div className="grid sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="name">Nome</Label>
-                      <Input
-                        id="name"
-                        name="name"
-                        placeholder="Seu nome"
-                        value={formData.name}
-                        onChange={handleChange}
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="email">E-mail</Label>
-                      <Input
-                        id="email"
-                        name="email"
-                        type="email"
-                        placeholder="seu@email.com"
-                        value={formData.email}
-                        onChange={handleChange}
-                        required
-                      />
-                    </div>
-                  </div>
+                    <NameField
+                      control={control}
+                      name="name"
+                      label="Nome"
+                      placeholder="Seu nome"
+                      error={errors.name?.message}
+                      disabled={isSubmitting}
+                      required={true}
+                    />
 
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Celular</Label>
-                    <Input
-                      id="phone"
-                      name="phone"
-                      type="tel"
-                      placeholder="(11) 98765-4321"
-                      value={formData.phone}
-                      onChange={(e) => {
-                        const masked = applyPhoneMask(e.target.value);
-                        setFormData((prev) => ({ ...prev, phone: masked }));
-                      }}
-                      maxLength={15}
+                    <EmailField
+                      control={control}
+                      name="email"
+                      label="E-mail"
+                      placeholder="seu@email.com"
+                      error={errors.email?.message}
+                      disabled={isSubmitting}
+                      required={true}
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="subject">Assunto</Label>
-                    <Input
-                      id="subject"
+                  <PhoneField
+                    control={control}
+                    name="phone"
+                    label="Celular"
+                    placeholder="(11) 98765-4321"
+                    error={errors.phone?.message}
+                    disabled={isSubmitting}
+                    required={false}
+                  />
+
+                  <FormFieldWrapper
+                    label="Assunto"
+                    htmlFor="subject"
+                    required={true}
+                    error={errors.subject?.message}
+                  >
+                    <Controller
                       name="subject"
-                      placeholder="Como podemos ajudar?"
-                      value={formData.subject}
-                      onChange={handleChange}
-                      required
+                      control={control}
+                      render={({ field }) => (
+                        <Input
+                          id="subject"
+                          placeholder="Como podemos ajudar?"
+                          className={errors.subject ? "border-destructive" : ""}
+                          disabled={isSubmitting}
+                          {...field}
+                        />
+                      )}
                     />
-                  </div>
+                  </FormFieldWrapper>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="message">Mensagem</Label>
-                    <Textarea
-                      id="message"
+                  <FormFieldWrapper
+                    label="Mensagem"
+                    htmlFor="message"
+                    required={true}
+                    error={errors.message?.message}
+                  >
+                    <Controller
                       name="message"
-                      placeholder="Escreva sua mensagem aqui..."
-                      rows={5}
-                      value={formData.message}
-                      onChange={handleChange}
-                      required
-                      className="resize-none"
+                      control={control}
+                      render={({ field }) => (
+                        <Textarea
+                          id="message"
+                          placeholder="Escreva sua mensagem aqui..."
+                          rows={5}
+                          className={`resize-none ${errors.message ? "border-destructive" : ""}`}
+                          disabled={isSubmitting}
+                          {...field}
+                        />
+                      )}
                     />
-                  </div>
+                  </FormFieldWrapper>
 
                   <Button
                     type="submit"

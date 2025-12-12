@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 import { useNavigate, useSearchParams, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import {
   Copy,
   Check,
@@ -48,23 +47,7 @@ import { useToast } from "@/hooks/useToast";
 import { applyPhoneMask } from "@/utils/phoneMask";
 import { formatCurrencyBRL } from "@/utils/currencyBRL";
 import CreditCard3D from "@/components/ui/CreditCard3D";
-
-const cardFormSchema = z.object({
-  cardNumber: z
-    .string()
-    .min(13, "Número do cartão inválido")
-    .refine(
-      (val) =>
-        val.replace(/\s/g, "").length >= 13 &&
-        val.replace(/\s/g, "").length <= 19,
-      "Número do cartão inválido"
-    ),
-  cardName: z.string().min(3, "Nome no cartão é obrigatório"),
-  cardExpiry: z.string().regex(/^\d{2}\/\d{2}$/, "Data inválida (MM/AA)"),
-  cardCvv: z.string().min(3, "CVV inválido").max(4, "CVV inválido"),
-});
-
-type CardFormData = z.infer<typeof cardFormSchema>;
+import { cardFormSchema, type CardFormData } from "@/schemas/payment.schema";
 
 type PaymentMethod = "pix" | "credit";
 

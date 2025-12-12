@@ -1,13 +1,11 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Control, FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { Check, ArrowRight, FileText, Shield, AlertCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Card,
@@ -27,47 +25,21 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/useToast";
 import { PLANS, getPlanById } from "@/constants/plans";
-import { EVENT_TYPES, type EventTypeValue } from "@/constants/eventTypes";
 import { formatCurrencyBRL } from "@/utils/currencyBRL";
-import { applyPhoneMask, removePhoneMask } from "@/utils/phoneMask";
+import { removePhoneMask } from "@/utils/phoneMask";
 import SEO from "@/components/seo/SEO";
 import ScrollToTopButton from "@/components/ui/ScrollToTopButton";
 import PageBanner from "@/components/ui/PageBanner";
 import PageContainer from "@/components/ui/PageContainer";
+import EventFormFields, {
+  EventFormFieldsData,
+} from "@/components/forms/EventFormFields";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  eventFormSchema,
+  type EventFormPublicData,
+} from "@/schemas/event.schema";
 
-const eventFormSchema = z.object({
-  fullName: z.string().min(3, "Nome completo deve ter pelo menos 3 caracteres"),
-  email: z.string().email("E-mail inválido"),
-  phone: z
-    .string()
-    .min(1, "Telefone é obrigatório")
-    .refine(
-      (value) => removePhoneMask(value).length === 11,
-      "Telefone deve ter 11 dígitos (DDD + número)"
-    ),
-  eventName: z
-    .string()
-    .min(3, "Nome do evento deve ter pelo menos 3 caracteres"),
-  eventDate: z.string().min(1, "Data do evento é obrigatória"),
-  eventType: z.enum(
-    EVENT_TYPES.map((type) => type.value) as [
-      EventTypeValue,
-      ...EventTypeValue[],
-    ],
-    {
-      message: "Selecione o tipo do evento",
-    },
-  ),
-});
-
-type EventFormData = z.infer<typeof eventFormSchema>;
+type EventFormData = EventFormPublicData;
 
 const CreateEvent = () => {
   const navigate = useNavigate();
@@ -96,7 +68,6 @@ const CreateEvent = () => {
   }, [searchParams]);
 
   const {
-    register,
     handleSubmit,
     control,
     formState: { errors, isSubmitting },
@@ -230,141 +201,13 @@ const CreateEvent = () => {
                       Informações sobre você e seu evento
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <Label htmlFor="fullName">Nome completo *</Label>
-                        <Input
-                          id="fullName"
-                          placeholder="Seu nome completo"
-                          {...register("fullName")}
-                          className={
-                            errors.fullName ? "border-destructive" : ""
-                          }
-                        />
-                        {errors.fullName && (
-                          <p className="text-sm text-destructive">
-                            {errors.fullName.message}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="email">E-mail *</Label>
-                        <Input
-                          id="email"
-                          type="email"
-                          placeholder="seu@email.com"
-                          {...register("email")}
-                          className={errors.email ? "border-destructive" : ""}
-                        />
-                        {errors.email && (
-                          <p className="text-sm text-destructive">
-                            {errors.email.message}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="phone">Telefone *</Label>
-                        <Controller
-                          name="phone"
-                          control={control}
-                          render={({ field }) => (
-                            <Input
-                              id="phone"
-                              type="tel"
-                              placeholder="(00) 00000-0000"
-                              value={field.value || ""}
-                              onChange={(e) => {
-                                const maskedValue = applyPhoneMask(
-                                  e.target.value
-                                );
-                                field.onChange(maskedValue);
-                              }}
-                              onBlur={field.onBlur}
-                              className={
-                                errors.phone ? "border-destructive" : ""
-                              }
-                              maxLength={15}
-                            />
-                          )}
-                        />
-                        {errors.phone && (
-                          <p className="text-sm text-destructive">
-                            {errors.phone.message}
-                          </p>
-                        )}
-                      </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="eventDate">Data do evento *</Label>
-                      <Input
-                        id="eventDate"
-                        type="date"
-                        {...register("eventDate")}
-                        className={
-                          errors.eventDate ? "border-destructive" : ""
-                        }
-                        min={new Date().toISOString().split("T")[0]}
-                      />
-                      {errors.eventDate && (
-                        <p className="text-sm text-destructive">
-                          {errors.eventDate.message}
-                        </p>
-                      )}
-                    </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="eventName">Nome do evento *</Label>
-                      <Input
-                        id="eventName"
-                        placeholder="Ex: Casamento Ana & Pedro"
-                        {...register("eventName")}
-                        className={errors.eventName ? "border-destructive" : ""}
-                      />
-                      {errors.eventName && (
-                        <p className="text-sm text-destructive">
-                          {errors.eventName.message}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="eventType">Tipo do evento *</Label>
-                      <Controller
-                        name="eventType"
-                        control={control}
-                        render={({ field }) => (
-                          <Select
-                            value={field.value}
-                            onValueChange={field.onChange}
-                          >
-                            <SelectTrigger
-                              id="eventType"
-                              className={
-                                errors.eventType ? "border-destructive" : ""
-                              }
-                            >
-                              <SelectValue placeholder="Selecione o tipo do evento" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {EVENT_TYPES.map((type) => (
-                                <SelectItem key={type.value} value={type.value}>
-                                  {type.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        )}
-                      />
-                      {errors.eventType && (
-                        <p className="text-sm text-destructive">
-                          {errors.eventType.message}
-                        </p>
-                      )}
-                    </div>
+                  <CardContent>
+                    <EventFormFields
+                      control={control as Control<EventFormFieldsData>}
+                      errors={errors as FieldErrors<EventFormFieldsData>}
+                      disabled={isSubmitting}
+                      showPlanSelection={false}
+                    />
                   </CardContent>
                 </Card>
 
