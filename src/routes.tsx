@@ -24,6 +24,7 @@ const AdminUsers = lazy(() => import("./pages/admin/Users"));
 const AdminCustomers = lazy(() => import("./pages/admin/Customers"));
 const AdminPayments = lazy(() => import("./pages/admin/Payments"));
 const AdminPlans = lazy(() => import("./pages/admin/Plans"));
+const AdminProfile = lazy(() => import("./pages/admin/Profile"));
 
 /**
  * Configuração centralizada de rotas
@@ -108,6 +109,10 @@ export const routes: RouteObject[] = [
       {
         path: "plans",
         element: <AdminPlans />,
+      },
+      {
+        path: "profile",
+        element: <AdminProfile />,
       },
     ],
   },

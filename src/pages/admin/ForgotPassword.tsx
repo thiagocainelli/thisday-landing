@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft, Send, Mail } from "lucide-react";
+import { ArrowLeft, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useForgotPassword } from "@/hooks/useAuth";
 import EmailField from "@/components/forms/EmailField";
@@ -30,7 +30,6 @@ const ForgotPassword = () => {
 
   return (
     <AuthCardLayout
-      icon={Mail}
       title="Recuperar Senha"
       description="Digite seu e-mail para receber instruções de recuperação"
     >

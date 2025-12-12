@@ -1,7 +1,7 @@
 import { Link, useSearchParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft, CheckCircle2, Lock } from "lucide-react";
+import { ArrowLeft, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useResetPassword } from "@/hooks/useAuth";
 import PasswordField from "@/components/forms/PasswordField";
@@ -36,7 +36,6 @@ const ResetPassword = () => {
 
   return (
     <AuthCardLayout
-      icon={Lock}
       title="Redefinir Senha"
       description="Digite sua nova senha abaixo"
     >

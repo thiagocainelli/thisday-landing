@@ -1,6 +1,5 @@
 import { ReactNode } from "react";
 import { motion } from "framer-motion";
-import { LucideIcon } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -9,16 +8,15 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { AUTH_PAGE_CLASSES } from "@/utils/authPageUtils";
+import logoLight from "@/assets/logo_light_without_bg.png";
 
 interface AuthCardLayoutProps {
-  icon: LucideIcon;
   title: string;
   description: string;
   children: ReactNode;
 }
 
 const AuthCardLayout = ({
-  icon: Icon,
   title,
   description,
   children,
@@ -33,10 +31,8 @@ const AuthCardLayout = ({
       >
         <Card className={AUTH_PAGE_CLASSES.card}>
           <CardHeader className="space-y-1 text-center">
-            <div className="flex justify-center mb-4">
-              <div className={AUTH_PAGE_CLASSES.iconWrapper}>
-                <Icon className={AUTH_PAGE_CLASSES.icon} />
-              </div>
+            <div className="flex justify-center">
+              <img src={logoLight} alt="Logo" className="w-52" />
             </div>
             <CardTitle className="text-2xl font-bold">{title}</CardTitle>
             <CardDescription>{description}</CardDescription>

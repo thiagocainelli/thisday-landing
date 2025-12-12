@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLogin } from "@/hooks/useAuth";
 import EmailField from "@/components/forms/EmailField";
@@ -9,6 +8,7 @@ import PasswordField from "@/components/forms/PasswordField";
 import { loginSchema, type LoginFormData } from "@/schemas/auth.schema";
 import { getLoadingButtonLabel } from "@/utils/formUtils";
 import AuthCardLayout from "@/components/admin/AuthCardLayout";
+import { LogIn } from "lucide-react";
 
 const Login = () => {
   const { mutate: login, isPending } = useLogin();
@@ -30,7 +30,6 @@ const Login = () => {
 
   return (
     <AuthCardLayout
-      icon={LogIn}
       title="Acesso Administrativo"
       description="Entre com suas credenciais para acessar o painel"
     >
