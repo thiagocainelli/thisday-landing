@@ -1,5 +1,5 @@
 import { lazy } from "react";
-import { RouteObject } from "react-router-dom";
+import { RouteObject, Navigate } from "react-router-dom";
 import ProtectedRoute from "./components/admin/ProtectedRoute";
 import AdminLayout from "./components/admin/AdminLayout";
 
@@ -25,6 +25,7 @@ const AdminCustomers = lazy(() => import("./pages/admin/Customers"));
 const AdminPayments = lazy(() => import("./pages/admin/Payments"));
 const AdminPlans = lazy(() => import("./pages/admin/Plans"));
 const AdminProfile = lazy(() => import("./pages/admin/Profile"));
+const AdminSettings = lazy(() => import("./pages/admin/Settings"));
 
 /**
  * Configuração centralizada de rotas
@@ -87,6 +88,10 @@ export const routes: RouteObject[] = [
     ),
     children: [
       {
+        index: true,
+        element: <Navigate to="/admin/dashboard" replace />,
+      },
+      {
         path: "dashboard",
         element: <AdminDashboard />,
       },
@@ -113,6 +118,10 @@ export const routes: RouteObject[] = [
       {
         path: "profile",
         element: <AdminProfile />,
+      },
+      {
+        path: "settings",
+        element: <AdminSettings />,
       },
     ],
   },

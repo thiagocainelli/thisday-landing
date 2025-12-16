@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import PriceInput from "@/components/ui/PriceInput";
 import { X } from "lucide-react";
 import { useCreatePlan, useUpdatePlan, usePlan } from "@/hooks/usePlans";
 import { CreatePlanDto, UpdatePlanDto } from "@/types/plans.dto";
@@ -31,11 +32,12 @@ const PlanForm = ({ planId, onSuccess, onCancel }: PlanFormProps) => {
     control,
     formState: { errors },
     reset,
+    setValue,
   } = useForm<PlanFormData>({
     resolver: zodResolver(planSchema),
     defaultValues: {
       name: "",
-      photos: 0,
+      storage: 0,
       duration: 0,
       price: 0,
       description: "",
@@ -53,7 +55,7 @@ const PlanForm = ({ planId, onSuccess, onCancel }: PlanFormProps) => {
     if (plan) {
       reset({
         name: plan.name,
-        photos: plan.photos,
+        storage: plan.storage,
         duration: plan.duration,
         price: plan.price,
         description: plan.description,
@@ -102,16 +104,20 @@ const PlanForm = ({ planId, onSuccess, onCancel }: PlanFormProps) => {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="photos">Número de Fotos *</Label>
+          <Label htmlFor="storage">Armazenamento (GB) *</Label>
           <Input
-            id="photos"
+            id="storage"
             type="number"
-            {...register("photos", { valueAsNumber: true })}
-            className={cn(errors.photos && "border-destructive")}
+            min="1"
+            {...register("storage", { valueAsNumber: true })}
+            className={cn(errors.storage && "border-destructive")}
             disabled={isPending}
           />
-          {errors.photos && (
-            <p className="text-sm text-destructive">{errors.photos.message}</p>
+          <p className="text-xs text-muted-foreground">
+            Armazenamento disponível em GB (ex: 50, 100, 500, 1000)
+          </p>
+          {errors.storage && (
+            <p className="text-sm text-destructive">{errors.storage.message}</p>
           )}
         </div>
 
@@ -133,13 +139,21 @@ const PlanForm = ({ planId, onSuccess, onCancel }: PlanFormProps) => {
 
         <div className="space-y-2">
           <Label htmlFor="price">Preço (R$) *</Label>
-          <Input
-            id="price"
-            type="number"
-            step="0.01"
-            {...register("price", { valueAsNumber: true })}
-            className={cn(errors.price && "border-destructive")}
-            disabled={isPending}
+          <Controller
+            name="price"
+            control={control}
+            render={({ field }) => (
+              <PriceInput
+                id="price"
+                value={field.value}
+                onChange={(value) => {
+                  field.onChange(value);
+                  setValue("price", value, { shouldValidate: true });
+                }}
+                error={!!errors.price}
+                disabled={isPending}
+              />
+            )}
           />
           {errors.price && (
             <p className="text-sm text-destructive">{errors.price.message}</p>

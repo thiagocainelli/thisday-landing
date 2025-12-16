@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Shield, Clock, Trash2, Eye, CheckCircle2 } from "lucide-react";
+import SectionHeader from "./SectionHeader";
 
 const Security = () => {
   const points = [
@@ -28,20 +29,12 @@ const Security = () => {
   return (
     <section className="py-section bg-gradient-to-br from-[#f5f7ff] via-background to-[#eef5ff]">
       <div className="container">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-12"
-        >
-          <span className="inline-block text-sm font-medium tracking-wide uppercase text-primary/70 mb-4">
-            Segurança e privacidade
-          </span>
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-            Seus dados, sua tranquilidade
-          </h2>
-        </motion.div>
+        <SectionHeader
+          label="Segurança e privacidade"
+          title="Seus dados, sua tranquilidade"
+          description="Privacidade e segurança garantidas em cada etapa do processo."
+          className="mb-12"
+        />
 
         <div className="space-y-4">
           {points.map((point, index) => {

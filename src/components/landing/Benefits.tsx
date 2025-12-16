@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Users, Zap, Smartphone, Clock, Timer, Sparkles } from "lucide-react";
+import SectionHeader from "./SectionHeader";
 
 const benefits = [
   {
@@ -65,29 +66,12 @@ const Benefits = () => {
       />
 
       <div className="container relative">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-16"
-        >
-          <motion.span
-            initial={{ opacity: 0, scale: 0.8 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            className="inline-flex items-center gap-2 text-sm font-medium tracking-wide uppercase text-primary/70 mb-4"
-          >
-            <Sparkles className="h-4 w-4" />
-            Benefícios
-          </motion.span>
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Por que escolher shareday
-          </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Mais engajamento, menos trabalho manual e privacidade garantida.
-          </p>
-        </motion.div>
+        <SectionHeader
+          label="Benefícios"
+          icon={Sparkles}
+          title="Por que escolher shareday"
+          description="Mais engajamento, menos trabalho manual e privacidade garantida."
+        />
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
           {benefits.map((benefit, index) => {

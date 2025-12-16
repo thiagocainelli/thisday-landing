@@ -20,6 +20,7 @@ import PasswordField from "@/components/forms/PasswordField";
 import FormFieldWrapper from "@/components/forms/FormFieldWrapper";
 import { userSchema, type UserFormData } from "@/schemas/user.schema";
 import { getSubmitButtonLabel } from "@/utils/formUtils";
+import { cn } from "@/lib/utils";
 
 interface UserFormProps {
   userId?: string;

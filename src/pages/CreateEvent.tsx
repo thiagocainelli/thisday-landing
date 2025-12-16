@@ -180,7 +180,7 @@ const CreateEvent = () => {
                                 {formatCurrencyBRL(plan.price)}
                               </div>
                               <div className="text-sm text-muted-foreground">
-                                Até {plan.photos} fotos
+                                {plan.storageFormatted} de armazenamento
                               </div>
                               <div className="text-sm text-muted-foreground">
                                 {plan.duration}
@@ -221,7 +221,7 @@ const CreateEvent = () => {
                             Plano selecionado: {selectedPlanData.name}
                           </h3>
                           <p className="text-sm text-muted-foreground">
-                            {selectedPlanData.photos} fotos •{" "}
+                            {selectedPlanData.storageFormatted} de armazenamento •{" "}
                             {selectedPlanData.duration}
                           </p>
                         </div>

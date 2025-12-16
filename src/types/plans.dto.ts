@@ -1,6 +1,6 @@
 export interface CreatePlanDto {
   name: string;
-  photos: number;
+  storage: number; // em GB
   duration: number; // em dias
   price: number;
   description?: string;
@@ -11,7 +11,7 @@ export interface CreatePlanDto {
 export interface UpdatePlanDto {
   id: string;
   name?: string;
-  photos?: number;
+  storage?: number; // em GB
   duration?: number;
   price?: number;
   description?: string;
@@ -22,7 +22,8 @@ export interface UpdatePlanDto {
 export interface ListPlanDto {
   id: string;
   name: string;
-  photos: number;
+  storage: number; // em GB
+  storageFormatted: string;
   duration: number;
   price: number;
   description?: string;
@@ -36,4 +37,3 @@ export interface ReadPlanDto extends ListPlanDto {
   features: string[];
   updatedAt: string;
 }
-

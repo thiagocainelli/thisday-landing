@@ -8,6 +8,7 @@ import {
   TrendingDown,
   Users,
 } from "lucide-react";
+import SectionHeader from "./SectionHeader";
 
 const ProblemSection = () => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
@@ -64,32 +65,22 @@ const ProblemSection = () => {
       </div>
 
       <div className="container relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16"
-        >
-          <motion.span
-            initial={{ opacity: 0, scale: 0.8 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            className="inline-flex items-center gap-2 text-sm font-medium tracking-wide uppercase text-white/80 mb-4"
-          >
-            <AlertCircle className="h-4 w-4" />O problema
-          </motion.span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6 leading-tight">
-            Você conhece essa{" "}
-            <span className="bg-gradient-to-r from-white via-blue-100 to-cyan-100 bg-clip-text text-transparent">
-              história?
-            </span>
-          </h2>
-          <p className="text-white/90 text-lg md:text-xl max-w-3xl mx-auto leading-relaxed">
-            Depois de todo evento, as melhores fotos e vídeos ficam espalhados
-            em dezenas de celulares e a maioria nunca são compartilhados.
-          </p>
-        </motion.div>
+        <SectionHeader
+          label="O problema"
+          icon={AlertCircle}
+          title={
+            <>
+              Você conhece essa{" "}
+              <span className="bg-gradient-to-r from-white via-blue-100 to-cyan-100 bg-clip-text text-transparent">
+                história?
+              </span>
+            </>
+          }
+          description="Depois de todo evento, as melhores fotos e vídeos ficam espalhados em dezenas de celulares e a maioria nunca são compartilhados."
+          labelClassName="text-white/80"
+          titleClassName="text-white leading-tight"
+          descriptionClassName="text-white/90"
+        />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {problems.map((problem, index) => {

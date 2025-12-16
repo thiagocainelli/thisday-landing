@@ -18,6 +18,7 @@ import {
   customerSchema,
   type CustomerFormData,
 } from "@/schemas/customer.schema";
+import { getSubmitButtonLabel } from "@/utils/formUtils";
 
 interface CustomerFormProps {
   customerId?: string;

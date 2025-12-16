@@ -1,1 +1,2 @@
-export const ADDITIONAL_PHOTO_PRICE = 0.3;
+// Preço por GB de armazenamento adicional
+export const ADDITIONAL_STORAGE_PRICE_PER_GB = 2.5;

@@ -3,7 +3,7 @@ import HowItWorks from "@/components/landing/HowItWorks";
 import ProblemSection from "@/components/landing/ProblemSection";
 import SolutionSection from "@/components/landing/SolutionSection";
 import UseCases from "@/components/landing/UseCases";
-import GalleryShowcase from "@/components/landing/GalleryShowcase";
+// import GalleryShowcase from "@/components/landing/GalleryShowcase";
 import Testimonials from "@/components/landing/Testimonials";
 import Benefits from "@/components/landing/Benefits";
 import Pricing from "@/components/landing/Pricing";
@@ -28,7 +28,7 @@ const Index = () => {
           <HowItWorks />
           <ProblemSection />
           <SolutionSection />
-          <GalleryShowcase />
+          {/* <GalleryShowcase /> */}
           <UseCases />
           <Benefits />
           <Testimonials />

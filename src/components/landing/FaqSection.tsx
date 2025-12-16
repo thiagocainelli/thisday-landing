@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { HelpCircle } from "lucide-react";
 import { Link } from "react-router-dom";
+import SectionHeader from "./SectionHeader";
 import {
   Accordion,
   AccordionContent,
@@ -49,27 +50,13 @@ const FaqSection = () => {
   return (
     <section className="py-section bg-gradient-to-br from-[#f5f7ff] via-shareday-white to-[#eef4ff]">
       <div className="container px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-12"
-        >
-          <div className="inline-flex items-center gap-2 mb-4">
-            <HelpCircle className="h-5 w-5 text-primary" />
-            <span className="text-sm font-medium tracking-wide uppercase text-primary/70">
-              Perguntas frequentes
-            </span>
-          </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-            Dúvidas comuns
-          </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Encontre respostas rápidas sobre como usar a plataforma em eventos
-            pessoais e corporativos.
-          </p>
-        </motion.div>
+        <SectionHeader
+          label="Perguntas frequentes"
+          icon={HelpCircle}
+          title="Dúvidas comuns"
+          description="Encontre respostas rápidas sobre como usar a plataforma em eventos pessoais e corporativos."
+          className="mb-12"
+        />
 
         <Accordion type="single" collapsible className="w-full space-y-4">
           {faqItems.map((item, idx) => (

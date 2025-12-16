@@ -19,30 +19,31 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatCurrencyBRL } from "@/utils/currencyBRL";
-import { ADDITIONAL_PHOTO_PRICE } from "@/constants/pricing";
+import { ADDITIONAL_STORAGE_PRICE_PER_GB } from "@/constants/pricing";
+import { formatStorage } from "@/utils/storageFormatter";
 
-interface AdditionalPhotosPurchaseProps {
-  additionalPhotosCount: number;
-  onPurchase: (quantity: number) => void;
+interface AdditionalStoragePurchaseProps {
+  additionalStorageGB: number;
+  onPurchase: (storageGB: number) => void;
 }
 
-const AdditionalPhotosPurchase = ({
-  additionalPhotosCount,
+const AdditionalStoragePurchase = ({
+  additionalStorageGB,
   onPurchase,
-}: AdditionalPhotosPurchaseProps) => {
+}: AdditionalStoragePurchaseProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [quantity, setQuantity] = useState(1);
+  const [storageGB, setStorageGB] = useState(1);
 
-  if (additionalPhotosCount === 0) return null;
+  if (additionalStorageGB === 0) return null;
 
-  const maxQuantity = additionalPhotosCount;
-  const totalPrice = quantity * ADDITIONAL_PHOTO_PRICE;
+  const minStorageGB = Math.ceil(additionalStorageGB);
+  const totalPrice = storageGB * ADDITIONAL_STORAGE_PRICE_PER_GB;
 
   const handlePurchase = () => {
-    if (quantity > 0 && quantity <= maxQuantity) {
-      onPurchase(quantity);
+    if (storageGB >= minStorageGB) {
+      onPurchase(storageGB);
       setIsOpen(false);
-      setQuantity(1);
+      setStorageGB(minStorageGB);
     }
   };
 
@@ -62,16 +63,15 @@ const AdditionalPhotosPurchase = ({
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                    Arquivos adicionais detectadas
+                    Armazenamento adicional necessário
                   </h3>
                   <p className="text-sm text-gray-600">
-                    Você tem <strong>{additionalPhotosCount} arquivo(s)</strong>{" "}
-                    (fotos e vídeos) acima do limite do seu plano. Os arquivos
-                    adicionais estão com marca d'água.
+                    Você está usando <strong>{formatStorage(additionalStorageGB)}</strong>{" "}
+                    além do limite do seu plano. Os arquivos que excedem o limite estão com marca d'água.
                   </p>
                   <p className="text-xs text-gray-500 mt-1">
-                    Remova a marca d'água comprando arquivos adicionais por{" "}
-                    {formatCurrencyBRL(ADDITIONAL_PHOTO_PRICE)} cada.
+                    Compre armazenamento adicional por{" "}
+                    {formatCurrencyBRL(ADDITIONAL_STORAGE_PRICE_PER_GB)} por GB.
                   </p>
                 </div>
               </div>
@@ -82,7 +82,7 @@ const AdditionalPhotosPurchase = ({
                 className="w-full md:w-auto"
               >
                 <ShoppingCart className="h-4 w-4 mr-2" />
-                Comprar arquivos adicionais
+                Comprar armazenamento adicional
               </Button>
             </div>
           </CardContent>
@@ -92,37 +92,38 @@ const AdditionalPhotosPurchase = ({
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Comprar arquivos adicionais</DialogTitle>
+            <DialogTitle>Comprar armazenamento adicional</DialogTitle>
             <DialogDescription>
-              Escolha quantos arquivos adicionais (fotos e vídeos) deseja
-              comprar para remover a marca d'água das fotos.
+              Escolha quantos GB de armazenamento adicional deseja comprar para remover a marca d'água dos arquivos.
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="quantity">
-                Quantidade (1 a {maxQuantity} arquivo
-                {maxQuantity !== 1 ? "s" : ""})
+              <Label htmlFor="storageGB">
+                Armazenamento (mínimo {formatStorage(minStorageGB)})
               </Label>
               <Input
-                id="quantity"
+                id="storageGB"
                 type="number"
-                min={1}
-                max={maxQuantity}
-                value={quantity}
+                min={minStorageGB}
+                step={1}
+                value={storageGB}
                 onChange={(e) => {
-                  const value = parseInt(e.target.value, 10);
-                  if (!isNaN(value) && value >= 1 && value <= maxQuantity) {
-                    setQuantity(value);
+                  const value = parseFloat(e.target.value);
+                  if (!isNaN(value) && value >= minStorageGB) {
+                    setStorageGB(value);
                   }
                 }}
                 className="text-lg font-semibold"
               />
+              <p className="text-xs text-muted-foreground">
+                Você precisa de pelo menos {formatStorage(minStorageGB)} para cobrir o armazenamento adicional usado.
+              </p>
               <div className="flex items-center justify-between text-sm text-gray-600">
                 <span>
-                  {quantity} arquivo{quantity !== 1 ? "s" : ""} ×{" "}
-                  {formatCurrencyBRL(ADDITIONAL_PHOTO_PRICE)}
+                  {formatStorage(storageGB)} ×{" "}
+                  {formatCurrencyBRL(ADDITIONAL_STORAGE_PRICE_PER_GB)}/GB
                 </span>
                 <span className="text-lg font-bold text-primary">
                   {formatCurrencyBRL(totalPrice)}
@@ -154,4 +155,4 @@ const AdditionalPhotosPurchase = ({
   );
 };
 
-export default AdditionalPhotosPurchase;
+export default AdditionalStoragePurchase;

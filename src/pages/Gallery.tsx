@@ -12,8 +12,10 @@ import { useFileView } from "@/hooks/useFileView";
 import { downloadMultipleFiles } from "@/utils/downloadFiles";
 import { EXISTING_FILE_PREFIX } from "@/constants/upload";
 import { applyWatermark } from "@/utils/watermark";
-import { ADDITIONAL_PHOTO_PRICE } from "@/constants/pricing";
 import { formatCurrencyBRL } from "@/utils/currencyBRL";
+import { formatFileSize } from "@/utils/storageCalculator";
+import { formatStorage } from "@/utils/storageFormatter";
+import { ADDITIONAL_STORAGE_PRICE_PER_GB } from "@/constants/pricing";
 import EventBanner from "@/components/upload/EventBanner";
 import UploadArea from "@/components/upload/UploadArea";
 import ProcessingIndicator from "@/components/upload/ProcessingIndicator";
@@ -23,7 +25,7 @@ import UploadProgress from "@/components/upload/UploadProgress";
 import UploadStatus from "@/components/upload/UploadStatus";
 import ShareButtons from "@/components/upload/ShareButtons";
 import GallerySkeleton from "@/components/upload/GallerySkeleton";
-import AdditionalPhotosPurchase from "@/components/upload/AdditionalPhotosPurchase";
+import AdditionalStoragePurchase from "@/components/upload/AdditionalPhotosPurchase";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -31,7 +33,7 @@ const Gallery = () => {
   const { eventId } = useParams<{ eventId?: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { eventName, archiveLimit, isLoading } = useEventData(eventId);
+  const { eventName, storageLimit, isLoading } = useEventData(eventId);
   const { isProcessing, processingProgress, processFiles } =
     useFileProcessing();
   const { uploadState, uploadProgress, uploadFiles, resetUpload } =
@@ -44,42 +46,54 @@ const Gallery = () => {
   const [showUploadArea, setShowUploadArea] = useState(false);
   const [isApplyingWatermark, setIsApplyingWatermark] = useState(false);
 
-  // Aplicar marca d'água nas fotos adicionais
+  // Calcular armazenamento usado
+  const usedStorage = useMemo(() => {
+    return galleryFiles.reduce((total, file) => {
+      return total + (file.file?.size || 0);
+    }, 0);
+  }, [galleryFiles]);
+
+  const usedStorageGB = useMemo(() => {
+    return usedStorage / (1024 * 1024 * 1024);
+  }, [usedStorage]);
+
+  // Aplicar marca d'água nos arquivos que excedem o limite de armazenamento
   useEffect(() => {
-    const applyWatermarksToAdditionalPhotos = async () => {
-      if (isLoading || archiveLimit === 0 || galleryFiles.length === 0) return;
+    const applyWatermarksToExceededFiles = async () => {
+      if (isLoading || storageLimit === 0 || galleryFiles.length === 0) return;
 
-      // O limite é para fotos E vídeos juntos
-      const totalFiles = galleryFiles.length;
-      const additionalFilesCount = Math.max(0, totalFiles - archiveLimit);
+      // Calcular armazenamento acumulado para determinar quais arquivos excedem
+      let accumulatedStorage = 0;
+      const limitBytes = storageLimit * 1024 * 1024 * 1024; // Converter GB para bytes
 
-      if (additionalFilesCount === 0) return;
-
-      // Verificar se já há arquivos que precisam de marca d'água
-      // Apenas imagens recebem marca d'água (vídeos não)
-      const needsWatermark = galleryFiles.some(
-        (file, index) =>
-          file.type === "image" &&
-          index >= archiveLimit &&
-          !file.watermarkedPreview
-      );
+      // Verificar se há arquivos que excedem o limite
+      const needsWatermark = galleryFiles.some((file) => {
+        const fileSize = file.file?.size || 0;
+        const wouldExceed = accumulatedStorage + fileSize > limitBytes;
+        if (!wouldExceed) {
+          accumulatedStorage += fileSize;
+        }
+        return wouldExceed && file.type === "image" && !file.watermarkedPreview;
+      });
 
       if (!needsWatermark) return;
 
       setIsApplyingWatermark(true);
 
+      accumulatedStorage = 0;
       const updatedFiles = await Promise.all(
-        galleryFiles.map(async (file, index) => {
-          // Apenas imagens acima do limite recebem marca d'água
-          const isAdditional =
-            index >= archiveLimit && !file.watermarkedPreview;
+        galleryFiles.map(async (file) => {
+          const fileSize = file.file?.size || 0;
+          const isExceeded = accumulatedStorage + fileSize > limitBytes;
 
-          if (isAdditional) {
+          if (!isExceeded) {
+            accumulatedStorage += fileSize;
+          }
+
+          // Apenas imagens que excedem o limite recebem marca d'água
+          if (isExceeded && file.type === "image" && !file.watermarkedPreview) {
             try {
-              const watermarked =
-                file.type === "image"
-                  ? await applyWatermark(file.preview)
-                  : undefined;
+              const watermarked = await applyWatermark(file.preview);
               return {
                 ...file,
                 isExceededLimit: true,
@@ -98,8 +112,8 @@ const Gallery = () => {
       setIsApplyingWatermark(false);
     };
 
-    applyWatermarksToAdditionalPhotos();
-  }, [galleryFiles, archiveLimit, isLoading]);
+    applyWatermarksToExceededFiles();
+  }, [galleryFiles, storageLimit, isLoading]);
 
   const handleFileSelect = async (files: FileList | null) => {
     const processedFiles = await processFiles(files);
@@ -172,35 +186,33 @@ const Gallery = () => {
   const handleNavigateFile = (index: number) =>
     navigateFile(index, galleryFiles.length);
 
-  // Calcular arquivos adicionais (fotos + vídeos)
-  const additionalPhotosCount = useMemo(() => {
-    if (archiveLimit === 0) return 0;
-    // O limite é para fotos E vídeos juntos
-    const totalFiles = galleryFiles.length;
-    return Math.max(0, totalFiles - archiveLimit);
-  }, [galleryFiles, archiveLimit]);
+  // Calcular armazenamento adicional usado (em GB)
+  const additionalStorageGB = useMemo(() => {
+    if (storageLimit === 0) return 0;
+    return Math.max(0, usedStorageGB - storageLimit);
+  }, [usedStorageGB, storageLimit]);
 
-  const handlePurchaseAdditionalPhotos = (quantity: number) => {
-    const totalPrice = quantity * ADDITIONAL_PHOTO_PRICE;
+  const handlePurchaseAdditionalStorage = (storageGB: number) => {
+    const totalPrice = storageGB * ADDITIONAL_STORAGE_PRICE_PER_GB;
 
     // Salvar dados da compra no localStorage para o checkout
     const purchaseData = {
-      type: "additionalPhotos",
-      quantity,
-      pricePerPhoto: ADDITIONAL_PHOTO_PRICE,
+      type: "additionalStorage",
+      storageGB,
+      pricePerGB: ADDITIONAL_STORAGE_PRICE_PER_GB,
       totalPrice,
       eventName,
-      archiveLimit,
-      currentFiles: galleryFiles.length, // Total de arquivos (fotos + vídeos)
+      storageLimit,
+      currentStorageGB: usedStorageGB,
     };
 
     localStorage.setItem(
-      "additionalPhotosPurchase",
+      "additionalStoragePurchase",
       JSON.stringify(purchaseData)
     );
     const checkoutUrl = eventId
-      ? `/checkout?type=additionalPhotos&eventId=${eventId}`
-      : "/checkout?type=additionalPhotos";
+      ? `/checkout?type=additionalStorage&eventId=${eventId}`
+      : "/checkout?type=additionalStorage";
     navigate(checkoutUrl);
   };
 
@@ -274,10 +286,10 @@ const Gallery = () => {
                 )}
               </AnimatePresence>
 
-              {!isLoading && additionalPhotosCount > 0 && (
-                <AdditionalPhotosPurchase
-                  additionalPhotosCount={additionalPhotosCount}
-                  onPurchase={handlePurchaseAdditionalPhotos}
+              {!isLoading && additionalStorageGB > 0 && (
+                <AdditionalStoragePurchase
+                  additionalStorageGB={additionalStorageGB}
+                  onPurchase={handlePurchaseAdditionalStorage}
                 />
               )}
 

@@ -4,10 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Check, ArrowRight } from "lucide-react";
 import { formatCurrencyBRL } from "@/utils/currencyBRL";
 import { PLANS } from "@/constants/plans";
+import SectionHeader from "./SectionHeader";
 
 interface PricingCardProps {
   name: string;
-  photos: string;
+  storageFormatted: string;
   duration: string;
   price: number;
   featured?: boolean;
@@ -16,7 +17,7 @@ interface PricingCardProps {
 
 const PricingCard = ({
   name,
-  photos,
+  storageFormatted,
   duration,
   price,
   featured = false,
@@ -77,7 +78,7 @@ const PricingCard = ({
             featured ? "text-primary-foreground/90" : "text-muted-foreground"
           }`}
         >
-          Até {photos} fotos e vídeos
+          {storageFormatted} de armazenamento
         </span>
       </div>
       <div className="flex items-center gap-2">
@@ -130,23 +131,12 @@ const Pricing = () => {
       className="py-section bg-gradient-to-br from-[#eef4ff] via-white to-[#e8f0ff]"
     >
       <div className="container">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-12"
-        >
-          <span className="inline-block text-sm font-medium tracking-wide uppercase text-primary/70 mb-4">
-            Planos e preços
-          </span>
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Simples e transparente
-          </h2>
-          <p className="text-muted-foreground max-w-md mx-auto">
-            Escolha o plano ideal para o tamanho do seu evento.
-          </p>
-        </motion.div>
+        <SectionHeader
+          label="Planos e preços"
+          title="Simples e transparente"
+          description="Escolha o plano ideal para o tamanho do seu evento."
+          className="mb-12"
+        />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
           {PLANS.map((plan, index) => (

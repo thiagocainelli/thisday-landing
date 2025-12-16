@@ -94,12 +94,12 @@ const Payments = () => {
       <AdminBreadcrumb
         items={[
           { label: "Admin", href: "/admin/dashboard" },
-          { label: "Recebimentos" },
+          { label: "Financeiro" },
         ]}
       />
       <PageHeader
-        title="Recebimentos"
-        description="Visualize todos os recebimentos financeiros dos eventos"
+        title="Financeiro"
+        description="Visualize toda a movimentação financeira da plataforma"
         action={
           <div className="text-right">
             <p className="text-sm text-muted-foreground">Receita Total</p>

@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Check } from "lucide-react";
+import SectionHeader from "./SectionHeader";
 
 const solutionImageUrl =
   "https://images.unsplash.com/photo-1682072155213-856c2ab9d629?q=80&w=736&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
@@ -39,16 +40,13 @@ const SolutionSection = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <span className="inline-block text-sm font-medium tracking-wide uppercase text-primary/70 mb-4">
-              A solução
-            </span>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
-              Resolvemos isso.
-            </h2>
-            <p className="text-muted-foreground text-lg mb-8 leading-relaxed">
-              Uma forma simples de reunir todas as fotos e vídeos do seu evento.
-              Sem apps para baixar, sem cadastros complicados.
-            </p>
+            <SectionHeader
+              label="A solução"
+              title="Resolvemos isso."
+              description="Uma forma simples de reunir todas as fotos e vídeos do seu evento. Sem apps para baixar, sem cadastros complicados."
+              className="text-left mb-8"
+              descriptionClassName="mb-0"
+            />
 
             <motion.ul
               variants={containerVariants}

@@ -75,18 +75,10 @@ const Login = () => {
 
       <div className="mt-6 p-4 bg-muted/50 rounded-lg">
         <p className="text-xs text-muted-foreground mb-2 font-semibold">
-          Credenciais de teste:
+          Credencial de teste:
         </p>
         <div className="text-xs text-muted-foreground space-y-1">
-          <p>
-            <strong>Admin:</strong> admin@shareday.com / admin123
-          </p>
-          <p>
-            <strong>Gerente:</strong> gerente@shareday.com / gerente123
-          </p>
-          <p>
-            <strong>Suporte:</strong> suporte@shareday.com / suporte123
-          </p>
+          <p>admin@shareday.com / admin123</p>
         </div>
       </div>
     </AuthCardLayout>

@@ -13,6 +13,7 @@ import {
   ChevronRight,
   Clock,
   Sparkles,
+  Settings,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -45,7 +46,7 @@ const menuItems = [
     path: "/admin/users",
   },
   {
-    title: "Recebimentos",
+    title: "Financeiro",
     icon: CreditCard,
     path: "/admin/payments",
   },
@@ -53,6 +54,11 @@ const menuItems = [
     title: "Planos",
     icon: Package,
     path: "/admin/plans",
+  },
+  {
+    title: "Configurações",
+    icon: Settings,
+    path: "/admin/settings",
   },
 ];
 

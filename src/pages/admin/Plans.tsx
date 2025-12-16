@@ -19,6 +19,7 @@ import ActionButtons from "@/components/admin/ActionButtons";
 import StatusBadge from "@/components/admin/StatusBadge";
 import DetailField from "@/components/admin/DetailField";
 import AdminBreadcrumb from "@/components/admin/AdminBreadcrumb";
+import { formatStorage } from "@/utils/storageFormatter";
 
 const Plans = () => {
   const [searchValue, setSearchValue] = useState("");
@@ -82,8 +83,9 @@ const Plans = () => {
       header: "Nome",
     },
     {
-      key: "photos",
-      header: "Fotos",
+      key: "storage",
+      header: "Armazenamento",
+      render: (item: ListPlanDto) => formatStorage(item.storage),
     },
     {
       key: "duration",
@@ -194,8 +196,8 @@ const Plans = () => {
                 }
               />
               <DetailField
-                label="Número de Fotos"
-                value={selectedPlan.photos}
+                label="Armazenamento"
+                value={formatStorage(selectedPlan.storage)}
               />
               <DetailField
                 label="Duração (dias)"

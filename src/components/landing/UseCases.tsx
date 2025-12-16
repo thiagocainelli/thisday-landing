@@ -8,6 +8,7 @@ import {
   Sparkles,
   PartyPopper,
 } from "lucide-react";
+import SectionHeader from "./SectionHeader";
 import {
   Carousel,
   CarouselContent,
@@ -91,24 +92,12 @@ const UseCases = () => {
       </div>
 
       <div className="container relative">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-12"
-        >
-          <span className="inline-block text-sm font-medium tracking-wide uppercase text-primary/70 mb-4">
-            Para quem é
-          </span>
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-            Perfeito para qualquer evento
-          </h2>
-          <p className="text-muted-foreground mt-3">
-            De celebrações íntimas a ativações de marca, o shareday adapta-se a
-            cada formato.
-          </p>
-        </motion.div>
+        <SectionHeader
+          label="Para quem é"
+          title="Perfeito para qualquer evento"
+          description="De celebrações íntimas a ativações de marca, o shareday adapta-se a cada formato."
+          className="mb-12"
+        />
 
         <div className="relative max-w-6xl mx-auto">
           <Carousel

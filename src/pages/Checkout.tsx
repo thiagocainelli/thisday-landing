@@ -44,8 +44,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/useToast";
+import { useSettings } from "@/hooks/useSettings";
 import { applyPhoneMask } from "@/utils/phoneMask";
 import { formatCurrencyBRL } from "@/utils/currencyBRL";
+import { formatStorage } from "@/utils/storageFormatter";
 import CreditCard3D from "@/components/ui/CreditCard3D";
 import { cardFormSchema, type CardFormData } from "@/schemas/payment.schema";
 
@@ -60,42 +62,44 @@ interface EventData {
   plan: {
     id: string;
     name: string;
-    photos: string;
+    storage: number; // em GB
+    storageFormatted: string;
     duration: string;
     price: number;
   };
 }
 
-interface AdditionalPhotosPurchase {
-  type: "additionalPhotos";
-  quantity: number;
-  pricePerPhoto: number;
+interface AdditionalStoragePurchase {
+  type: "additionalStorage";
+  storageGB: number;
+  pricePerGB: number;
   totalPrice: number;
   eventName: string;
-  photoLimit: number;
-  currentFiles: number;
+  storageLimit: number;
+  currentStorageGB: number;
 }
 
 const Checkout = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
+  const { data: settings } = useSettings();
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("pix");
   const [installments, setInstallments] = useState<string>("1");
   const [isPixModalOpen, setIsPixModalOpen] = useState(false);
   const [pixCode, setPixCode] = useState("");
   const [timeLeft, setTimeLeft] = useState(600); // 10 minutos em segundos
   const [eventData, setEventData] = useState<EventData | null>(null);
-  const [additionalPhotosPurchase, setAdditionalPhotosPurchase] =
-    useState<AdditionalPhotosPurchase | null>(null);
+  const [additionalStoragePurchase, setAdditionalStoragePurchase] =
+    useState<AdditionalStoragePurchase | null>(null);
   const [isPaymentApproved, setIsPaymentApproved] = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [focusedField, setFocusedField] = useState<
     "cardNumber" | "cardName" | "cardExpiry" | "cardCvv" | null
   >(null);
 
-  const isAdditionalPhotosCheckout =
-    searchParams.get("type") === "additionalPhotos";
+  const isAdditionalStorageCheckout =
+    searchParams.get("type") === "additionalStorage";
 
   const eventId = searchParams.get("eventId");
 
@@ -115,14 +119,14 @@ const Checkout = () => {
   const cardCvv = watch("cardCvv") || "";
 
   useEffect(() => {
-    if (isAdditionalPhotosCheckout) {
-      // Carregar dados da compra de fotos adicionais
-      const stored = localStorage.getItem("additionalPhotosPurchase");
+    if (isAdditionalStorageCheckout) {
+      // Carregar dados da compra de armazenamento adicional
+      const stored = localStorage.getItem("additionalStoragePurchase");
       if (!stored) {
         navigate(eventId ? `/galeria/${eventId}` : "/");
         return;
       }
-      setAdditionalPhotosPurchase(JSON.parse(stored));
+      setAdditionalStoragePurchase(JSON.parse(stored));
     } else {
       // Carregar dados do evento do localStorage
       const stored = localStorage.getItem("eventData");
@@ -132,7 +136,7 @@ const Checkout = () => {
       }
       setEventData(JSON.parse(stored));
     }
-  }, [navigate, isAdditionalPhotosCheckout, eventId]);
+  }, [navigate, isAdditionalStorageCheckout, eventId]);
 
   useEffect(() => {
     if (isPixModalOpen && paymentMethod === "pix") {
@@ -176,23 +180,45 @@ const Checkout = () => {
   };
 
   const calculateInstallmentValue = (installmentCount: number) => {
-    if (!eventData) return 0;
-    const basePrice = eventData.plan.price;
-    if (installmentCount <= 3) {
+    if (!settings) return 0;
+
+    // Determinar o preço base dependendo do tipo de checkout
+    const basePrice =
+      isAdditionalStorageCheckout && additionalStoragePurchase
+        ? additionalStoragePurchase.totalPrice
+        : eventData?.plan.price || 0;
+
+    if (basePrice === 0) return 0;
+
+    const freeInstallments = settings.payment.freeInstallments;
+    const interestRate = settings.payment.interestRate;
+
+    if (installmentCount <= freeInstallments) {
       return basePrice / installmentCount;
     }
-    // Juros de 2.5% ao mês após 3x (compostos)
-    const interestRate = 0.025;
+    // Juros compostos após as parcelas sem juros
     const totalWithInterest =
-      basePrice * Math.pow(1 + interestRate, installmentCount - 3);
+      basePrice *
+      Math.pow(1 + interestRate, installmentCount - freeInstallments);
     return totalWithInterest / installmentCount;
   };
 
   const getTotalWithInstallments = () => {
-    if (!eventData) return 0;
+    if (!settings) return 0;
+
+    // Determinar o preço base dependendo do tipo de checkout
+    const basePrice =
+      isAdditionalStorageCheckout && additionalStoragePurchase
+        ? additionalStoragePurchase.totalPrice
+        : eventData?.plan.price || 0;
+
+    if (basePrice === 0) return 0;
+
     const count = parseInt(installments);
-    if (count <= 3) {
-      return eventData.plan.price;
+    const freeInstallments = settings.payment.freeInstallments;
+
+    if (count <= freeInstallments) {
+      return basePrice;
     }
     const installmentValue = calculateInstallmentValue(count);
     return installmentValue * count;
@@ -205,8 +231,8 @@ const Checkout = () => {
       setIsPaymentModalOpen(true);
       // Limpar dados após mostrar modal
       setTimeout(() => {
-        if (isAdditionalPhotosCheckout && eventId) {
-          localStorage.removeItem("additionalPhotosPurchase");
+        if (isAdditionalStorageCheckout && eventId) {
+          localStorage.removeItem("additionalStoragePurchase");
         } else {
           localStorage.removeItem("eventData");
         }
@@ -229,7 +255,7 @@ const Checkout = () => {
     simulatePaymentApproval();
   };
 
-  if (!eventData && !isAdditionalPhotosCheckout) {
+  if (!eventData && !isAdditionalStorageCheckout) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <p className="text-muted-foreground">Carregando...</p>
@@ -255,8 +281,8 @@ const Checkout = () => {
           title="Finalizar pagamento"
           backTo="/criar-evento"
           description={
-            isAdditionalPhotosCheckout
-              ? "Libere seus arquivos adicionais com pagamento rápido e seguro."
+            isAdditionalStorageCheckout
+              ? "Compre armazenamento adicional para liberar seus arquivos com pagamento rápido e seguro."
               : "Complete o pagamento para concluir a criação do evento."
           }
         />
@@ -464,29 +490,36 @@ const Checkout = () => {
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            {Array.from({ length: 10 }, (_, i) => {
-                              const count = i + 1;
-                              const value = calculateInstallmentValue(count);
-                              const total = value * count;
-                              const hasInterest = count > 3;
-                              return (
-                                <SelectItem
-                                  key={count}
-                                  value={count.toString()}
-                                >
-                                  {count}x de{" "}
-                                  {value.toLocaleString("pt-BR", {
-                                    style: "currency",
-                                    currency: "BRL",
-                                  })}
-                                  {hasInterest && " (c/ juros)"} ={" "}
-                                  {total.toLocaleString("pt-BR", {
-                                    style: "currency",
-                                    currency: "BRL",
-                                  })}
-                                </SelectItem>
-                              );
-                            })}
+                            {Array.from(
+                              {
+                                length: settings?.payment.maxInstallments || 10,
+                              },
+                              (_, i) => {
+                                const count = i + 1;
+                                const value = calculateInstallmentValue(count);
+                                const total = value * count;
+                                const hasInterest =
+                                  count >
+                                  (settings?.payment.freeInstallments || 3);
+                                return (
+                                  <SelectItem
+                                    key={count}
+                                    value={count.toString()}
+                                  >
+                                    {count}x de{" "}
+                                    {value.toLocaleString("pt-BR", {
+                                      style: "currency",
+                                      currency: "BRL",
+                                    })}
+                                    {hasInterest && " (c/ juros)"} ={" "}
+                                    {total.toLocaleString("pt-BR", {
+                                      style: "currency",
+                                      currency: "BRL",
+                                    })}
+                                  </SelectItem>
+                                );
+                              }
+                            )}
                           </SelectContent>
                         </Select>
                       </div>
@@ -528,33 +561,32 @@ const Checkout = () => {
                   <CardTitle>Resumo do Pedido</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {isAdditionalPhotosCheckout &&
-                  additionalPhotosPurchase &&
+                  {isAdditionalStorageCheckout &&
+                  additionalStoragePurchase &&
                   eventId ? (
                     <>
                       <div className="space-y-2">
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground">Evento</span>
                           <span className="font-medium">
-                            {additionalPhotosPurchase.eventName}
+                            {additionalStoragePurchase.eventName}
                           </span>
                         </div>
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground">
-                            Arquivos adicionais
+                            Armazenamento adicional
                           </span>
                           <span className="font-medium">
-                            {additionalPhotosPurchase.quantity} arquivo
-                            {additionalPhotosPurchase.quantity !== 1 ? "s" : ""}
+                            {formatStorage(additionalStoragePurchase.storageGB)}
                           </span>
                         </div>
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground">
-                            Preço unitário
+                            Preço por GB
                           </span>
                           <span className="font-medium">
                             {formatCurrencyBRL(
-                              additionalPhotosPurchase.pricePerPhoto
+                              additionalStoragePurchase.pricePerGB
                             )}
                           </span>
                         </div>
@@ -579,9 +611,11 @@ const Checkout = () => {
                                 {formatCurrencyBRL(totalWithInstallments)}
                               </span>
                             </div>
-                            {parseInt(installments) > 3 && (
+                            {parseInt(installments) >
+                              (settings?.payment.freeInstallments || 3) && (
                               <p className="text-xs text-muted-foreground">
-                                * Juros aplicados após 3x
+                                * Juros aplicados após{" "}
+                                {settings?.payment.freeInstallments || 3}x
                               </p>
                             )}
                           </div>
@@ -592,7 +626,7 @@ const Checkout = () => {
                             </span>
                             <span className="text-xl font-bold text-foreground">
                               {formatCurrencyBRL(
-                                additionalPhotosPurchase.totalPrice
+                                additionalStoragePurchase.totalPrice
                               )}
                             </span>
                           </div>
@@ -610,10 +644,10 @@ const Checkout = () => {
                         </div>
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground">
-                            Arquivos
+                            Armazenamento
                           </span>
                           <span className="font-medium">
-                            {eventData?.plan.photos}
+                            {eventData?.plan.storageFormatted}
                           </span>
                         </div>
                         <div className="flex justify-between text-sm">
@@ -643,9 +677,11 @@ const Checkout = () => {
                                 {formatCurrencyBRL(totalWithInstallments)}
                               </span>
                             </div>
-                            {parseInt(installments) > 3 && (
+                            {parseInt(installments) >
+                              (settings?.payment.freeInstallments || 3) && (
                               <p className="text-xs text-muted-foreground">
-                                * Juros aplicados após 3x
+                                * Juros aplicados após{" "}
+                                {settings?.payment.freeInstallments || 3}x
                               </p>
                             )}
                           </div>
@@ -720,8 +756,8 @@ const Checkout = () => {
 
               <div className="bg-secondary/30 p-3 rounded-lg">
                 <p className="text-sm text-muted-foreground text-center">
-                  {isAdditionalPhotosCheckout
-                    ? "Após o pagamento, os arquivos serão liberados automaticamente."
+                  {isAdditionalStorageCheckout
+                    ? "Após o pagamento, o armazenamento adicional será liberado automaticamente e os arquivos ficarão sem marca d'água."
                     : "Após o pagamento, seu evento será criado automaticamente. Você receberá um e-mail de confirmação."}
                 </p>
               </div>
@@ -764,8 +800,8 @@ const Checkout = () => {
                 Pagamento aprovado!
               </DialogTitle>
               <DialogDescription className="text-center">
-                {isAdditionalPhotosCheckout
-                  ? "Os arquivos foram liberados com sucesso"
+                {isAdditionalStorageCheckout
+                  ? "Armazenamento adicional adquirido com sucesso"
                   : "Seu evento foi criado com sucesso"}
               </DialogDescription>
             </DialogHeader>
@@ -778,14 +814,15 @@ const Checkout = () => {
                     {eventData.eventName}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Plano {eventData.plan.name} • {eventData.plan.photos}{" "}
-                    arquivos • {eventData.plan.duration}
+                    Plano {eventData.plan.name} •{" "}
+                    {eventData.plan.storageFormatted} de armazenamento •{" "}
+                    {eventData.plan.duration}
                   </p>
                 </div>
               )}
 
               {/* Informações de envio em 2 colunas */}
-              {!isAdditionalPhotosCheckout && (
+              {!isAdditionalStorageCheckout && (
                 <div className="grid grid-cols-1 gap-3">
                   <div className="flex items-start gap-2 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-900">
                     <Mail className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" />
@@ -823,16 +860,17 @@ const Checkout = () => {
               {/* Próximos passos */}
               <div className="bg-secondary/50 rounded-lg p-3">
                 <p className="text-sm font-medium text-foreground mb-1.5">
-                  {isAdditionalPhotosCheckout && eventId
+                  {isAdditionalStorageCheckout && eventId
                     ? "O que fazer agora:"
                     : "Próximos passos:"}
                 </p>
                 <ul className="text-xs text-muted-foreground space-y-0.5 list-disc list-inside">
-                  {isAdditionalPhotosCheckout && eventId ? (
+                  {isAdditionalStorageCheckout && eventId ? (
                     <>
                       <li>
-                        As fotos selecionadas agora estão sem marca d'água
+                        O armazenamento adicional foi adicionado ao seu evento
                       </li>
+                      <li>Os arquivos agora estão sem marca d'água</li>
                       <li>Você pode baixar os arquivos em alta qualidade</li>
                       <li>Volte para a galeria para visualizar as mudanças</li>
                     </>
@@ -853,14 +891,14 @@ const Checkout = () => {
                 onClick={() => {
                   setIsPaymentModalOpen(false);
 
-                  if (isAdditionalPhotosCheckout && eventId) {
+                  if (isAdditionalStorageCheckout && eventId) {
                     navigate(`/galeria/${eventId}`);
                   } else {
                     navigate("/");
                   }
                 }}
               >
-                {isAdditionalPhotosCheckout && eventId
+                {isAdditionalStorageCheckout && eventId
                   ? "Ir para a galeria"
                   : "Entendi, obrigado!"}
               </Button>

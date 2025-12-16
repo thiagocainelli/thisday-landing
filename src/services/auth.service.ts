@@ -66,12 +66,8 @@ export const forgotPassword = async (
   const user = mockAuthUsers.find((u) => u.email === data.email);
 
   if (!user) {
-    // Por segurança, não revelamos se o email existe ou não
     return;
   }
-
-  // Em produção, enviaria email com token de recuperação
-  console.log(`Token de recuperação enviado para ${data.email}`);
 };
 
 export const resetPassword = async (data: ResetPasswordDto): Promise<void> => {
@@ -85,7 +81,4 @@ export const resetPassword = async (data: ResetPasswordDto): Promise<void> => {
   if (!data.token || data.token.length < 10) {
     throw new Error("Token inválido ou expirado");
   }
-
-  // Simular atualização de senha
-  console.log("Senha redefinida com sucesso");
 };

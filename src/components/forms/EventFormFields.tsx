@@ -30,7 +30,14 @@ interface EventFormFieldsProps {
   showPlanSelection?: boolean;
   planId?: string;
   onPlanChange?: (planId: string) => void;
-  plans?: Array<{ id: string; name: string; photos: number; duration: number }>;
+  plans?: Array<{
+    id: string;
+    name: string;
+    storage: number;
+    storageFormatted: string;
+    duration: number | string; // Aceita number ou string
+    price: number;
+  }>;
 }
 
 const EventFormFields = ({
@@ -166,7 +173,10 @@ const EventFormFields = ({
               <SelectContent>
                 {plans.map((plan) => (
                   <SelectItem key={plan.id} value={plan.id}>
-                    {plan.name} - {plan.photos} fotos - {plan.duration} dias
+                    {plan.name} - {plan.storageFormatted} -{" "}
+                    {typeof plan.duration === "number"
+                      ? `${plan.duration} dias`
+                      : plan.duration}
                   </SelectItem>
                 ))}
               </SelectContent>

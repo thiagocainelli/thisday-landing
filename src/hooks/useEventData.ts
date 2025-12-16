@@ -5,7 +5,8 @@ interface EventData {
   plan?: {
     id: string;
     name: string;
-    archives: string;
+    storage: number; // em GB
+    storageFormatted: string;
     duration: string;
     price: number;
   };
@@ -13,7 +14,7 @@ interface EventData {
 
 interface UseEventDataReturn {
   eventName: string;
-  archiveLimit: number;
+  storageLimit: number; // em GB
   isLoading: boolean;
 }
 
@@ -22,7 +23,7 @@ interface UseEventDataReturn {
  */
 export const useEventData = (eventId?: string): UseEventDataReturn => {
   const [eventName, setEventName] = useState<string>("");
-  const [archiveLimit, setarchiveLimit] = useState<number>(0);
+  const [storageLimit, setStorageLimit] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -35,11 +36,9 @@ export const useEventData = (eventId?: string): UseEventDataReturn => {
         const eventData: EventData = JSON.parse(stored);
         if (eventData.eventName) {
           setEventName(eventData.eventName);
-          // Extrair limite de fotos do plano
-          const limit = eventData.plan?.archives
-            ? parseInt(eventData.plan.archives, 10)
-            : 0;
-          setarchiveLimit(limit);
+          // Extrair limite de armazenamento do plano (em GB)
+          const limit = eventData.plan?.storage || 0;
+          setStorageLimit(0.1);
           setIsLoading(false);
           return;
         }
@@ -52,15 +51,15 @@ export const useEventData = (eventId?: string): UseEventDataReturn => {
     if (eventId) {
       setTimeout(() => {
         setEventName(`Evento ${eventId.slice(0, 8)}`);
-        setarchiveLimit(3); // Valor padrão
+        setStorageLimit(0.1); // Valor padrão em GB
         setIsLoading(false);
       }, 1000);
     } else {
       setEventName("Meu Evento");
-      setarchiveLimit(3); // Valor padrão
+      setStorageLimit(0.1); // Valor padrão em GB
       setIsLoading(false);
     }
   }, [eventId]);
 
-  return { eventName, archiveLimit, isLoading };
+  return { eventName, storageLimit, isLoading };
 };

@@ -8,14 +8,16 @@ import { delay } from "@/utils/delay";
 import { generateId, getCurrentISOString } from "@/utils/idUtils";
 import { validateIndex, createNotFoundError } from "@/utils/errorUtils";
 import { findById, findIndexById } from "@/utils/arrayUtils";
+import { formatStorage } from "@/utils/storageFormatter";
 
 const mockPlans: ReadPlanDto[] = [
   {
     id: "basic",
     name: "Básico",
-    photos: 100,
+    storage: 50,
+    storageFormatted: formatStorage(50), // 50GB
     duration: 7,
-    price: 29.0,
+    price: 29.9,
     description: "Ideal para eventos pequenos e íntimos",
     isActive: true,
     totalSubscriptions: 45,
@@ -23,7 +25,7 @@ const mockPlans: ReadPlanDto[] = [
     createdAt: "2024-01-01T00:00:00Z",
     updatedAt: "2024-01-01T00:00:00Z",
     features: [
-      "Até 100 fotos e vídeos",
+      "50 GB de armazenamento",
       "Disponível por 7 dias",
       "QR Code personalizado",
       "Suporte por e-mail",
@@ -32,9 +34,10 @@ const mockPlans: ReadPlanDto[] = [
   {
     id: "event",
     name: "Evento",
-    photos: 200,
+    storage: 100,
+    storageFormatted: formatStorage(100), // 100GB
     duration: 15,
-    price: 49.0,
+    price: 49.9,
     description: "O mais popular para a maioria dos eventos",
     isActive: true,
     totalSubscriptions: 120,
@@ -42,7 +45,7 @@ const mockPlans: ReadPlanDto[] = [
     createdAt: "2024-01-01T00:00:00Z",
     updatedAt: "2024-01-01T00:00:00Z",
     features: [
-      "Até 200 fotos e vídeos",
+      "100 GB de armazenamento",
       "Disponível por 15 dias",
       "QR Code personalizado",
       "Suporte prioritário",
@@ -52,9 +55,10 @@ const mockPlans: ReadPlanDto[] = [
   {
     id: "premium",
     name: "Premium",
-    photos: 500,
+    storage: 500,
+    storageFormatted: formatStorage(500), // 500GB
     duration: 30,
-    price: 89.0,
+    price: 89.9,
     description: "Para eventos grandes e corporativos",
     isActive: true,
     totalSubscriptions: 35,
@@ -62,7 +66,7 @@ const mockPlans: ReadPlanDto[] = [
     createdAt: "2024-01-01T00:00:00Z",
     updatedAt: "2024-01-01T00:00:00Z",
     features: [
-      "Até 500 fotos e vídeos",
+      "500 GB de armazenamento",
       "Disponível por 30 dias",
       "QR Code personalizado",
       "Suporte prioritário 24/7",
@@ -79,7 +83,8 @@ export const createPlan = async (data: CreatePlanDto): Promise<ReadPlanDto> => {
   const newPlan: ReadPlanDto = {
     id: generateId(),
     name: data.name,
-    photos: data.photos,
+    storage: data.storage,
+    storageFormatted: formatStorage(data.storage), // Formatar diretamente em GB
     duration: data.duration,
     price: data.price,
     description: data.description,
@@ -104,6 +109,9 @@ export const updatePlan = async (data: UpdatePlanDto): Promise<ReadPlanDto> => {
   const updatedPlan: ReadPlanDto = {
     ...mockPlans[planIndex],
     ...data,
+    storageFormatted: data.storage
+      ? formatStorage(data.storage)
+      : mockPlans[planIndex].storageFormatted,
     updatedAt: getCurrentISOString(),
   };
 
@@ -128,7 +136,8 @@ export const listPlans = async (): Promise<ListPlanDto[]> => {
   return mockPlans.map((plan) => ({
     id: plan.id,
     name: plan.name,
-    photos: plan.photos,
+    storage: plan.storage,
+    storageFormatted: plan.storageFormatted,
     duration: plan.duration,
     price: plan.price,
     description: plan.description,
