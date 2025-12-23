@@ -1,10 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { usePlans, useDeletePlan, usePlan } from "@/hooks/usePlans";
-import useFilterData from "@/hooks/useFilterData";
 import useAdminPage from "@/hooks/useAdminPage";
 import useBulkDelete from "@/hooks/useBulkDelete";
 import DataTable from "@/components/admin/DataTable";
-import { ListPlanDto } from "@/types/plans.dto";
+import { ReadPlansDto } from "@/types/plans.dto";
 import { formatCurrencyBRL } from "@/utils/currencyBRL";
 import { getStatusFromBoolean } from "@/utils/statusUtils";
 import { formatDateTimeFullBR } from "@/utils/dateFormatters";
@@ -23,10 +22,21 @@ import { formatStorage } from "@/utils/storageFormatter";
 
 const Plans = () => {
   const [searchValue, setSearchValue] = useState("");
-  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
-  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+  const [page, setPage] = useState<number>(1);
+  const [itemsPerPage, setItemsPerPage] = useState<number>(10);
 
-  const { data: plans = [], isLoading } = usePlans();
+  // Reset page when search changes
+  useEffect(() => {
+    setPage(1);
+  }, [searchValue]);
+
+  const { data: plansData, isLoading } = usePlans({
+    page,
+    itemsPerPage,
+    search: searchValue,
+  });
+
+  const plans = plansData?.data || [];
   const {
     selectedId,
     isCreateDialogOpen,
@@ -44,19 +54,10 @@ const Plans = () => {
     closeViewDialog,
     closeDeleteDialog,
     closeCreateDialog,
-  } = useAdminPage<ListPlanDto>();
+  } = useAdminPage<ReadPlansDto>();
 
   const { data: selectedPlan } = usePlan(selectedId || undefined);
   const { mutate: deletePlan, isPending: isDeleting } = useDeletePlan();
-
-  const filteredPlans = useFilterData<ListPlanDto>({
-    data: plans,
-    searchValue,
-    startDate,
-    endDate,
-    searchFields: ["name", "description"],
-    dateField: "createdAt",
-  });
 
   const {
     isBulkDeleteDialogOpen,
@@ -83,42 +84,33 @@ const Plans = () => {
       header: "Nome",
     },
     {
-      key: "storage",
-      header: "Armazenamento",
-      render: (item: ListPlanDto) => formatStorage(item.storage),
+      key: "capacityGB",
+      header: "Armazenamento (GB)",
+      render: (item: ReadPlansDto) => `${item.capacityGB} GB`,
     },
     {
-      key: "duration",
+      key: "durationDays",
       header: "Duração (dias)",
     },
     {
       key: "price",
       header: "Preço",
-      render: (item: ListPlanDto) => formatCurrencyBRL(item.price),
+      render: (item: ReadPlansDto) => formatCurrencyBRL(Number(item.price)),
     },
     {
-      key: "isActive",
+      key: "active",
       header: "Status",
-      render: (item: ListPlanDto) => (
+      render: (item: ReadPlansDto) => (
         <StatusBadge
-          status={getStatusFromBoolean(item.isActive)}
+          status={getStatusFromBoolean(item.active)}
           variant="plan"
         />
       ),
     },
     {
-      key: "totalSubscriptions",
-      header: "Assinaturas",
-    },
-    {
-      key: "totalRevenue",
-      header: "Receita Total",
-      render: (item: ListPlanDto) => formatCurrencyBRL(item.totalRevenue),
-    },
-    {
       key: "actions",
       header: "Ações",
-      render: (item: ListPlanDto) => (
+      render: (item: ReadPlansDto) => (
         <ActionButtons
           item={item}
           onView={handleView}
@@ -159,20 +151,21 @@ const Plans = () => {
       <PageFilters
         searchValue={searchValue}
         onSearchChange={setSearchValue}
-        startDate={startDate}
-        endDate={endDate}
-        onStartDateChange={setStartDate}
-        onEndDateChange={setEndDate}
         searchPlaceholder="Buscar por nome ou descrição..."
       />
 
       <DataTable
-        data={filteredPlans}
+        data={plans}
         columns={columns}
         isLoading={isLoading}
         emptyMessage="Nenhum plano encontrado"
         enableSelection
         onBulkDeleteClick={handleBulkDeleteClick}
+        page={page}
+        itemsPerPage={itemsPerPage}
+        total={plansData?.total || 0}
+        onPageChange={setPage}
+        onItemsPerPageChange={setItemsPerPage}
       />
 
       <ViewDialog
@@ -191,53 +184,39 @@ const Plans = () => {
                 label="Preço"
                 value={
                   <span className="font-medium text-primary">
-                    {formatCurrencyBRL(selectedPlan.price)}
+                    {formatCurrencyBRL(Number(selectedPlan.price))}
                   </span>
                 }
               />
               <DetailField
-                label="Armazenamento"
-                value={formatStorage(selectedPlan.storage)}
+                label="Armazenamento (GB)"
+                value={`${selectedPlan.capacityGB} GB`}
               />
               <DetailField
                 label="Duração (dias)"
-                value={selectedPlan.duration}
+                value={selectedPlan.durationDays}
+              />
+              <DetailField
+                label="Eventos Permitidos"
+                value={selectedPlan.allowedEvents || "Ilimitado"}
               />
               <DetailField
                 label="Status"
                 value={
                   <StatusBadge
-                    status={getStatusFromBoolean(selectedPlan.isActive)}
+                    status={getStatusFromBoolean(selectedPlan.active)}
                     variant="plan"
                   />
                 }
               />
               <DetailField
-                label="Total de Assinaturas"
-                value={
-                  <span className="font-medium">
-                    {selectedPlan.totalSubscriptions}
-                  </span>
-                }
+                label="Criado em"
+                value={formatDateTimeFullBR(selectedPlan.createdAt.toString())}
               />
               <DetailField
-                label="Receita Total"
-                value={
-                  <span className="font-medium text-primary">
-                    {formatCurrencyBRL(selectedPlan.totalRevenue)}
-                  </span>
-                }
+                label="Atualizado em"
+                value={formatDateTimeFullBR(selectedPlan.updatedAt.toString())}
               />
-              <DetailField
-                label="Cadastrado em"
-                value={formatDateTimeFullBR(selectedPlan.createdAt)}
-              />
-              {selectedPlan.updatedAt && (
-                <DetailField
-                  label="Atualizado em"
-                  value={formatDateTimeFullBR(selectedPlan.updatedAt)}
-                />
-              )}
             </div>
 
             {selectedPlan.description && (
@@ -248,22 +227,6 @@ const Plans = () => {
                 <p className="text-sm text-foreground">
                   {selectedPlan.description}
                 </p>
-              </div>
-            )}
-
-            {selectedPlan.features && selectedPlan.features.length > 0 && (
-              <div>
-                <p className="text-sm font-medium text-muted-foreground mb-3">
-                  Funcionalidades
-                </p>
-                <ul className="space-y-2">
-                  {selectedPlan.features.map((feature, index) => (
-                    <li key={index} className="flex items-start gap-2 text-sm">
-                      <span className="text-primary mt-0.5">•</span>
-                      <span>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
               </div>
             )}
           </div>

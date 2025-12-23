@@ -1,8 +1,14 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { useNavigate, useSearchParams, useParams } from "react-router-dom";
+import {
+  useNavigate,
+  useSearchParams,
+  useParams,
+  useLocation,
+} from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 import {
   Copy,
   Check,
@@ -50,37 +56,35 @@ import { formatCurrencyBRL } from "@/utils/currencyBRL";
 import { formatStorage } from "@/utils/storageFormatter";
 import CreditCard3D from "@/components/ui/CreditCard3D";
 import { cardFormSchema, type CardFormData } from "@/schemas/payment.schema";
+import {
+  processCheckout,
+  processCheckoutAdditionalStorage,
+} from "@/services/checkout.service";
+import { removePhoneMask } from "@/utils/phoneMask";
+import { ReadPlansDto } from "@/types/plans.dto";
+import { EventFormPublicData } from "@/schemas/event.schema";
+import {
+  CheckoutAdditionalStorageResponseDto,
+  CheckoutResponseDto,
+} from "@/types/checkout.dto";
 
 type PaymentMethod = "pix" | "credit";
 
-interface EventData {
-  fullName: string;
-  email: string;
-  phone: string;
-  eventName: string;
-  eventDate: string;
-  plan: {
-    id: string;
-    name: string;
-    storage: number; // em GB
-    storageFormatted: string;
-    duration: string;
-    price: number;
-  };
+interface CheckoutData {
+  eventData: EventFormPublicData;
+  planUuid: string;
+  plan: ReadPlansDto;
 }
 
 interface AdditionalStoragePurchase {
-  type: "additionalStorage";
+  eventUuid: string;
   storageGB: number;
-  pricePerGB: number;
-  totalPrice: number;
   eventName: string;
-  storageLimit: number;
-  currentStorageGB: number;
 }
 
 const Checkout = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const { data: settings } = useSettings();
@@ -89,11 +93,14 @@ const Checkout = () => {
   const [isPixModalOpen, setIsPixModalOpen] = useState(false);
   const [pixCode, setPixCode] = useState("");
   const [timeLeft, setTimeLeft] = useState(600); // 10 minutos em segundos
-  const [eventData, setEventData] = useState<EventData | null>(null);
+  const [checkoutData, setCheckoutData] = useState<CheckoutData | null>(null);
   const [additionalStoragePurchase, setAdditionalStoragePurchase] =
     useState<AdditionalStoragePurchase | null>(null);
   const [isPaymentApproved, setIsPaymentApproved] = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [checkoutResponse, setCheckoutResponse] = useState<
+    CheckoutResponseDto | CheckoutAdditionalStorageResponseDto | null
+  >(null);
   const [focusedField, setFocusedField] = useState<
     "cardNumber" | "cardName" | "cardExpiry" | "cardCvv" | null
   >(null);
@@ -102,6 +109,50 @@ const Checkout = () => {
     searchParams.get("type") === "additionalStorage";
 
   const eventId = searchParams.get("eventId");
+
+  // Mutation para checkout de evento
+  const checkoutMutation = useMutation({
+    mutationFn: processCheckout,
+    onSuccess: (data) => {
+      setCheckoutResponse(data);
+      setPixCode(data.paymentOrder.gatewayPaymentUrl || "");
+      if (paymentMethod === "pix") {
+        setIsPixModalOpen(true);
+      } else {
+        setIsPaymentApproved(true);
+        setIsPaymentModalOpen(true);
+      }
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Erro ao processar checkout",
+        description: error.message || "Não foi possível processar o pagamento",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Mutation para checkout de armazenamento adicional
+  const additionalStorageMutation = useMutation({
+    mutationFn: processCheckoutAdditionalStorage,
+    onSuccess: (data) => {
+      setCheckoutResponse(data);
+      setPixCode(data.paymentOrder.gatewayPaymentUrl || "");
+      if (paymentMethod === "pix") {
+        setIsPixModalOpen(true);
+      } else {
+        setIsPaymentApproved(true);
+        setIsPaymentModalOpen(true);
+      }
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Erro ao processar checkout",
+        description: error.message || "Não foi possível processar o pagamento",
+        variant: "destructive",
+      });
+    },
+  });
 
   const {
     register,
@@ -120,33 +171,42 @@ const Checkout = () => {
 
   useEffect(() => {
     if (isAdditionalStorageCheckout) {
-      // Carregar dados da compra de armazenamento adicional
-      const stored = localStorage.getItem("additionalStoragePurchase");
-      if (!stored) {
+      // Carregar dados da compra de armazenamento adicional do state
+      const state = location.state as {
+        additionalStorage?: AdditionalStoragePurchase;
+      };
+      if (!state?.additionalStorage) {
+        toast({
+          title: "Dados não encontrados",
+          description: "Redirecionando...",
+          variant: "destructive",
+        });
         navigate(eventId ? `/galeria/${eventId}` : "/");
         return;
       }
-      setAdditionalStoragePurchase(JSON.parse(stored));
+      setAdditionalStoragePurchase(state.additionalStorage);
     } else {
-      // Carregar dados do evento do localStorage
-      const stored = localStorage.getItem("eventData");
-      if (!stored) {
+      // Carregar dados do evento do state
+      const state = location.state as { checkoutData?: CheckoutData };
+      if (!state?.checkoutData) {
+        toast({
+          title: "Dados não encontrados",
+          description: "Redirecionando para criar evento...",
+          variant: "destructive",
+        });
         navigate("/criar-evento");
         return;
       }
-      setEventData(JSON.parse(stored));
+      setCheckoutData(state.checkoutData);
     }
-  }, [navigate, isAdditionalStorageCheckout, eventId]);
+  }, [navigate, isAdditionalStorageCheckout, eventId, location.state, toast]);
 
   useEffect(() => {
-    if (isPixModalOpen && paymentMethod === "pix") {
-      // Gerar código Pix simulado (em produção, viria da API)
-      setPixCode(
-        "00020126580014br.gov.bcb.pix0136123e4567-e12b-12d1-a456-4266554400005204000053039865802BR5913shareday EVENTO6009SAO PAULO62070503***6304"
-      );
+    if (isPixModalOpen && paymentMethod === "pix" && checkoutResponse) {
+      // Código Pix vem da resposta da API
       setTimeLeft(600);
     }
-  }, [isPixModalOpen, paymentMethod]);
+  }, [isPixModalOpen, paymentMethod, checkoutResponse]);
 
   useEffect(() => {
     if (isPixModalOpen && timeLeft > 0) {
@@ -183,10 +243,10 @@ const Checkout = () => {
     if (!settings) return 0;
 
     // Determinar o preço base dependendo do tipo de checkout
-    const basePrice =
-      isAdditionalStorageCheckout && additionalStoragePurchase
-        ? additionalStoragePurchase.totalPrice
-        : eventData?.plan.price || 0;
+    const basePrice = isAdditionalStorageCheckout
+      ? (additionalStoragePurchase?.storageGB || 0) *
+        (settings?.payment.pricePerGB || 2.5)
+      : checkoutData?.plan.price || 0;
 
     if (basePrice === 0) return 0;
 
@@ -207,10 +267,10 @@ const Checkout = () => {
     if (!settings) return 0;
 
     // Determinar o preço base dependendo do tipo de checkout
-    const basePrice =
-      isAdditionalStorageCheckout && additionalStoragePurchase
-        ? additionalStoragePurchase.totalPrice
-        : eventData?.plan.price || 0;
+    const basePrice = isAdditionalStorageCheckout
+      ? (additionalStoragePurchase?.storageGB || 0) *
+        (settings.payment.pricePerGB || 2.5)
+      : checkoutData?.plan.price || 0;
 
     if (basePrice === 0) return 0;
 
@@ -224,38 +284,82 @@ const Checkout = () => {
     return installmentValue * count;
   };
 
-  const simulatePaymentApproval = () => {
-    // Simular processamento de pagamento
-    setTimeout(() => {
-      setIsPaymentApproved(true);
-      setIsPaymentModalOpen(true);
-      // Limpar dados após mostrar modal
-      setTimeout(() => {
-        if (isAdditionalStorageCheckout && eventId) {
-          localStorage.removeItem("additionalStoragePurchase");
-        } else {
-          localStorage.removeItem("eventData");
-        }
-      }, 100);
-    }, 2000);
+  const onCardSubmit = async (data: CardFormData) => {
+    if (isAdditionalStorageCheckout) {
+      if (!additionalStoragePurchase) return;
+      await additionalStorageMutation.mutateAsync({
+        eventUuid: additionalStoragePurchase.eventUuid,
+        storageGB: additionalStoragePurchase.storageGB,
+        paymentMethod: "credit",
+        installments: parseInt(installments),
+        cardNumber: data.cardNumber.replace(/\s/g, ""),
+        cardHolderName: data.cardName,
+        cardExpiry: data.cardExpiry,
+        cardCvv: data.cardCvv,
+      });
+    } else {
+      if (!checkoutData) return;
+      const eventDate = new Date(checkoutData.eventData.eventDate);
+      const endDate = new Date(eventDate);
+      endDate.setDate(endDate.getDate() + checkoutData.plan.durationDays);
+
+      await checkoutMutation.mutateAsync({
+        name: checkoutData.eventData.fullName,
+        email: checkoutData.eventData.email,
+        phone: removePhoneMask(checkoutData.eventData.phone),
+        eventName: checkoutData.eventData.eventName,
+        eventDescription: checkoutData.eventData.eventDescription,
+        eventType: checkoutData.eventData.eventType,
+        eventStartDate: eventDate,
+        eventEndDate: endDate,
+        planUuid: checkoutData.planUuid,
+        paymentMethod: "credit",
+        installments: parseInt(installments),
+        cardNumber: data.cardNumber.replace(/\s/g, ""),
+        cardHolderName: data.cardName,
+        cardExpiry: data.cardExpiry,
+        cardCvv: data.cardCvv,
+      });
+    }
   };
 
-  const onCardSubmit = (data: CardFormData) => {
-    // Simular processamento de pagamento
-    simulatePaymentApproval();
-  };
+  const onPixSubmit = async () => {
+    if (isAdditionalStorageCheckout) {
+      if (!additionalStoragePurchase) return;
+      await additionalStorageMutation.mutateAsync({
+        eventUuid: additionalStoragePurchase.eventUuid,
+        storageGB: additionalStoragePurchase.storageGB,
+        paymentMethod: "pix",
+      });
+    } else {
+      if (!checkoutData) return;
+      const eventDate = new Date(checkoutData.eventData.eventDate);
+      const endDate = new Date(eventDate);
+      endDate.setDate(endDate.getDate() + checkoutData.plan.durationDays);
 
-  const onPixSubmit = () => {
-    setIsPixModalOpen(true);
+      await checkoutMutation.mutateAsync({
+        name: checkoutData.eventData.fullName,
+        email: checkoutData.eventData.email,
+        phone: removePhoneMask(checkoutData.eventData.phone),
+        eventName: checkoutData.eventData.eventName,
+        eventDescription: checkoutData.eventData.eventDescription,
+        eventType: checkoutData.eventData.eventType,
+        eventStartDate: eventDate,
+        eventEndDate: endDate,
+        planUuid: checkoutData.planUuid,
+        paymentMethod: "pix",
+      });
+    }
   };
 
   const handlePixPaymentApproval = () => {
     // Simular aprovação do pagamento Pix após o usuário "pagar"
     setIsPixModalOpen(false);
-    simulatePaymentApproval();
+    setIsPaymentApproved(true);
+    setIsPaymentModalOpen(true);
   };
 
-  if (!eventData && !isAdditionalStorageCheckout) {
+  if (!checkoutData && !isAdditionalStorageCheckout) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <p className="text-muted-foreground">Carregando...</p>
@@ -265,6 +369,8 @@ const Checkout = () => {
 
   const installmentValue = calculateInstallmentValue(parseInt(installments));
   const totalWithInstallments = getTotalWithInstallments();
+  const isSubmittingCheckout =
+    checkoutMutation.isPending || additionalStorageMutation.isPending;
 
   return (
     <>
@@ -492,7 +598,7 @@ const Checkout = () => {
                           <SelectContent>
                             {Array.from(
                               {
-                                length: settings?.payment.maxInstallments || 10,
+                                length: settings?.payment.maxInstallments ?? 10,
                               },
                               (_, i) => {
                                 const count = i + 1;
@@ -500,7 +606,7 @@ const Checkout = () => {
                                 const total = value * count;
                                 const hasInterest =
                                   count >
-                                  (settings?.payment.freeInstallments || 3);
+                                  (settings?.payment.freeInstallments ?? 3);
                                 return (
                                   <SelectItem
                                     key={count}
@@ -529,9 +635,9 @@ const Checkout = () => {
                         variant="hero"
                         size="lg"
                         className="w-full"
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || isSubmittingCheckout}
                       >
-                        {isSubmitting
+                        {isSubmitting || isSubmittingCheckout
                           ? "Processando..."
                           : "Finalizar pagamento"}
                       </Button>
@@ -547,8 +653,9 @@ const Checkout = () => {
                   variant="hero"
                   size="lg"
                   className="w-full"
+                  disabled={isSubmittingCheckout}
                 >
-                  Gerar código Pix
+                  {isSubmittingCheckout ? "Processando..." : "Gerar código Pix"}
                   <QrCode className="ml-2 h-4 w-4" />
                 </Button>
               )}
@@ -577,7 +684,9 @@ const Checkout = () => {
                             Armazenamento adicional
                           </span>
                           <span className="font-medium">
-                            {formatStorage(additionalStoragePurchase.storageGB)}
+                            {formatStorage(
+                              additionalStoragePurchase?.storageGB || 0
+                            )}
                           </span>
                         </div>
                         <div className="flex justify-between text-sm">
@@ -586,7 +695,7 @@ const Checkout = () => {
                           </span>
                           <span className="font-medium">
                             {formatCurrencyBRL(
-                              additionalStoragePurchase.pricePerGB
+                              settings?.payment.pricePerGB || 2.5
                             )}
                           </span>
                         </div>
@@ -612,10 +721,10 @@ const Checkout = () => {
                               </span>
                             </div>
                             {parseInt(installments) >
-                              (settings?.payment.freeInstallments || 3) && (
+                              (settings?.payment.freeInstallments ?? 3) && (
                               <p className="text-xs text-muted-foreground">
                                 * Juros aplicados após{" "}
-                                {settings?.payment.freeInstallments || 3}x
+                                {settings?.payment.freeInstallments ?? 3}x
                               </p>
                             )}
                           </div>
@@ -626,7 +735,8 @@ const Checkout = () => {
                             </span>
                             <span className="text-xl font-bold text-foreground">
                               {formatCurrencyBRL(
-                                additionalStoragePurchase.totalPrice
+                                (additionalStoragePurchase?.storageGB || 0) *
+                                  (settings?.payment.pricePerGB || 2.5)
                               )}
                             </span>
                           </div>
@@ -639,7 +749,7 @@ const Checkout = () => {
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground">Plano</span>
                           <span className="font-medium">
-                            {eventData?.plan.name}
+                            {checkoutData?.plan.name}
                           </span>
                         </div>
                         <div className="flex justify-between text-sm">
@@ -647,13 +757,15 @@ const Checkout = () => {
                             Armazenamento
                           </span>
                           <span className="font-medium">
-                            {eventData?.plan.storageFormatted}
+                            {checkoutData
+                              ? formatStorage(checkoutData.plan.capacityGB)
+                              : ""}
                           </span>
                         </div>
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground">Duração</span>
                           <span className="font-medium">
-                            {eventData?.plan.duration}
+                            {checkoutData?.plan.durationDays} dias
                           </span>
                         </div>
                       </div>
@@ -678,10 +790,10 @@ const Checkout = () => {
                               </span>
                             </div>
                             {parseInt(installments) >
-                              (settings?.payment.freeInstallments || 3) && (
+                              (settings?.payment.freeInstallments ?? 3) && (
                               <p className="text-xs text-muted-foreground">
                                 * Juros aplicados após{" "}
-                                {settings?.payment.freeInstallments || 3}x
+                                {settings?.payment.freeInstallments ?? 3}x
                               </p>
                             )}
                           </div>
@@ -691,7 +803,7 @@ const Checkout = () => {
                               Total
                             </span>
                             <span className="text-xl font-bold text-foreground">
-                              {formatCurrencyBRL(eventData?.plan.price || 0)}
+                              {formatCurrencyBRL(checkoutData?.plan.price || 0)}
                             </span>
                           </div>
                         )}
@@ -808,16 +920,16 @@ const Checkout = () => {
 
             <div className="space-y-4 py-4">
               {/* Informações do evento */}
-              {eventData && (
+              {checkoutResponse && (
                 <div className="bg-secondary/30 rounded-lg p-3 space-y-1">
                   <p className="font-semibold text-foreground text-sm">
-                    {eventData.eventName}
+                    {checkoutResponse.event?.name || "Evento criado"}
                   </p>
-                  <p className="text-xs text-muted-foreground">
-                    Plano {eventData.plan.name} •{" "}
-                    {eventData.plan.storageFormatted} de armazenamento •{" "}
-                    {eventData.plan.duration}
-                  </p>
+                  {checkoutResponse.event?.shareCode && (
+                    <p className="text-xs text-muted-foreground">
+                      Código: {checkoutResponse.event.shareCode}
+                    </p>
+                  )}
                 </div>
               )}
 
@@ -834,7 +946,10 @@ const Checkout = () => {
                         Enviamos todas as informações do seu evento, incluindo o
                         QR Code, para{" "}
                         <span className="font-medium text-foreground">
-                          {eventData?.email}
+                          {checkoutData?.eventData.email ||
+                            (checkoutResponse &&
+                              "user" in checkoutResponse &&
+                              checkoutResponse.user?.email)}
                         </span>
                       </p>
                     </div>
@@ -849,7 +964,7 @@ const Checkout = () => {
                       <p className="text-xs text-muted-foreground break-words">
                         Também enviamos um link rápido via WhatsApp para{" "}
                         <span className="font-medium text-foreground">
-                          {applyPhoneMask(eventData?.phone || "")}
+                          {applyPhoneMask(checkoutData?.eventData.phone || "")}
                         </span>
                       </p>
                     </div>
@@ -893,6 +1008,8 @@ const Checkout = () => {
 
                   if (isAdditionalStorageCheckout && eventId) {
                     navigate(`/galeria/${eventId}`);
+                  } else if (checkoutResponse?.event?.shareCode) {
+                    navigate(`/galeria/${checkoutResponse.event.shareCode}`);
                   } else {
                     navigate("/");
                   }

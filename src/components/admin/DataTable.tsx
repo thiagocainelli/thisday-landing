@@ -1,4 +1,4 @@
-import { ReactNode, useState, useMemo, useEffect } from "react";
+import { ReactNode, useState } from "react";
 import {
   Table,
   TableBody,
@@ -40,11 +40,16 @@ interface DataTableProps<T> {
       | "ghost"
       | "link";
   }>;
-  pageSize?: number;
+  // Pagination props (server-side)
+  page?: number;
+  itemsPerPage?: number;
+  total?: number;
+  onPageChange?: (page: number) => void;
+  onItemsPerPageChange?: (itemsPerPage: number) => void;
   pageSizeOptions?: number[];
 }
 
-function DataTable<T extends { id: string }>({
+function DataTable<T extends { id?: string; uuid?: string }>({
   data,
   columns,
   isLoading = false,
@@ -54,23 +59,28 @@ function DataTable<T extends { id: string }>({
   onBulkDelete,
   onBulkDeleteClick,
   bulkActions = [],
-  pageSize: initialPageSize = 10,
+  page = 1,
+  itemsPerPage = 10,
+  total = 0,
+  onPageChange,
+  onItemsPerPageChange,
   pageSizeOptions = [10, 20, 50, 100],
 }: DataTableProps<T>) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(initialPageSize);
 
-  const totalPages = Math.ceil(data.length / pageSize);
-  const paginatedData = useMemo(() => {
-    const start = (currentPage - 1) * pageSize;
-    const end = start + pageSize;
-    return data.slice(start, end);
-  }, [data, currentPage, pageSize]);
+  const totalPages = total > 0 ? Math.ceil(total / itemsPerPage) : 0;
+
+  const getItemId = (item: T): string => {
+    return (
+      (item as { id?: string; uuid?: string }).id ||
+      (item as { id?: string; uuid?: string }).uuid ||
+      ""
+    );
+  };
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedIds(new Set(paginatedData.map((item) => item.id)));
+      setSelectedIds(new Set(data.map((item) => getItemId(item))));
     } else {
       setSelectedIds(new Set());
     }
@@ -87,8 +97,7 @@ function DataTable<T extends { id: string }>({
   };
 
   const isAllSelected =
-    paginatedData.length > 0 &&
-    paginatedData.every((item) => selectedIds.has(item.id));
+    data.length > 0 && data.every((item) => selectedIds.has(getItemId(item)));
   const isIndeterminate = selectedIds.size > 0 && !isAllSelected;
 
   const handleBulkDelete = () => {
@@ -111,22 +120,16 @@ function DataTable<T extends { id: string }>({
     }
   };
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+  const handlePageChange = (newPage: number) => {
     setSelectedIds(new Set()); // Clear selection on page change
+    onPageChange?.(newPage);
   };
 
-  const handlePageSizeChange = (newPageSize: number) => {
-    setPageSize(newPageSize);
-    setCurrentPage(1);
+  const handlePageSizeChange = (newItemsPerPage: number) => {
     setSelectedIds(new Set()); // Clear selection on page size change
+    onItemsPerPageChange?.(newItemsPerPage);
+    onPageChange?.(1); // Reset to first page when changing page size
   };
-
-  useEffect(() => {
-    if (currentPage > totalPages && totalPages > 0) {
-      setCurrentPage(1);
-    }
-  }, [totalPages, currentPage]);
 
   if (isLoading) {
     return (
@@ -192,49 +195,54 @@ function DataTable<T extends { id: string }>({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {paginatedData.map((item) => (
-              <TableRow
-                key={item.id}
-                onClick={() => !enableSelection && onRowClick?.(item)}
-                className={
-                  onRowClick && !enableSelection ? "cursor-pointer" : ""
-                }
-                data-selected={selectedIds.has(item.id)}
-              >
-                {enableSelection && (
-                  <TableCell
-                    onClick={(e) => e.stopPropagation()}
-                    className="w-12"
-                  >
-                    <Checkbox
-                      checked={selectedIds.has(item.id)}
-                      onCheckedChange={(checked) =>
-                        handleSelectRow(item.id, checked as boolean)
-                      }
-                    />
-                  </TableCell>
-                )}
-                {columns.map((column) => (
-                  <TableCell key={String(column.key)}>
-                    {column.render
-                      ? column.render(item)
-                      : String(item[column.key as keyof T] ?? "")}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))}
+            {data.map((item) => {
+              const itemId = getItemId(item);
+              return (
+                <TableRow
+                  key={itemId}
+                  onClick={() => !enableSelection && onRowClick?.(item)}
+                  className={
+                    onRowClick && !enableSelection ? "cursor-pointer" : ""
+                  }
+                  data-selected={selectedIds.has(itemId)}
+                >
+                  {enableSelection && (
+                    <TableCell
+                      onClick={(e) => e.stopPropagation()}
+                      className="w-12"
+                    >
+                      <Checkbox
+                        checked={selectedIds.has(itemId)}
+                        onCheckedChange={(checked) =>
+                          handleSelectRow(itemId, checked as boolean)
+                        }
+                      />
+                    </TableCell>
+                  )}
+                  {columns.map((column) => (
+                    <TableCell key={String(column.key)}>
+                      {column.render
+                        ? column.render(item)
+                        : String(item[column.key as keyof T] ?? "")}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </div>
-      <TablePagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        pageSize={pageSize}
-        totalItems={data.length}
-        onPageChange={handlePageChange}
-        onPageSizeChange={handlePageSizeChange}
-        pageSizeOptions={pageSizeOptions}
-      />
+      {onPageChange && onItemsPerPageChange && (
+        <TablePagination
+          currentPage={page}
+          totalPages={totalPages}
+          pageSize={itemsPerPage}
+          totalItems={total}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+          pageSizeOptions={pageSizeOptions}
+        />
+      )}
     </div>
   );
 }

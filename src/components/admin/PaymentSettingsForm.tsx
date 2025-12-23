@@ -17,7 +17,7 @@ import {
 import { useSettings, useUpdateSettings } from "@/hooks/useSettings";
 import { useToast } from "@/hooks/useToast";
 import { getLoadingButtonLabel } from "@/utils/formUtils";
-import { CreditCard, Percent, Calendar } from "lucide-react";
+import { CreditCard, Percent, Calendar, HardDrive } from "lucide-react";
 
 interface PaymentSettingsFormProps {
   onSuccess?: () => void;
@@ -40,6 +40,7 @@ const PaymentSettingsForm = ({ onSuccess }: PaymentSettingsFormProps) => {
           maxInstallments: settings.payment.maxInstallments,
           interestRate: settings.payment.interestRate,
           freeInstallments: settings.payment.freeInstallments,
+          pricePerGB: settings.payment.pricePerGB,
         }
       : undefined,
   });
@@ -51,6 +52,7 @@ const PaymentSettingsForm = ({ onSuccess }: PaymentSettingsFormProps) => {
           maxInstallments: data.maxInstallments,
           interestRate: data.interestRate,
           freeInstallments: data.freeInstallments,
+          pricePerGB: data.pricePerGB,
         },
       },
       {
@@ -157,6 +159,31 @@ const PaymentSettingsForm = ({ onSuccess }: PaymentSettingsFormProps) => {
             {errors.interestRate && (
               <p className="text-sm text-destructive">
                 {errors.interestRate.message}
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="pricePerGB" className="flex items-center gap-2">
+              <HardDrive className="h-4 w-4" />
+              Preço por GB de Armazenamento (R$)
+            </Label>
+            <Input
+              id="pricePerGB"
+              type="number"
+              step="0.1"
+              min="0.1"
+              max="100"
+              {...register("pricePerGB", { valueAsNumber: true })}
+              disabled={isPending}
+            />
+            <p className="text-xs text-muted-foreground">
+              Preço cobrado por cada GB de armazenamento adicional (R$ 0,10 - R$
+              100,00)
+            </p>
+            {errors.pricePerGB && (
+              <p className="text-sm text-destructive">
+                {errors.pricePerGB.message}
               </p>
             )}
           </div>

@@ -15,20 +15,20 @@ import { cn } from "@/lib/utils";
 interface PageFiltersProps {
   searchValue: string;
   onSearchChange: (value: string) => void;
-  startDate?: Date;
-  endDate?: Date;
-  onStartDateChange: (date: Date | undefined) => void;
-  onEndDateChange: (date: Date | undefined) => void;
+  // startDate?: Date;
+  // endDate?: Date;
+  // onStartDateChange: (date: Date | undefined) => void;
+  // onEndDateChange: (date: Date | undefined) => void;
   searchPlaceholder?: string;
 }
 
 const PageFilters = ({
   searchValue,
   onSearchChange,
-  startDate,
-  endDate,
-  onStartDateChange,
-  onEndDateChange,
+  // startDate,
+  // endDate,
+  // onStartDateChange,
+  // onEndDateChange,
   searchPlaceholder = "Buscar...",
 }: PageFiltersProps) => {
   const [isStartDateOpen, setIsStartDateOpen] = useState(false);
@@ -36,11 +36,11 @@ const PageFilters = ({
 
   const clearFilters = () => {
     onSearchChange("");
-    onStartDateChange(undefined);
-    onEndDateChange(undefined);
+    // onStartDateChange(undefined);
+    // onEndDateChange(undefined);
   };
 
-  const hasActiveFilters = searchValue || startDate || endDate;
+  const hasActiveFilters = searchValue;
 
   return (
     <div className="flex flex-col sm:flex-row gap-3">
@@ -58,8 +58,7 @@ const PageFilters = ({
 
       {/* Date Filters */}
       <div className="flex gap-2 flex-wrap">
-        {/* Start Date */}
-        <Popover open={isStartDateOpen} onOpenChange={setIsStartDateOpen}>
+        {/* <Popover open={isStartDateOpen} onOpenChange={setIsStartDateOpen}>
           <PopoverTrigger asChild>
             <Button
               variant="outline"
@@ -95,7 +94,6 @@ const PageFilters = ({
           </PopoverContent>
         </Popover>
 
-        {/* End Date */}
         <Popover open={isEndDateOpen} onOpenChange={setIsEndDateOpen}>
           <PopoverTrigger asChild>
             <Button
@@ -130,7 +128,7 @@ const PageFilters = ({
               }}
             />
           </PopoverContent>
-        </Popover>
+        </Popover> */}
 
         {/* Clear Filters Button */}
         {hasActiveFilters && (

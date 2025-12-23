@@ -1,26 +1,42 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
+  listCustomers,
+  getCustomerByUuid,
   createCustomer,
   updateCustomer,
-  readCustomerById,
-  listCustomers,
   deleteCustomer,
 } from "@/services/customers.service";
-import { CreateCustomerDto, UpdateCustomerDto } from "@/types/customers.dto";
+import {
+  CreateCustomersDto,
+  UpdateCustomersDto,
+  ReadCustomersDto,
+} from "@/types/customers.dto";
+import { ApiListParams } from "@/lib/api-utils";
 import { useToast } from "./useToast";
+import { getToastErrorMessage } from "@/utils/api-error-handler";
 
-export const useCustomers = () => {
+export const useCustomers = (params: ApiListParams) => {
   return useQuery({
-    queryKey: ["customers"],
-    queryFn: listCustomers,
+    queryKey: ["customers", params],
+    queryFn: () =>
+      listCustomers({
+        page: params.page,
+        itemsPerPage: params.itemsPerPage,
+        search: params.search,
+      }),
   });
 };
 
-export const useCustomer = (id: string | undefined) => {
+export const useCustomer = (uuid: string | undefined) => {
   return useQuery({
-    queryKey: ["customers", id],
-    queryFn: () => (id ? readCustomerById(id) : Promise.reject(new Error("ID inválido"))),
-    enabled: !!id,
+    queryKey: ["customers", uuid],
+    queryFn: () => {
+      if (!uuid) {
+        throw new Error("UUID é obrigatório");
+      }
+      return getCustomerByUuid(uuid);
+    },
+    enabled: !!uuid,
   });
 };
 
@@ -29,7 +45,7 @@ export const useCreateCustomer = () => {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: (data: CreateCustomerDto) => createCustomer(data),
+    mutationFn: (data: CreateCustomersDto) => createCustomer(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["customers"] });
       toast({
@@ -37,10 +53,14 @@ export const useCreateCustomer = () => {
         description: "O cliente foi criado com sucesso.",
       });
     },
-    onError: (error: Error) => {
+    onError: (error: unknown) => {
+      const { description } = getToastErrorMessage(
+        error,
+        "Não foi possível criar o cliente"
+      );
       toast({
         title: "Erro ao criar cliente",
-        description: error.message || "Não foi possível criar o cliente",
+        description,
         variant: "destructive",
       });
     },
@@ -51,8 +71,12 @@ export const useUpdateCustomer = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  return useMutation({
-    mutationFn: (data: UpdateCustomerDto) => updateCustomer(data),
+  return useMutation<
+    ReadCustomersDto,
+    unknown,
+    { uuid: string; data: UpdateCustomersDto }
+  >({
+    mutationFn: ({ uuid, data }) => updateCustomer(uuid, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["customers"] });
       toast({
@@ -60,10 +84,14 @@ export const useUpdateCustomer = () => {
         description: "As alterações foram salvas com sucesso.",
       });
     },
-    onError: (error: Error) => {
+    onError: (error: unknown) => {
+      const { description } = getToastErrorMessage(
+        error,
+        "Não foi possível atualizar o cliente"
+      );
       toast({
         title: "Erro ao atualizar cliente",
-        description: error.message || "Não foi possível atualizar o cliente",
+        description,
         variant: "destructive",
       });
     },
@@ -75,7 +103,7 @@ export const useDeleteCustomer = () => {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: (id: string) => deleteCustomer(id),
+    mutationFn: (uuid: string) => deleteCustomer(uuid),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["customers"] });
       toast({
@@ -83,13 +111,16 @@ export const useDeleteCustomer = () => {
         description: "O cliente foi removido com sucesso.",
       });
     },
-    onError: (error: Error) => {
+    onError: (error: unknown) => {
+      const { description } = getToastErrorMessage(
+        error,
+        "Não foi possível excluir o cliente"
+      );
       toast({
         title: "Erro ao excluir cliente",
-        description: error.message || "Não foi possível excluir o cliente",
+        description,
         variant: "destructive",
       });
     },
   });
 };
-

@@ -1,65 +1,74 @@
-import { useState, useEffect } from "react";
-
-interface EventData {
-  eventName: string;
-  plan?: {
-    id: string;
-    name: string;
-    storage: number; // em GB
-    storageFormatted: string;
-    duration: string;
-    price: number;
-  };
-}
+import { useQuery } from "@tanstack/react-query";
+import {
+  getEventWithDetails,
+  getEventByShareCode,
+} from "@/services/events.service";
+import { EventWithDetailsDto } from "@/types/event-with-details.dto";
 
 interface UseEventDataReturn {
   eventName: string;
   storageLimit: number; // em GB
+  storageUsedGB: number; // em GB
   isLoading: boolean;
+  event?: {
+    uuid: string;
+    name: string;
+    shareCode: string;
+    customerUuid: string;
+  };
+  plan?: {
+    uuid: string;
+    name: string;
+    capacityGB: number;
+    durationDays: number;
+  };
 }
 
 /**
- * Hook para buscar dados do evento (localStorage ou API)
+ * Hook para buscar dados do evento via API com detalhes completos
  */
-export const useEventData = (eventId?: string): UseEventDataReturn => {
-  const [eventName, setEventName] = useState<string>("");
-  const [storageLimit, setStorageLimit] = useState<number>(0);
-  const [isLoading, setIsLoading] = useState(true);
+export const useEventData = (
+  eventId?: string,
+  shareCode?: string
+): UseEventDataReturn => {
+  // Se tiver shareCode, buscar por shareCode primeiro para obter o UUID
+  // Depois buscar detalhes completos
+  const identifier = shareCode || eventId;
 
-  useEffect(() => {
-    setIsLoading(true);
-
-    // Tentar buscar do localStorage primeiro
-    const stored = localStorage.getItem("eventData");
-    if (stored) {
-      try {
-        const eventData: EventData = JSON.parse(stored);
-        if (eventData.eventName) {
-          setEventName(eventData.eventName);
-          // Extrair limite de armazenamento do plano (em GB)
-          const limit = eventData.plan?.storage || 0;
-          setStorageLimit(0.1);
-          setIsLoading(false);
-          return;
-        }
-      } catch (error) {
-        console.error("Erro ao ler dados do evento:", error);
+  const { data: eventDetails, isLoading } = useQuery<EventWithDetailsDto>({
+    queryKey: ["event", "details", identifier],
+    queryFn: async () => {
+      if (!identifier) {
+        throw new Error("EventId ou ShareCode é obrigatório");
       }
-    }
 
-    // Simular busca por eventId (em produção, fazer chamada à API)
-    if (eventId) {
-      setTimeout(() => {
-        setEventName(`Evento ${eventId.slice(0, 8)}`);
-        setStorageLimit(0.1); // Valor padrão em GB
-        setIsLoading(false);
-      }, 1000);
-    } else {
-      setEventName("Meu Evento");
-      setStorageLimit(0.1); // Valor padrão em GB
-      setIsLoading(false);
-    }
-  }, [eventId]);
+      // Se tiver shareCode, buscar primeiro o evento básico para obter UUID
+      if (shareCode) {
+        const basicEvent = await getEventByShareCode(shareCode);
+        return await getEventWithDetails(basicEvent.uuid);
+      }
 
-  return { eventName, storageLimit, isLoading };
+      // Se tiver UUID, buscar diretamente os detalhes
+      return await getEventWithDetails(identifier);
+    },
+    enabled: !!identifier,
+    staleTime: 5 * 60 * 1000, // 5 minutos
+  });
+
+  return {
+    eventName: eventDetails?.name || "",
+    storageLimit:
+      eventDetails?.storageLimitGB || eventDetails?.plan?.capacityGB || 0,
+    storageUsedGB: eventDetails?.storageUsedGB || 0,
+    isLoading,
+    event: eventDetails
+      ? {
+          uuid: eventDetails.uuid,
+          name: eventDetails.name,
+          shareCode: eventDetails.shareCode,
+          customerUuid: eventDetails.customerUuid,
+        }
+      : undefined,
+    plan: eventDetails?.plan,
+  };
 };

@@ -4,12 +4,11 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ListEventDto } from "@/types/events.dto";
-import { ListPaymentDto } from "@/types/payments.dto";
+import { UpcomingEventDto, PendingPaymentDto } from "@/types/dashboard.dto";
 
 interface DashboardAlertsProps {
-  upcomingEvents: ListEventDto[];
-  pendingPayments: ListPaymentDto[];
+  upcomingEvents: UpcomingEventDto[];
+  pendingPayments: PendingPaymentDto[];
 }
 
 const DashboardAlerts = ({
@@ -30,13 +29,13 @@ const DashboardAlerts = ({
             <div className="space-y-2">
               {upcomingEvents.slice(0, 3).map((event) => (
                 <div
-                  key={event.id}
+                  key={event.uuid}
                   className="flex items-center justify-between text-sm"
                 >
                   <div>
-                    <p className="font-medium">{event.eventName}</p>
+                    <p className="font-medium">{event.name}</p>
                     <p className="text-xs text-muted-foreground">
-                      {format(new Date(event.eventDate), "dd/MM/yyyy", {
+                      {format(new Date(event.startDate), "dd/MM/yyyy", {
                         locale: ptBR,
                       })}
                     </p>

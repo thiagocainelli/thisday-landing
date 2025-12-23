@@ -1,15 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   useCustomers,
   useDeleteCustomer,
   useCustomer,
 } from "@/hooks/useCustomers";
-import useFilterData from "@/hooks/useFilterData";
 import useAdminPage from "@/hooks/useAdminPage";
 import useBulkDelete from "@/hooks/useBulkDelete";
 import DataTable from "@/components/admin/DataTable";
-import { ListCustomerDto } from "@/types/customers.dto";
-import { formatCurrencyBRL } from "@/utils/currencyBRL";
+import { ReadCustomersDto } from "@/types/customers.dto";
 import { formatDateBR, formatDateTimeFullBR } from "@/utils/dateFormatters";
 import CustomerForm from "@/components/admin/CustomerForm";
 import PageHeader from "@/components/admin/PageHeader";
@@ -24,10 +22,21 @@ import AdminBreadcrumb from "@/components/admin/AdminBreadcrumb";
 
 const Customers = () => {
   const [searchValue, setSearchValue] = useState("");
-  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
-  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+  const [page, setPage] = useState<number>(1);
+  const [itemsPerPage, setItemsPerPage] = useState<number>(10);
 
-  const { data: customers = [], isLoading } = useCustomers();
+  // Reset page when search changes
+  useEffect(() => {
+    setPage(1);
+  }, [searchValue]);
+
+  const { data: customersData, isLoading } = useCustomers({
+    page,
+    itemsPerPage,
+    search: searchValue,
+  });
+
+  const customers = customersData?.data || [];
   const {
     selectedId,
     isCreateDialogOpen,
@@ -45,19 +54,10 @@ const Customers = () => {
     closeViewDialog,
     closeDeleteDialog,
     closeCreateDialog,
-  } = useAdminPage<ListCustomerDto>();
+  } = useAdminPage<ReadCustomersDto>();
 
   const { data: selectedCustomer } = useCustomer(selectedId || undefined);
   const { mutate: deleteCustomer, isPending: isDeleting } = useDeleteCustomer();
-
-  const filteredCustomers = useFilterData<ListCustomerDto>({
-    data: customers,
-    searchValue,
-    startDate,
-    endDate,
-    searchFields: ["fullName", "email", "phone", "document"],
-    dateField: "createdAt",
-  });
 
   const {
     isBulkDeleteDialogOpen,
@@ -80,30 +80,29 @@ const Customers = () => {
 
   const columns = [
     {
-      key: "fullName",
-      header: "Nome",
-    },
-    {
-      key: "email",
-      header: "E-mail",
-    },
-    {
-      key: "phone",
+      key: "phoneNumber",
       header: "Telefone",
+      render: (item: ReadCustomersDto) => item.phoneNumber || "-",
     },
     {
-      key: "totalEvents",
-      header: "Eventos",
+      key: "document",
+      header: "Documento",
+      render: (item: ReadCustomersDto) => item.document || "-",
     },
     {
-      key: "totalSpent",
-      header: "Total Gasto",
-      render: (item: ListCustomerDto) => formatCurrencyBRL(item.totalSpent),
+      key: "subscriptionStatus",
+      header: "Status Assinatura",
+    },
+    {
+      key: "createdAt",
+      header: "Criado em",
+      render: (item: ReadCustomersDto) =>
+        formatDateBR(item.createdAt.toString()),
     },
     {
       key: "actions",
       header: "Ações",
-      render: (item: ListCustomerDto) => (
+      render: (item: ReadCustomersDto) => (
         <ActionButtons
           item={item}
           onView={handleView}
@@ -145,20 +144,21 @@ const Customers = () => {
       <PageFilters
         searchValue={searchValue}
         onSearchChange={setSearchValue}
-        startDate={startDate}
-        endDate={endDate}
-        onStartDateChange={setStartDate}
-        onEndDateChange={setEndDate}
-        searchPlaceholder="Buscar por nome, e-mail, telefone ou documento..."
+        searchPlaceholder="Buscar por telefone ou documento..."
       />
 
       <DataTable
-        data={filteredCustomers}
+        data={customers}
         columns={columns}
         isLoading={isLoading}
         emptyMessage="Nenhum cliente encontrado"
         enableSelection
         onBulkDeleteClick={handleBulkDeleteClick}
+        page={page}
+        itemsPerPage={itemsPerPage}
+        total={customersData?.total || 0}
+        onPageChange={setPage}
+        onItemsPerPageChange={setItemsPerPage}
       />
 
       <ViewDialog
@@ -170,80 +170,38 @@ const Customers = () => {
           <div className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
               <DetailField
-                label="Nome Completo"
-                value={
-                  <span className="font-medium">
-                    {selectedCustomer.fullName}
-                  </span>
-                }
-              />
-              <DetailField label="E-mail" value={selectedCustomer.email} />
-              <DetailField label="Telefone" value={selectedCustomer.phone} />
-              {selectedCustomer.document && (
-                <DetailField
-                  label="Documento (CPF/CNPJ)"
-                  value={selectedCustomer.document}
-                />
-              )}
-              <DetailField
-                label="Total de Eventos"
-                value={
-                  <span className="font-medium">
-                    {selectedCustomer.totalEvents}
-                  </span>
-                }
+                label="Telefone"
+                value={selectedCustomer.phoneNumber || "-"}
               />
               <DetailField
-                label="Total Gasto"
-                value={
-                  <span className="font-medium text-primary">
-                    {formatCurrencyBRL(selectedCustomer.totalSpent)}
-                  </span>
-                }
+                label="Documento"
+                value={selectedCustomer.document || "-"}
               />
               <DetailField
-                label="Cadastrado em"
-                value={formatDateTimeFullBR(selectedCustomer.createdAt)}
+                label="Status da Assinatura"
+                value={selectedCustomer.subscriptionStatus}
               />
-              {selectedCustomer.lastEventAt && (
-                <DetailField
-                  label="Último Evento"
-                  value={formatDateBR(selectedCustomer.lastEventAt)}
-                />
-              )}
+              <DetailField
+                label="UUID do Cliente"
+                value={selectedCustomer.uuid}
+              />
+              <DetailField
+                label="UUID do Usuário"
+                value={selectedCustomer.userUuid}
+              />
+              <DetailField
+                label="Criado em"
+                value={formatDateTimeFullBR(
+                  selectedCustomer.createdAt.toString()
+                )}
+              />
+              <DetailField
+                label="Atualizado em"
+                value={formatDateTimeFullBR(
+                  selectedCustomer.updatedAt.toString()
+                )}
+              />
             </div>
-
-            {selectedCustomer.events && selectedCustomer.events.length > 0 && (
-              <div>
-                <p className="text-sm font-medium text-muted-foreground mb-3">
-                  Eventos
-                </p>
-                <div className="space-y-2">
-                  {selectedCustomer.events.map((event) => (
-                    <div
-                      key={event.id}
-                      className="p-3 border rounded-lg bg-muted/30"
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <p className="text-sm font-medium">
-                            {event.eventName}
-                          </p>
-                          <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
-                            <span>{formatDateBR(event.eventDate)}</span>
-                            <span>{event.planName}</span>
-                            <span className="capitalize">{event.status}</span>
-                          </div>
-                        </div>
-                        <p className="text-sm font-medium text-primary">
-                          {formatCurrencyBRL(event.totalSpent)}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
         )}
       </ViewDialog>

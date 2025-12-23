@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import SEO from "@/components/seo/SEO";
 import { FileWithPreview } from "@/types/upload";
 import { useEventData } from "@/hooks/useEventData";
 import { useFileProcessing } from "@/hooks/useFileProcessing";
-import { useFileUpload } from "@/hooks/useFileUpload";
 import { useFileView } from "@/hooks/useFileView";
 import { revokeFileUrls } from "@/utils/fileUtils";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { uploadFilesToEvent } from "@/services/storage.service";
+import { useToast } from "@/hooks/useToast";
 import EventBanner from "@/components/upload/EventBanner";
 import UploadArea from "@/components/upload/UploadArea";
 import ProcessingIndicator from "@/components/upload/ProcessingIndicator";
@@ -20,15 +22,21 @@ import UploadSkeleton from "@/components/upload/UploadSkeleton";
 
 const UploadPage = () => {
   const { eventId } = useParams<{ eventId?: string }>();
-  const { eventName, isLoading } = useEventData(eventId);
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const { eventName, isLoading, event } = useEventData(eventId);
   const { isProcessing, processingProgress, processFiles } =
     useFileProcessing();
-  const { uploadState, uploadProgress, uploadFiles, resetUpload } =
-    useFileUpload();
   const { selectedFileIndex, viewFile, navigateFile, closeView } =
     useFileView();
+  const queryClient = useQueryClient();
 
   const [selectedFiles, setSelectedFiles] = useState<FileWithPreview[]>([]);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadState, setUploadState] = useState<
+    "idle" | "uploading" | "success" | "error"
+  >("idle");
 
   const handleFileSelect = async (files: FileList | null) => {
     const processedFiles = await processFiles(files);
@@ -47,15 +55,76 @@ const UploadPage = () => {
     });
   };
 
+  // Mutation para upload de arquivos
+  const uploadMutation = useMutation({
+    mutationFn: async (files: File[]) => {
+      if (!event?.uuid) {
+        throw new Error("Event UUID é obrigatório");
+      }
+      return await uploadFilesToEvent(event.uuid, files, (progress) => {
+        setUploadProgress(progress);
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["storage", "event", event?.uuid],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["event", "details", eventId],
+      });
+      setUploadState("success");
+      setIsUploading(false);
+      setUploadProgress(0);
+      toast({
+        title: "Upload concluído!",
+        description: "Arquivos enviados com sucesso.",
+      });
+      // Redirecionar para a galeria após 2 segundos
+      setTimeout(() => {
+        if (event?.shareCode) {
+          navigate(`/galeria/${event.shareCode}`);
+        }
+      }, 2000);
+    },
+    onError: (error: Error) => {
+      setUploadState("error");
+      setIsUploading(false);
+      setUploadProgress(0);
+      toast({
+        title: "Erro no upload",
+        description:
+          error.message || "Ocorreu um erro ao fazer upload dos arquivos.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleUpload = async () => {
-    await uploadFiles(selectedFiles.length);
-    selectedFiles.forEach(revokeFileUrls);
+    if (!event?.uuid || selectedFiles.length === 0) return;
+
+    const files = selectedFiles
+      .map((f) => f.file)
+      .filter((f): f is File => f !== null);
+    if (files.length === 0) return;
+
+    setIsUploading(true);
+    setUploadState("uploading");
+    setUploadProgress(0);
+
+    try {
+      await uploadMutation.mutateAsync(files);
+      selectedFiles.forEach(revokeFileUrls);
+    } catch (error) {
+      // Erro já tratado no onError do mutation
+    }
   };
 
   const handleReset = () => {
     selectedFiles.forEach(revokeFileUrls);
     setSelectedFiles([]);
-    resetUpload();
+    setUploadState("idle");
+    setUploadProgress(0);
+    setIsUploading(false);
     closeView();
   };
 
@@ -98,14 +167,17 @@ const UploadPage = () => {
                 )}
               </AnimatePresence>
 
-              {uploadState === "idle" && !isProcessing && (
-                <UploadArea onFileSelect={handleFileSelect} />
-              )}
+              {(uploadState === "idle" ||
+                uploadState === "success" ||
+                uploadState === "error") &&
+                !isProcessing &&
+                !isUploading && <UploadArea onFileSelect={handleFileSelect} />}
 
               <AnimatePresence>
                 {selectedFiles.length > 0 &&
                   uploadState === "idle" &&
-                  !isProcessing && (
+                  !isProcessing &&
+                  !isUploading && (
                     <FilePreviewGrid
                       files={selectedFiles}
                       onRemove={removeFile}
@@ -116,7 +188,7 @@ const UploadPage = () => {
               </AnimatePresence>
 
               <AnimatePresence>
-                {uploadState === "uploading" && (
+                {isUploading && uploadState === "uploading" && (
                   <UploadProgress progress={uploadProgress} />
                 )}
               </AnimatePresence>

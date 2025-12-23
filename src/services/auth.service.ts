@@ -1,84 +1,81 @@
+import { apiPost, apiGet, apiPut } from "@/lib/api-utils";
+import { API_CONFIG } from "@/config/api.config";
+import { tokenManager } from "@/lib/api-client";
 import {
-  LoginDto,
-  ForgotPasswordDto,
-  ResetPasswordDto,
-  AuthResponseDto,
+  AuthLoginDto,
+  AuthRegisterDto,
+  AuthForgotPasswordDto,
+  AuthResetPasswordDto,
+  RefreshTokenAuthDto,
+  ReadAuthDto,
+  ReadRefreshTokenAuthDto,
+  ReadAuthTokenDto,
+  RegisterAuthDto,
+  SuccessAuthDto,
 } from "@/types/auth.dto";
-import { delay } from "@/utils/delay";
-import { generateId } from "@/utils/idUtils";
+import { ReadUserDto } from "@/types/users.dto";
 
-// Mock de usuários autenticados
-const mockAuthUsers = [
-  {
-    email: "admin@shareday.com",
-    password: "admin123",
-    user: {
-      id: "1",
-      name: "Admin Principal",
-      email: "admin@shareday.com",
-      role: "admin" as const,
-    },
-  },
-  {
-    email: "gerente@shareday.com",
-    password: "gerente123",
-    user: {
-      id: "2",
-      name: "Gerente de Vendas",
-      email: "gerente@shareday.com",
-      role: "manager" as const,
-    },
-  },
-  {
-    email: "suporte@shareday.com",
-    password: "suporte123",
-    user: {
-      id: "3",
-      name: "Suporte Técnico",
-      email: "suporte@shareday.com",
-      role: "support" as const,
-    },
-  },
-];
+const AUTH_ENDPOINT = API_CONFIG.endpoints.auth;
 
-export const login = async (data: LoginDto): Promise<AuthResponseDto> => {
-  await delay(1000);
-
-  const user = mockAuthUsers.find(
-    (u) => u.email === data.email && u.password === data.password
+export const login = async (data: AuthLoginDto): Promise<ReadAuthDto> => {
+  const response = await apiPost<ReadAuthDto, AuthLoginDto>(
+    `${AUTH_ENDPOINT}/login`,
+    data
   );
 
-  if (!user) {
-    throw new Error("Credenciais inválidas");
-  }
+  tokenManager.setTokens(response.accessToken, response.refreshToken);
 
-  return {
-    user: user.user,
-    token: `mock-token-${user.user.id}-${generateId()}`,
-  };
+  return response;
+};
+
+export const register = async (
+  data: AuthRegisterDto
+): Promise<RegisterAuthDto> => {
+  return await apiPost<RegisterAuthDto, AuthRegisterDto>(
+    `${AUTH_ENDPOINT}/register`,
+    data
+  );
 };
 
 export const forgotPassword = async (
-  data: ForgotPasswordDto
-): Promise<void> => {
-  await delay(800);
-
-  const user = mockAuthUsers.find((u) => u.email === data.email);
-
-  if (!user) {
-    return;
-  }
+  data: AuthForgotPasswordDto
+): Promise<SuccessAuthDto> => {
+  return await apiPost<SuccessAuthDto, AuthForgotPasswordDto>(
+    `${AUTH_ENDPOINT}/forgot-password`,
+    data
+  );
 };
 
-export const resetPassword = async (data: ResetPasswordDto): Promise<void> => {
-  await delay(800);
+export const resetPassword = async (
+  data: AuthResetPasswordDto
+): Promise<SuccessAuthDto> => {
+  return await apiPost<SuccessAuthDto, AuthResetPasswordDto>(
+    `${AUTH_ENDPOINT}/reset-password`,
+    data
+  );
+};
 
-  if (data.password !== data.confirmPassword) {
-    throw new Error("As senhas não coincidem");
-  }
+export const refreshToken = async (
+  data: RefreshTokenAuthDto
+): Promise<ReadRefreshTokenAuthDto> => {
+  const response = await apiPut<ReadRefreshTokenAuthDto, RefreshTokenAuthDto>(
+    `${AUTH_ENDPOINT}/refresh-token`,
+    data
+  );
 
-  // Em produção, validaria o token
-  if (!data.token || data.token.length < 10) {
-    throw new Error("Token inválido ou expirado");
-  }
+  tokenManager.setTokens(response.accessToken, response.refreshToken);
+
+  return response;
+};
+
+export const verifyToken = async (): Promise<ReadUserDto> => {
+  return await apiGet<ReadUserDto>(`${AUTH_ENDPOINT}/verify-token`);
+};
+
+export const createNonExpiringToken = async (): Promise<ReadAuthTokenDto> => {
+  return await apiPost<ReadAuthTokenDto>(`${AUTH_ENDPOINT}/non-expiring-token`);
+};
+
+export const logout = (): void => {
+  tokenManager.clearTokens();
 };

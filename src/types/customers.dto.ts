@@ -1,38 +1,27 @@
-export interface CreateCustomerDto {
-  fullName: string;
-  email: string;
-  phone: string;
+export interface CreateCustomersDto {
+  phoneNumber?: string;
   document?: string;
+  subscriptionStatus?: string;
+  userUuid: string;
 }
 
-export interface UpdateCustomerDto {
-  id: string;
-  fullName?: string;
-  email?: string;
-  phone?: string;
+export interface UpdateCustomersDto {
+  phoneNumber?: string;
   document?: string;
+  subscriptionStatus?: string;
 }
 
-export interface ListCustomerDto {
-  id: string;
-  fullName: string;
-  email: string;
-  phone: string;
+export interface ReadCustomersDto {
+  uuid: string;
+  phoneNumber?: string;
   document?: string;
-  totalEvents: number;
-  totalSpent: number;
-  createdAt: string;
-  lastEventAt?: string;
+  subscriptionStatus?: string;
+  createdAt: Date;
+  updatedAt: Date;
+  userUuid: string;
 }
 
-export interface ReadCustomerDto extends ListCustomerDto {
-  events: Array<{
-    id: string;
-    eventName: string;
-    eventDate: string;
-    planName: string;
-    status: string;
-    totalSpent: number;
-  }>;
+export interface ListCustomersDto {
+  data: ReadCustomersDto[];
+  total: number;
 }
-

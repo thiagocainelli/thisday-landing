@@ -24,9 +24,10 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/useToast";
-import { PLANS, getPlanById } from "@/constants/plans";
+import { usePlans } from "@/hooks/usePlans";
 import { formatCurrencyBRL } from "@/utils/currencyBRL";
-import { removePhoneMask } from "@/utils/phoneMask";
+import { formatStorage } from "@/utils/storageFormatter";
+import { ReadPlansDto } from "@/types/plans.dto";
 import SEO from "@/components/seo/SEO";
 import ScrollToTopButton from "@/components/ui/ScrollToTopButton";
 import PageBanner from "@/components/ui/PageBanner";
@@ -45,27 +46,35 @@ const CreateEvent = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
-  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  const [selectedPlanUuid, setSelectedPlanUuid] = useState<string | null>(null);
   const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
   const [pendingEventData, setPendingEventData] =
     useState<EventFormData | null>(null);
 
+  // Buscar planos da API
+  const { data: plansData, isLoading: isLoadingPlans } = usePlans({
+    page: 1,
+    itemsPerPage: 100,
+    search: undefined,
+  });
+
+  const plans = plansData?.data;
+
   // Pré-selecionar plano se vier da query string
   useEffect(() => {
     const planParam = searchParams.get("plan");
-    if (planParam) {
-      // Mapear nome do plano para ID
-      const planMap: Record<string, string> = {
-        básico: "basic",
-        evento: "event",
-        premium: "premium",
-      };
-      const planId = planMap[planParam.toLowerCase()];
-      if (planId && PLANS.find((p) => p.id === planId)) {
-        setSelectedPlan(planId);
+    if (planParam && plans.length > 0) {
+      // Tentar encontrar plano por nome ou UUID
+      const plan = plans.find(
+        (p) =>
+          p.name.toLowerCase() === planParam.toLowerCase() ||
+          p.uuid === planParam
+      );
+      if (plan) {
+        setSelectedPlanUuid(plan.uuid);
       }
     }
-  }, [searchParams]);
+  }, [searchParams, plans]);
 
   const {
     handleSubmit,
@@ -76,7 +85,7 @@ const CreateEvent = () => {
   });
 
   const onSubmit = (data: EventFormData) => {
-    if (!selectedPlan) {
+    if (!selectedPlanUuid) {
       toast({
         title: "Plano não selecionado",
         description: "Por favor, escolha um plano antes de continuar.",
@@ -85,8 +94,15 @@ const CreateEvent = () => {
       return;
     }
 
-    const plan = getPlanById(selectedPlan);
-    if (!plan) return;
+    const plan = plans.find((p) => p.uuid === selectedPlanUuid);
+    if (!plan) {
+      toast({
+        title: "Plano não encontrado",
+        description: "O plano selecionado não foi encontrado.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     // Salvar dados temporariamente e abrir modal de termos
     setPendingEventData(data);
@@ -94,29 +110,25 @@ const CreateEvent = () => {
   };
 
   const handleConfirmTerms = () => {
-    if (!pendingEventData || !selectedPlan) return;
+    if (!pendingEventData || !selectedPlanUuid) return;
 
-    const plan = getPlanById(selectedPlan);
+    const plan = plans.find((p) => p.uuid === selectedPlanUuid);
     if (!plan) return;
 
-    // Salvar dados no localStorage para usar no checkout
-    // Remover máscara do telefone antes de salvar
-    const eventData = {
+    // Navegar para checkout com dados na URL ou state
+    // Por enquanto, vamos passar via state do navigate
+    const checkoutData = {
       ...pendingEventData,
-      phone: removePhoneMask(pendingEventData.phone),
-      eventType: pendingEventData.eventType,
-      plan: {
-        ...plan,
-        priceFormatted: formatCurrencyBRL(plan.price),
-      },
+      planUuid: selectedPlanUuid,
+      plan,
     };
-    localStorage.setItem("eventData", JSON.stringify(eventData));
 
-    setIsTermsModalOpen(false);
-    navigate("/checkout");
+    navigate("/checkout", {
+      state: { checkoutData },
+    });
   };
 
-  const selectedPlanData = getPlanById(selectedPlan || "");
+  const selectedPlanData = plans.find((p) => p.uuid === selectedPlanUuid);
 
   return (
     <>
@@ -151,45 +163,58 @@ const CreateEvent = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <RadioGroup
-                      value={selectedPlan || undefined}
-                      onValueChange={setSelectedPlan}
-                      className="grid grid-cols-1 md:grid-cols-3 gap-4"
-                    >
-                      {PLANS.map((plan) => (
-                        <div key={plan.id}>
-                          <RadioGroupItem
-                            value={plan.id}
-                            id={plan.id}
-                            className="peer sr-only"
-                          />
-                          <Label
-                            htmlFor={plan.id}
-                            className="flex flex-col items-center justify-between rounded-lg border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
-                          >
-                            <div className="flex items-center gap-2 mb-2">
-                              <span className="text-lg font-semibold">
-                                {plan.name}
-                              </span>
-                              {selectedPlan === plan.id && (
-                                <Check className="h-4 w-4 text-primary" />
-                              )}
+                    {isLoadingPlans ? (
+                      <div className="text-center py-8 text-muted-foreground">
+                        Carregando planos...
+                      </div>
+                    ) : plans.length === 0 ? (
+                      <div className="text-center py-8 text-muted-foreground">
+                        Nenhum plano disponível
+                      </div>
+                    ) : (
+                      <RadioGroup
+                        value={selectedPlanUuid || undefined}
+                        onValueChange={setSelectedPlanUuid}
+                        className="grid grid-cols-1 md:grid-cols-3 gap-4"
+                      >
+                        {plans
+                          .filter((p) => p.active)
+                          .map((plan) => (
+                            <div key={plan.uuid}>
+                              <RadioGroupItem
+                                value={plan.uuid}
+                                id={plan.uuid}
+                                className="peer sr-only"
+                              />
+                              <Label
+                                htmlFor={plan.uuid}
+                                className="flex flex-col items-center justify-between rounded-lg border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
+                              >
+                                <div className="flex items-center gap-2 mb-2">
+                                  <span className="text-lg font-semibold">
+                                    {plan.name}
+                                  </span>
+                                  {selectedPlanUuid === plan.uuid && (
+                                    <Check className="h-4 w-4 text-primary" />
+                                  )}
+                                </div>
+                                <div className="text-center">
+                                  <div className="text-2xl font-bold text-foreground mb-1">
+                                    {formatCurrencyBRL(plan.price)}
+                                  </div>
+                                  <div className="text-sm text-muted-foreground">
+                                    {formatStorage(plan.capacityGB)} de
+                                    armazenamento
+                                  </div>
+                                  <div className="text-sm text-muted-foreground">
+                                    {plan.durationDays} dias
+                                  </div>
+                                </div>
+                              </Label>
                             </div>
-                            <div className="text-center">
-                              <div className="text-2xl font-bold text-foreground mb-1">
-                                {formatCurrencyBRL(plan.price)}
-                              </div>
-                              <div className="text-sm text-muted-foreground">
-                                {plan.storageFormatted} de armazenamento
-                              </div>
-                              <div className="text-sm text-muted-foreground">
-                                {plan.duration}
-                              </div>
-                            </div>
-                          </Label>
-                        </div>
-                      ))}
-                    </RadioGroup>
+                          ))}
+                      </RadioGroup>
+                    )}
                   </CardContent>
                 </Card>
 
@@ -221,8 +246,8 @@ const CreateEvent = () => {
                             Plano selecionado: {selectedPlanData.name}
                           </h3>
                           <p className="text-sm text-muted-foreground">
-                            {selectedPlanData.storageFormatted} de armazenamento •{" "}
-                            {selectedPlanData.duration}
+                            {formatStorage(selectedPlanData.capacityGB)} de
+                            armazenamento • {selectedPlanData.durationDays} dias
                           </p>
                         </div>
                         <div className="text-right">
@@ -249,7 +274,9 @@ const CreateEvent = () => {
                     type="submit"
                     variant="hero"
                     size="lg"
-                    disabled={isSubmitting || !selectedPlan}
+                    disabled={
+                      isSubmitting || !selectedPlanUuid || isLoadingPlans
+                    }
                   >
                     {isSubmitting
                       ? "Processando..."

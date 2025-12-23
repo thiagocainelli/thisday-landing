@@ -1,110 +1,72 @@
+import { apiGet, apiPut, apiDelete, ApiListParams } from "@/lib/api-utils";
+import { API_CONFIG } from "@/config/api.config";
 import {
-  CreateUserDto,
   UpdateUserDto,
-  ListUserDto,
+  UpdateUserPasswordDto,
   ReadUserDto,
+  ListUserDto,
 } from "@/types/users.dto";
-import { delay } from "@/utils/delay";
-import { generateId, getCurrentISOString } from "@/utils/idUtils";
-import { validateIndex, createNotFoundError } from "@/utils/errorUtils";
-import { findById, findIndexById } from "@/utils/arrayUtils";
 
-const mockUsers: ReadUserDto[] = [
-  {
-    id: "1",
-    name: "Admin Principal",
-    email: "admin@shareday.com",
-    role: "admin",
-    isActive: true,
-    createdAt: "2024-01-01T00:00:00Z",
-    updatedAt: "2024-01-01T00:00:00Z",
-    lastLoginAt: "2024-11-20T10:00:00Z",
-  },
-  {
-    id: "2",
-    name: "Gerente de Vendas",
-    email: "gerente@shareday.com",
-    role: "manager",
-    isActive: true,
-    createdAt: "2024-02-01T00:00:00Z",
-    updatedAt: "2024-02-01T00:00:00Z",
-    lastLoginAt: "2024-11-19T15:30:00Z",
-  },
-  {
-    id: "3",
-    name: "Suporte Técnico",
-    email: "suporte@shareday.com",
-    role: "support",
-    isActive: true,
-    createdAt: "2024-03-01T00:00:00Z",
-    updatedAt: "2024-03-01T00:00:00Z",
-    lastLoginAt: "2024-11-18T09:00:00Z",
-  },
-];
+const USERS_ENDPOINT = API_CONFIG.endpoints.users;
 
-export const createUser = async (data: CreateUserDto): Promise<ReadUserDto> => {
-  await delay(800);
-
-  const newUser: ReadUserDto = {
-    id: generateId(),
-    name: data.name,
-    email: data.email,
-    role: data.role,
-    isActive: data.isActive,
-    createdAt: getCurrentISOString(),
-    updatedAt: getCurrentISOString(),
-  };
-
-  mockUsers.push(newUser);
-  return newUser;
+export const listUsers = async (
+  params: ApiListParams
+): Promise<ListUserDto> => {
+  return await apiGet<ListUserDto>(`${USERS_ENDPOINT}/list`, {
+    page: params.page,
+    itemsPerPage: params.itemsPerPage,
+    search: params.search,
+  });
 };
 
-export const updateUser = async (data: UpdateUserDto): Promise<ReadUserDto> => {
-  await delay(600);
-
-  const userIndex = findIndexById(mockUsers, data.id);
-  validateIndex(userIndex, "Usuário");
-
-  const updatedUser: ReadUserDto = {
-    ...mockUsers[userIndex],
-    ...data,
-    updatedAt: getCurrentISOString(),
-  };
-
-  mockUsers[userIndex] = updatedUser;
-  return updatedUser;
+export const getUserByUuid = async (uuid: string): Promise<ReadUserDto> => {
+  return await apiGet<ReadUserDto>(`${USERS_ENDPOINT}/find-by-uuid`, { uuid });
 };
 
-export const readUserById = async (id: string): Promise<ReadUserDto> => {
-  await delay(400);
-
-  const user = findById(mockUsers, id);
-  if (!user) {
-    throw createNotFoundError("Usuário");
-  }
-
-  return user;
+export const getUserByEmail = async (email: string): Promise<ReadUserDto> => {
+  return await apiGet<ReadUserDto>(`${USERS_ENDPOINT}/find-by-email`, {
+    email,
+  });
 };
 
-export const listUsers = async (): Promise<ListUserDto[]> => {
-  await delay(500);
-
-  return mockUsers.map((user) => ({
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    role: user.role,
-    isActive: user.isActive,
-    createdAt: user.createdAt,
-    lastLoginAt: user.lastLoginAt,
-  }));
+export const updateUser = async (
+  uuid: string,
+  data: UpdateUserDto
+): Promise<ReadUserDto> => {
+  return await apiPut<ReadUserDto, UpdateUserDto>(
+    `${USERS_ENDPOINT}/update`,
+    data,
+    { uuid }
+  );
 };
 
-export const deleteUser = async (id: string): Promise<void> => {
-  await delay(400);
+export const updateUserPassword = async (
+  uuid: string,
+  data: UpdateUserPasswordDto
+): Promise<ReadUserDto> => {
+  return await apiPut<ReadUserDto, UpdateUserPasswordDto>(
+    `${USERS_ENDPOINT}/update-password`,
+    data,
+    { uuid }
+  );
+};
 
-  const userIndex = findIndexById(mockUsers, id);
-  validateIndex(userIndex, "Usuário");
+export const deleteUser = async (uuid: string): Promise<ReadUserDto> => {
+  return await apiDelete<ReadUserDto>(`${USERS_ENDPOINT}/soft-delete`, {
+    uuid,
+  });
+};
 
-  mockUsers.splice(userIndex, 1);
+export const deleteUserFromDatabase = async (
+  uuid: string
+): Promise<ReadUserDto> => {
+  return await apiDelete<ReadUserDto>(`${USERS_ENDPOINT}/delete-database`, {
+    uuid,
+  });
+};
+
+export const restoreUser = async (uuid: string): Promise<ReadUserDto> => {
+  return await apiPut<ReadUserDto>(`${USERS_ENDPOINT}/restore`, undefined, {
+    uuid,
+  });
 };

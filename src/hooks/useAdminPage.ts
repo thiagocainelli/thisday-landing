@@ -4,7 +4,7 @@ interface UseAdminPageOptions {
   onDeleteSuccess?: () => void;
 }
 
-const useAdminPage = <T extends { id: string }>(
+const useAdminPage = <T extends { id?: string; uuid?: string }>(
   options?: UseAdminPageOptions
 ) => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -13,18 +13,22 @@ const useAdminPage = <T extends { id: string }>(
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
+  const getItemId = (item: T): string => {
+    return (item as { id?: string; uuid?: string }).id || (item as { id?: string; uuid?: string }).uuid || "";
+  };
+
   const handleEdit = (item: T) => {
-    setSelectedId(item.id);
+    setSelectedId(getItemId(item));
     setIsEditDialogOpen(true);
   };
 
   const handleView = (item: T) => {
-    setSelectedId(item.id);
+    setSelectedId(getItemId(item));
     setIsViewDialogOpen(true);
   };
 
   const handleDelete = (item: T) => {
-    setSelectedId(item.id);
+    setSelectedId(getItemId(item));
     setIsDeleteDialogOpen(true);
   };
 

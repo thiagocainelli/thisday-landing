@@ -1,3 +1,4 @@
+import { UserTypeEnum } from "@/types/enums";
 import { z } from "zod";
 
 export const userSchema = z.object({
@@ -7,9 +8,8 @@ export const userSchema = z.object({
     .string()
     .min(6, "Senha deve ter pelo menos 6 caracteres")
     .optional(),
-  role: z.enum(["admin", "manager", "support"]),
+  type: z.enum(Object.values(UserTypeEnum) as [string, ...string[]]),
   isActive: z.boolean(),
 });
 
 export type UserFormData = z.infer<typeof userSchema>;
-

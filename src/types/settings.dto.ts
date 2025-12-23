@@ -2,6 +2,7 @@ export interface PaymentSettingsDto {
   maxInstallments: number;
   interestRate: number;
   freeInstallments: number;
+  pricePerGB: number;
 }
 
 export interface GeneralSettingsDto {
@@ -66,7 +67,7 @@ export interface BusinessRulesSettingsDto {
 }
 
 export interface SettingsDto {
-  id: string;
+  uuid: string;
   payment: PaymentSettingsDto;
   general: GeneralSettingsDto;
   upload: UploadSettingsDto;

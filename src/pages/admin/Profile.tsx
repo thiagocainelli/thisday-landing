@@ -6,20 +6,31 @@ import { Lock, User, Mail, Shield, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import AdminBreadcrumb from "@/components/admin/AdminBreadcrumb";
 import PasswordField from "@/components/forms/PasswordField";
 import { getRoleLabel } from "@/utils/roleMapping";
 import { useToast } from "@/hooks/useToast";
-import { delay } from "@/utils/delay";
 import { getLoadingButtonLabel } from "@/utils/formUtils";
+import { useUpdateUserPassword } from "@/hooks/useUsers";
+import { useAuth } from "@/hooks/useAuth";
 import { z } from "zod";
 
 const changePasswordSchema = z
   .object({
-    currentPassword: z.string().min(6, "Senha atual deve ter pelo menos 6 caracteres"),
-    newPassword: z.string().min(6, "Nova senha deve ter pelo menos 6 caracteres"),
+    currentPassword: z
+      .string()
+      .min(6, "Senha atual deve ter pelo menos 6 caracteres"),
+    newPassword: z
+      .string()
+      .min(6, "Nova senha deve ter pelo menos 6 caracteres"),
     confirmPassword: z.string(),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
@@ -32,10 +43,10 @@ type ChangePasswordFormData = z.infer<typeof changePasswordSchema>;
 const Profile = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [showPasswordForm, setShowPasswordForm] = useState(false);
-
-  const authUser = JSON.parse(localStorage.getItem("authUser") || "{}");
+  const { user: authUser } = useAuth();
+  const { mutate: updatePassword, isPending: isChangingPassword } =
+    useUpdateUserPassword();
 
   const {
     control,
@@ -46,28 +57,31 @@ const Profile = () => {
     resolver: zodResolver(changePasswordSchema),
   });
 
-  const handleChangePassword = async (data: ChangePasswordFormData) => {
-    setIsChangingPassword(true);
-    try {
-      await delay(800);
-      
-      // Em produção, validaria a senha atual e atualizaria
+  const handleChangePassword = (data: ChangePasswordFormData) => {
+    if (!authUser?.uuid) {
       toast({
-        title: "Senha alterada",
-        description: "Sua senha foi alterada com sucesso.",
-      });
-      
-      reset();
-      setShowPasswordForm(false);
-    } catch (error) {
-      toast({
-        title: "Erro ao alterar senha",
-        description: "Não foi possível alterar a senha. Tente novamente.",
+        title: "Erro",
+        description: "Usuário não encontrado.",
         variant: "destructive",
       });
-    } finally {
-      setIsChangingPassword(false);
+      return;
     }
+
+    updatePassword(
+      {
+        uuid: authUser.uuid,
+        data: {
+          oldPassword: data.currentPassword,
+          newPassword: data.newPassword,
+        },
+      },
+      {
+        onSuccess: () => {
+          reset();
+          setShowPasswordForm(false);
+        },
+      }
+    );
   };
 
   return (
@@ -94,7 +108,7 @@ const Profile = () => {
           <CardContent className="space-y-4">
             <div className="flex items-center justify-center mb-6">
               <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center text-primary-foreground font-bold text-2xl shadow-lg">
-                {authUser.name?.charAt(0)?.toUpperCase() || "U"}
+                {authUser?.name?.charAt(0)?.toUpperCase() || "U"}
               </div>
             </div>
 
@@ -105,7 +119,9 @@ const Profile = () => {
                   Nome
                 </Label>
                 <div className="px-3 py-2 bg-slate-50 dark:bg-slate-900 rounded-md border border-slate-200 dark:border-slate-800">
-                  <p className="text-sm font-medium">{authUser.name || "Não informado"}</p>
+                  <p className="text-sm font-medium">
+                    {authUser?.name || "Não informado"}
+                  </p>
                 </div>
               </div>
 
@@ -115,7 +131,9 @@ const Profile = () => {
                   E-mail
                 </Label>
                 <div className="px-3 py-2 bg-slate-50 dark:bg-slate-900 rounded-md border border-slate-200 dark:border-slate-800">
-                  <p className="text-sm font-medium">{authUser.email || "Não informado"}</p>
+                  <p className="text-sm font-medium">
+                    {authUser?.email || "Não informado"}
+                  </p>
                 </div>
               </div>
 
@@ -126,7 +144,9 @@ const Profile = () => {
                 </Label>
                 <div className="px-3 py-2 bg-slate-50 dark:bg-slate-900 rounded-md border border-slate-200 dark:border-slate-800">
                   <p className="text-sm font-medium">
-                    {authUser.role ? getRoleLabel(authUser.role) : "Não informado"}
+                    {authUser?.type
+                      ? getRoleLabel(authUser.type)
+                      : "Não informado"}
                   </p>
                 </div>
               </div>
@@ -141,9 +161,7 @@ const Profile = () => {
               <Lock className="h-5 w-5" />
               Alterar Senha
             </CardTitle>
-            <CardDescription>
-              Altere sua senha de acesso
-            </CardDescription>
+            <CardDescription>Altere sua senha de acesso</CardDescription>
           </CardHeader>
           <CardContent>
             {!showPasswordForm ? (
@@ -156,7 +174,10 @@ const Profile = () => {
                 Alterar Senha
               </Button>
             ) : (
-              <form onSubmit={handleSubmit(handleChangePassword)} className="space-y-4">
+              <form
+                onSubmit={handleSubmit(handleChangePassword)}
+                className="space-y-4"
+              >
                 <PasswordField
                   control={control}
                   name="currentPassword"
@@ -236,4 +257,3 @@ const Profile = () => {
 };
 
 export default Profile;
-

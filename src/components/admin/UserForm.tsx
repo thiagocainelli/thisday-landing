@@ -21,6 +21,7 @@ import FormFieldWrapper from "@/components/forms/FormFieldWrapper";
 import { userSchema, type UserFormData } from "@/schemas/user.schema";
 import { getSubmitButtonLabel } from "@/utils/formUtils";
 import { cn } from "@/lib/utils";
+import { UserTypeEnum } from "@/types/enums";
 
 interface UserFormProps {
   userId?: string;
@@ -51,7 +52,7 @@ const UserForm = ({ userId, onSuccess, onCancel }: UserFormProps) => {
       reset({
         name: user.name,
         email: user.email,
-        role: user.role,
+        type: user.type as UserTypeEnum,
         isActive: user.isActive,
       });
     }
@@ -60,14 +61,13 @@ const UserForm = ({ userId, onSuccess, onCancel }: UserFormProps) => {
   const onSubmit = (data: UserFormData) => {
     if (userId) {
       const updateData: UpdateUserDto = {
-        id: userId,
         name: data.name,
         email: data.email,
-        role: data.role,
+        type: data.type as UserTypeEnum,
         isActive: data.isActive,
         ...(data.password && { password: data.password }),
       };
-      updateUser(updateData, { onSuccess });
+      updateUser({ uuid: userId, data: updateData }, { onSuccess });
     } else {
       if (!data.password) {
         return;
@@ -76,7 +76,7 @@ const UserForm = ({ userId, onSuccess, onCancel }: UserFormProps) => {
         name: data.name,
         email: data.email,
         password: data.password,
-        role: data.role,
+        type: data.type as UserTypeEnum,
         isActive: data.isActive,
       };
       createUser(createData, { onSuccess });
@@ -119,10 +119,10 @@ const UserForm = ({ userId, onSuccess, onCancel }: UserFormProps) => {
           label="Função"
           htmlFor="role"
           required={true}
-          error={errors.role?.message}
+          error={errors.type?.message}
         >
           <Controller
-            name="role"
+            name="type"
             control={control}
             render={({ field }) => (
               <Select
@@ -131,15 +131,16 @@ const UserForm = ({ userId, onSuccess, onCancel }: UserFormProps) => {
                 disabled={isPending}
               >
                 <SelectTrigger
-                  id="role"
-                  className={cn(errors.role && "border-destructive")}
+                  id="type"
+                  className={cn(errors.type && "border-destructive")}
                 >
                   <SelectValue placeholder="Selecione a função" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="admin">Administrador</SelectItem>
-                  <SelectItem value="manager">Gerente</SelectItem>
-                  <SelectItem value="support">Suporte</SelectItem>
+                  <SelectItem value={UserTypeEnum.ADMIN}>
+                    Administrador
+                  </SelectItem>
+                  <SelectItem value={UserTypeEnum.CUSTOMER}>Cliente</SelectItem>
                 </SelectContent>
               </Select>
             )}

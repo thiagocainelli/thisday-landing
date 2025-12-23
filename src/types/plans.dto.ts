@@ -1,39 +1,38 @@
-export interface CreatePlanDto {
+export interface CreatePlansDto {
   name: string;
-  storage: number; // em GB
-  duration: number; // em dias
-  price: number;
   description?: string;
-  features: string[];
-  isActive: boolean;
+  price: number;
+  capacityGB: number;
+  allowedEvents?: number;
+  durationDays: number;
+  active: boolean;
 }
 
-export interface UpdatePlanDto {
-  id: string;
+export interface UpdatePlansDto {
   name?: string;
-  storage?: number; // em GB
-  duration?: number;
+  description?: string;
   price?: number;
-  description?: string;
-  features?: string[];
-  isActive?: boolean;
+  capacityGB?: number;
+  allowedEvents?: number;
+  durationDays?: number;
+  active?: boolean;
 }
 
-export interface ListPlanDto {
-  id: string;
+export interface ReadPlansDto {
+  uuid: string;
   name: string;
-  storage: number; // em GB
-  storageFormatted: string;
-  duration: number;
+  description: string;
   price: number;
-  description?: string;
-  isActive: boolean;
-  totalSubscriptions: number;
-  totalRevenue: number;
-  createdAt: string;
+  capacityGB: number;
+  allowedEvents: number;
+  durationDays: number;
+  active: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt: Date;
 }
 
-export interface ReadPlanDto extends ListPlanDto {
-  features: string[];
-  updatedAt: string;
+export interface ListPlansDto {
+  data: ReadPlansDto[];
+  total: number;
 }

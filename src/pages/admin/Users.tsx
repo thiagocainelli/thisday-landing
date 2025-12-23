@@ -1,10 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useUsers, useDeleteUser, useUser } from "@/hooks/useUsers";
-import useFilterData from "@/hooks/useFilterData";
 import useAdminPage from "@/hooks/useAdminPage";
 import useBulkDelete from "@/hooks/useBulkDelete";
 import DataTable from "@/components/admin/DataTable";
-import { ListUserDto } from "@/types/users.dto";
+import { ReadUserDto } from "@/types/users.dto";
 import { formatDateTimeFullBR } from "@/utils/dateFormatters";
 import { getRoleLabel } from "@/utils/roleMapping";
 import { getStatusFromBoolean } from "@/utils/statusUtils";
@@ -22,10 +21,21 @@ import AdminBreadcrumb from "@/components/admin/AdminBreadcrumb";
 
 const Users = () => {
   const [searchValue, setSearchValue] = useState("");
-  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
-  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+  const [page, setPage] = useState<number>(1);
+  const [itemsPerPage, setItemsPerPage] = useState<number>(10);
 
-  const { data: users = [], isLoading } = useUsers();
+  // Reset page when search changes
+  useEffect(() => {
+    setPage(1);
+  }, [searchValue]);
+
+  const { data: usersData, isLoading } = useUsers({
+    page,
+    itemsPerPage,
+    search: searchValue,
+  });
+
+  const users = usersData?.data || [];
   const {
     selectedId,
     isCreateDialogOpen,
@@ -43,19 +53,10 @@ const Users = () => {
     closeViewDialog,
     closeDeleteDialog,
     closeCreateDialog,
-  } = useAdminPage<ListUserDto>();
+  } = useAdminPage<ReadUserDto>();
 
   const { data: selectedUser } = useUser(selectedId || undefined);
   const { mutate: deleteUser, isPending: isDeleting } = useDeleteUser();
-
-  const filteredUsers = useFilterData<ListUserDto>({
-    data: users,
-    searchValue,
-    startDate,
-    endDate,
-    searchFields: ["name", "email", "role"],
-    dateField: "createdAt",
-  });
 
   const {
     isBulkDeleteDialogOpen,
@@ -86,14 +87,14 @@ const Users = () => {
       header: "E-mail",
     },
     {
-      key: "role",
+      key: "type",
       header: "Função",
-      render: (item: ListUserDto) => getRoleLabel(item.role),
+      render: (item: ReadUserDto) => getRoleLabel(item.type),
     },
     {
       key: "isActive",
       header: "Status",
-      render: (item: ListUserDto) => (
+      render: (item: ReadUserDto) => (
         <StatusBadge
           status={getStatusFromBoolean(item.isActive)}
           variant="user"
@@ -103,7 +104,7 @@ const Users = () => {
     {
       key: "actions",
       header: "Ações",
-      render: (item: ListUserDto) => (
+      render: (item: ReadUserDto) => (
         <ActionButtons
           item={item}
           onView={handleView}
@@ -145,20 +146,21 @@ const Users = () => {
       <PageFilters
         searchValue={searchValue}
         onSearchChange={setSearchValue}
-        startDate={startDate}
-        endDate={endDate}
-        onStartDateChange={setStartDate}
-        onEndDateChange={setEndDate}
         searchPlaceholder="Buscar por nome, e-mail ou função..."
       />
 
       <DataTable
-        data={filteredUsers}
+        data={users}
         columns={columns}
         isLoading={isLoading}
         emptyMessage="Nenhum usuário encontrado"
         enableSelection
         onBulkDeleteClick={handleBulkDeleteClick}
+        page={page}
+        itemsPerPage={itemsPerPage}
+        total={usersData?.total || 0}
+        onPageChange={setPage}
+        onItemsPerPageChange={setItemsPerPage}
       />
 
       <ViewDialog
@@ -177,7 +179,7 @@ const Users = () => {
               <DetailField label="E-mail" value={selectedUser.email} />
               <DetailField
                 label="Função"
-                value={getRoleLabel(selectedUser.role)}
+                value={getRoleLabel(selectedUser.type)}
               />
               <DetailField
                 label="Status"
@@ -189,21 +191,17 @@ const Users = () => {
                 }
               />
               <DetailField
-                label="Cadastrado em"
-                value={formatDateTimeFullBR(selectedUser.createdAt)}
+                label="Imagem de Perfil"
+                value={selectedUser.profileImageUrl || "-"}
               />
-              {selectedUser.lastLoginAt && (
-                <DetailField
-                  label="Último acesso"
-                  value={formatDateTimeFullBR(selectedUser.lastLoginAt)}
-                />
-              )}
-              {selectedUser.updatedAt && (
-                <DetailField
-                  label="Atualizado em"
-                  value={formatDateTimeFullBR(selectedUser.updatedAt)}
-                />
-              )}
+              <DetailField
+                label="Cadastrado em"
+                value={formatDateTimeFullBR(selectedUser.createdAt.toString())}
+              />
+              <DetailField
+                label="Atualizado em"
+                value={formatDateTimeFullBR(selectedUser.updatedAt.toString())}
+              />
             </div>
           </div>
         )}

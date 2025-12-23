@@ -14,6 +14,8 @@ import {
   Clock,
   Sparkles,
   Settings,
+  FileText,
+  Bug,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -59,6 +61,16 @@ const menuItems = [
     title: "Configurações",
     icon: Settings,
     path: "/admin/settings",
+  },
+  {
+    title: "Auditoria",
+    icon: FileText,
+    path: "/admin/audits",
+  },
+  {
+    title: "Logs de Erro",
+    icon: Bug,
+    path: "/admin/error-logs",
   },
 ];
 

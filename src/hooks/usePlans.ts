@@ -1,26 +1,41 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
+  listPlans,
+  getPlanByUuid,
   createPlan,
   updatePlan,
-  readPlanById,
-  listPlans,
   deletePlan,
 } from "@/services/plans.service";
-import { CreatePlanDto, UpdatePlanDto } from "@/types/plans.dto";
+import {
+  CreatePlansDto,
+  UpdatePlansDto,
+  ReadPlansDto,
+} from "@/types/plans.dto";
+import { ApiListParams } from "@/lib/api-utils";
 import { useToast } from "./useToast";
 
-export const usePlans = () => {
+export const usePlans = (params: ApiListParams) => {
   return useQuery({
-    queryKey: ["plans"],
-    queryFn: listPlans,
+    queryKey: ["plans", params],
+    queryFn: () =>
+      listPlans({
+        page: params.page,
+        itemsPerPage: params.itemsPerPage,
+        search: params.search,
+      }),
   });
 };
 
-export const usePlan = (id: string | undefined) => {
+export const usePlan = (uuid: string | undefined) => {
   return useQuery({
-    queryKey: ["plans", id],
-    queryFn: () => (id ? readPlanById(id) : Promise.reject(new Error("ID inválido"))),
-    enabled: !!id,
+    queryKey: ["plans", uuid],
+    queryFn: () => {
+      if (!uuid) {
+        throw new Error("UUID é obrigatório");
+      }
+      return getPlanByUuid(uuid);
+    },
+    enabled: !!uuid,
   });
 };
 
@@ -29,7 +44,7 @@ export const useCreatePlan = () => {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: (data: CreatePlanDto) => createPlan(data),
+    mutationFn: (data: CreatePlansDto) => createPlan(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["plans"] });
       toast({
@@ -51,8 +66,12 @@ export const useUpdatePlan = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  return useMutation({
-    mutationFn: (data: UpdatePlanDto) => updatePlan(data),
+  return useMutation<
+    ReadPlansDto,
+    Error,
+    { uuid: string; data: UpdatePlansDto }
+  >({
+    mutationFn: ({ uuid, data }) => updatePlan(uuid, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["plans"] });
       toast({
@@ -75,7 +94,7 @@ export const useDeletePlan = () => {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: (id: string) => deletePlan(id),
+    mutationFn: (uuid: string) => deletePlan(uuid),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["plans"] });
       toast({
@@ -92,4 +111,3 @@ export const useDeletePlan = () => {
     },
   });
 };
-

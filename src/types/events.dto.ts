@@ -1,47 +1,52 @@
-export interface CreateEventDto {
-  fullName: string;
-  email: string;
-  phone: string;
-  eventName: string;
-  eventDate: string;
-  eventType: string;
-  planId: string;
+export interface CreateEventsDto {
+  name: string;
+  description?: string;
+  startDate: Date;
+  endDate: Date;
+  status: string;
+  type?: string;
+  shareCode: string;
+  qrCodeUrl?: string;
+  storageFolder?: string;
+  customerUuid: string;
+  planUuid?: string;
+  storageLimitGB?: number;
 }
 
-export interface UpdateEventDto {
-  id: string;
-  fullName?: string;
-  email?: string;
-  phone?: string;
-  eventName?: string;
-  eventDate?: string;
-  eventType?: string;
-  planId?: string;
-  status?: "active" | "expired" | "cancelled";
+export interface UpdateEventsDto {
+  name?: string;
+  description?: string;
+  startDate?: Date;
+  endDate?: Date;
+  status?: string;
+  type?: string;
+  shareCode?: string;
+  qrCodeUrl?: string;
+  storageFolder?: string;
+  planUuid?: string;
+  storageLimitGB?: number;
 }
 
-export interface ListEventDto {
-  id: string;
-  fullName: string;
-  email: string;
-  phone: string;
-  eventName: string;
-  eventDate: string;
-  eventType: string;
-  planId: string;
-  planName: string;
-  status: "active" | "expired" | "cancelled";
-  createdAt: string;
-  expiresAt: string;
-  totalFiles: number;
-  totalRevenue: number;
-}
-
-export interface ReadEventDto extends ListEventDto {
+export interface ReadEventsDto {
+  uuid: string;
+  name: string;
+  description: string;
+  startDate: Date;
+  endDate: Date;
+  status: string;
+  type: string;
+  shareCode: string;
   qrCodeUrl: string;
-  shareUrl: string;
-  filesCount: number;
-  viewsCount: number;
-  lastAccessAt?: string;
+  storageFolder: string;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt?: Date;
+  customerUuid: string;
+  planUuid: string;
+  storageLimitGB: number;
 }
 
+export interface ListEventsDto {
+  data: ReadEventsDto[];
+  total: number;
+}

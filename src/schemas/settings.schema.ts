@@ -13,6 +13,10 @@ export const paymentSettingsSchema = z.object({
     .number()
     .min(1, "Mínimo de 1 parcela sem juros")
     .max(12, "Máximo de 12 parcelas sem juros"),
+  pricePerGB: z
+    .number()
+    .min(0.1, "Preço mínimo de R$ 0,10 por GB")
+    .max(100, "Preço máximo de R$ 100,00 por GB"),
 });
 
 export const generalSettingsSchema = z.object({
@@ -103,9 +107,7 @@ export const integrationSettingsSchema = z.object({
 });
 
 export const businessRulesSettingsSchema = z.object({
-  minPurchaseValue: z
-    .number()
-    .min(0, "Valor mínimo não pode ser negativo"),
+  minPurchaseValue: z.number().min(0, "Valor mínimo não pode ser negativo"),
   maxDiscountPercentage: z
     .number()
     .min(0, "Desconto mínimo é 0%")
@@ -119,12 +121,6 @@ export const businessRulesSettingsSchema = z.object({
   maintenanceMessage: z.string().optional(),
 });
 
-export type PaymentSettingsFormData = z.infer<typeof paymentSettingsSchema>;
-export type GeneralSettingsFormData = z.infer<typeof generalSettingsSchema>;
-export type UploadSettingsFormData = z.infer<typeof uploadSettingsSchema>;
-export type NotificationSettingsFormData = z.infer<
-  typeof notificationSettingsSchema
->;
 export type EventSettingsFormData = z.infer<typeof eventSettingsSchema>;
 export type EmailSettingsFormData = z.infer<typeof emailSettingsSchema>;
 export type SecuritySettingsFormData = z.infer<typeof securitySettingsSchema>;
@@ -134,4 +130,3 @@ export type IntegrationSettingsFormData = z.infer<
 export type BusinessRulesSettingsFormData = z.infer<
   typeof businessRulesSettingsSchema
 >;
-

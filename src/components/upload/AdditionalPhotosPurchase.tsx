@@ -19,8 +19,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatCurrencyBRL } from "@/utils/currencyBRL";
-import { ADDITIONAL_STORAGE_PRICE_PER_GB } from "@/constants/pricing";
 import { formatStorage } from "@/utils/storageFormatter";
+import { useSettings } from "@/hooks/useSettings";
 
 interface AdditionalStoragePurchaseProps {
   additionalStorageGB: number;
@@ -33,11 +33,13 @@ const AdditionalStoragePurchase = ({
 }: AdditionalStoragePurchaseProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [storageGB, setStorageGB] = useState(1);
+  const { data: settings } = useSettings();
 
   if (additionalStorageGB === 0) return null;
 
   const minStorageGB = Math.ceil(additionalStorageGB);
-  const totalPrice = storageGB * ADDITIONAL_STORAGE_PRICE_PER_GB;
+  const pricePerGB = settings?.payment.pricePerGB || 2.5;
+  const totalPrice = storageGB * pricePerGB;
 
   const handlePurchase = () => {
     if (storageGB >= minStorageGB) {
@@ -71,7 +73,7 @@ const AdditionalStoragePurchase = ({
                   </p>
                   <p className="text-xs text-gray-500 mt-1">
                     Compre armazenamento adicional por{" "}
-                    {formatCurrencyBRL(ADDITIONAL_STORAGE_PRICE_PER_GB)} por GB.
+                    {formatCurrencyBRL(pricePerGB)} por GB.
                   </p>
                 </div>
               </div>
@@ -122,8 +124,7 @@ const AdditionalStoragePurchase = ({
               </p>
               <div className="flex items-center justify-between text-sm text-gray-600">
                 <span>
-                  {formatStorage(storageGB)} ×{" "}
-                  {formatCurrencyBRL(ADDITIONAL_STORAGE_PRICE_PER_GB)}/GB
+                  {formatStorage(storageGB)} × {formatCurrencyBRL(pricePerGB)}/GB
                 </span>
                 <span className="text-lg font-bold text-primary">
                   {formatCurrencyBRL(totalPrice)}

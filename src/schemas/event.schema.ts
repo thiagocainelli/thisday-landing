@@ -54,6 +54,7 @@ export const eventFormSchema = z.object({
       message: "Selecione o tipo do evento",
     }
   ),
+  eventDescription: z.string().optional(),
 });
 
 export type EventFormPublicData = z.infer<typeof eventFormSchema>;

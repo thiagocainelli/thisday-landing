@@ -1,31 +1,54 @@
+import { UserTypeEnum } from "./enums";
+
 export interface CreateUserDto {
   name: string;
   email: string;
   password: string;
-  role: "admin" | "manager" | "support";
+  type: UserTypeEnum;
+  profileImageUrl?: string;
   isActive: boolean;
 }
 
 export interface UpdateUserDto {
-  id: string;
   name?: string;
   email?: string;
   password?: string;
-  role?: "admin" | "manager" | "support";
+  type?: UserTypeEnum;
   isActive?: boolean;
 }
 
-export interface ListUserDto {
-  id: string;
+export interface UpdateUserPasswordDto {
+  oldPassword: string;
+  newPassword: string;
+}
+
+export interface ReadUserDto {
+  uuid: string;
+  name: string;
+  expiresTokenIn: string;
+  refreshToken: string;
+  email: string;
+  type: UserTypeEnum;
+  profileImageUrl: string;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt: Date;
+}
+
+export interface ReadUserListDto {
+  uuid: string;
   name: string;
   email: string;
-  role: "admin" | "manager" | "support";
+  type: UserTypeEnum;
+  profileImageUrl: string;
   isActive: boolean;
-  createdAt: string;
-  lastLoginAt?: string;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt: Date;
 }
 
-export interface ReadUserDto extends ListUserDto {
-  updatedAt: string;
+export interface ListUserDto {
+  data: ReadUserListDto[];
+  total: number;
 }
-

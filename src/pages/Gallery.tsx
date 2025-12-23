@@ -7,15 +7,17 @@ import SEO from "@/components/seo/SEO";
 import { FileWithPreview } from "@/types/upload";
 import { useEventData } from "@/hooks/useEventData";
 import { useFileProcessing } from "@/hooks/useFileProcessing";
-import { useFileUpload } from "@/hooks/useFileUpload";
 import { useFileView } from "@/hooks/useFileView";
 import { downloadMultipleFiles } from "@/utils/downloadFiles";
-import { EXISTING_FILE_PREFIX } from "@/constants/upload";
-import { applyWatermark } from "@/utils/watermark";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  getStorageByEvent,
+  uploadFilesToEvent,
+} from "@/services/storage.service";
+import { ReadStorageDto } from "@/types/storage.dto";
 import { formatCurrencyBRL } from "@/utils/currencyBRL";
 import { formatFileSize } from "@/utils/storageCalculator";
 import { formatStorage } from "@/utils/storageFormatter";
-import { ADDITIONAL_STORAGE_PRICE_PER_GB } from "@/constants/pricing";
 import EventBanner from "@/components/upload/EventBanner";
 import UploadArea from "@/components/upload/UploadArea";
 import ProcessingIndicator from "@/components/upload/ProcessingIndicator";
@@ -33,102 +35,118 @@ const Gallery = () => {
   const { eventId } = useParams<{ eventId?: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { eventName, storageLimit, isLoading } = useEventData(eventId);
+  const {
+    eventName,
+    storageLimit,
+    storageUsedGB,
+    isLoading: isLoadingEvent,
+    event,
+    plan,
+  } = useEventData(eventId);
   const { isProcessing, processingProgress, processFiles } =
     useFileProcessing();
-  const { uploadState, uploadProgress, uploadFiles, resetUpload } =
-    useFileUpload();
   const { selectedFileIndex, viewFile, navigateFile, closeView } =
     useFileView();
+  const queryClient = useQueryClient();
 
-  const [galleryFiles, setGalleryFiles] = useState<FileWithPreview[]>([]);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [showUploadArea, setShowUploadArea] = useState(false);
-  const [isApplyingWatermark, setIsApplyingWatermark] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
 
-  // Calcular armazenamento usado
-  const usedStorage = useMemo(() => {
-    return galleryFiles.reduce((total, file) => {
-      return total + (file.file?.size || 0);
-    }, 0);
-  }, [galleryFiles]);
+  // Buscar arquivos do evento da API
+  const { data: storageData, isLoading: isLoadingFiles } = useQuery({
+    queryKey: ["storage", "event", event?.uuid],
+    queryFn: () => {
+      if (!event?.uuid) {
+        throw new Error("Event UUID é obrigatório");
+      }
+      return getStorageByEvent(event.uuid, 1, 1000);
+    },
+    enabled: !!event?.uuid,
+    staleTime: 30 * 1000, // 30 segundos
+  });
 
-  const usedStorageGB = useMemo(() => {
-    return usedStorage / (1024 * 1024 * 1024);
-  }, [usedStorage]);
+  const galleryFiles: FileWithPreview[] = useMemo(() => {
+    if (!storageData?.data) return [];
 
-  // Aplicar marca d'água nos arquivos que excedem o limite de armazenamento
-  useEffect(() => {
-    const applyWatermarksToExceededFiles = async () => {
-      if (isLoading || storageLimit === 0 || galleryFiles.length === 0) return;
+    // Calcular quais arquivos excedem o limite baseado no totalSize
+    // Se storageUsedGB > storageLimit, marcar todos como excedidos
+    const isExceeded = storageLimit > 0 && storageUsedGB > storageLimit;
 
-      // Calcular armazenamento acumulado para determinar quais arquivos excedem
-      let accumulatedStorage = 0;
-      const limitBytes = storageLimit * 1024 * 1024 * 1024; // Converter GB para bytes
+    return storageData.data.map((file: ReadStorageDto) => ({
+      id: file.uuid,
+      file: null as unknown as File, // Arquivo já está no servidor
+      preview: file.url,
+      videoUrl: file.mimetype?.startsWith("video/") ? file.url : undefined,
+      type: file.mimetype?.startsWith("video/") ? "video" : "image",
+      isExceededLimit: isExceeded,
+    }));
+  }, [storageData, storageLimit, storageUsedGB]);
 
-      // Verificar se há arquivos que excedem o limite
-      const needsWatermark = galleryFiles.some((file) => {
-        const fileSize = file.file?.size || 0;
-        const wouldExceed = accumulatedStorage + fileSize > limitBytes;
-        if (!wouldExceed) {
-          accumulatedStorage += fileSize;
-        }
-        return wouldExceed && file.type === "image" && !file.watermarkedPreview;
+  const isLoading = isLoadingEvent || isLoadingFiles;
+
+  // Usar storageUsedGB da API
+  const usedStorageGB = storageUsedGB || 0;
+
+  // Mutation para upload de arquivos
+  const uploadMutation = useMutation({
+    mutationFn: async (files: File[]) => {
+      if (!event?.uuid) {
+        throw new Error("Event UUID é obrigatório");
+      }
+      return await uploadFilesToEvent(event.uuid, files, (progress) => {
+        setUploadProgress(progress);
       });
-
-      if (!needsWatermark) return;
-
-      setIsApplyingWatermark(true);
-
-      accumulatedStorage = 0;
-      const updatedFiles = await Promise.all(
-        galleryFiles.map(async (file) => {
-          const fileSize = file.file?.size || 0;
-          const isExceeded = accumulatedStorage + fileSize > limitBytes;
-
-          if (!isExceeded) {
-            accumulatedStorage += fileSize;
-          }
-
-          // Apenas imagens que excedem o limite recebem marca d'água
-          if (isExceeded && file.type === "image" && !file.watermarkedPreview) {
-            try {
-              const watermarked = await applyWatermark(file.preview);
-              return {
-                ...file,
-                isExceededLimit: true,
-                watermarkedPreview: watermarked,
-              };
-            } catch (error) {
-              console.error("Erro ao aplicar marca d'água:", error);
-              return { ...file, isExceededLimit: true };
-            }
-          }
-          return file;
-        })
-      );
-
-      setGalleryFiles(updatedFiles);
-      setIsApplyingWatermark(false);
-    };
-
-    applyWatermarksToExceededFiles();
-  }, [galleryFiles, storageLimit, isLoading]);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["storage", "event", event?.uuid],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["event", "details", eventId],
+      });
+      toast({
+        title: "Upload concluído!",
+        description: "Arquivos enviados com sucesso.",
+      });
+      setIsUploading(false);
+      setUploadProgress(0);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Erro no upload",
+        description:
+          error.message || "Ocorreu um erro ao fazer upload dos arquivos.",
+        variant: "destructive",
+      });
+      setIsUploading(false);
+      setUploadProgress(0);
+    },
+  });
 
   const handleFileSelect = async (files: FileList | null) => {
-    const processedFiles = await processFiles(files);
-    if (processedFiles.length > 0) {
-      setGalleryFiles((prev) => [...prev, ...processedFiles]);
+    if (!files || files.length === 0 || !event?.uuid) return;
+
+    const fileArray = Array.from(files);
+    setIsUploading(true);
+    setUploadProgress(0);
+
+    try {
+      await uploadMutation.mutateAsync(fileArray);
       setShowUploadArea(false);
-      toast({
-        title: "Arquivos adicionados!",
-        description: `${processedFiles.length} arquivo(s) adicionado(s) à galeria.`,
-      });
+    } catch (error) {
+      // Erro já tratado no onError do mutation
     }
   };
 
-  const handleRemoveFile = (id: string) => {
-    setGalleryFiles((prev) => prev.filter((f) => f.id !== id));
+  const handleRemoveFile = async (id: string) => {
+    // TODO: Implementar delete via API quando necessário
+    // Por enquanto, apenas remover da lista local
+    toast({
+      title: "Funcionalidade em desenvolvimento",
+      description: "A remoção de arquivos será implementada em breve.",
+    });
   };
 
   const handleToggleSelect = (id: string) => {
@@ -193,27 +211,25 @@ const Gallery = () => {
   }, [usedStorageGB, storageLimit]);
 
   const handlePurchaseAdditionalStorage = (storageGB: number) => {
-    const totalPrice = storageGB * ADDITIONAL_STORAGE_PRICE_PER_GB;
+    if (!event?.uuid) {
+      toast({
+        title: "Erro",
+        description: "Evento não encontrado.",
+        variant: "destructive",
+      });
+      return;
+    }
 
-    // Salvar dados da compra no localStorage para o checkout
-    const purchaseData = {
-      type: "additionalStorage",
-      storageGB,
-      pricePerGB: ADDITIONAL_STORAGE_PRICE_PER_GB,
-      totalPrice,
-      eventName,
-      storageLimit,
-      currentStorageGB: usedStorageGB,
-    };
-
-    localStorage.setItem(
-      "additionalStoragePurchase",
-      JSON.stringify(purchaseData)
-    );
-    const checkoutUrl = eventId
-      ? `/checkout?type=additionalStorage&eventId=${eventId}`
-      : "/checkout?type=additionalStorage";
-    navigate(checkoutUrl);
+    // Navegar para checkout com dados no state
+    navigate("/checkout", {
+      state: {
+        additionalStorage: {
+          eventUuid: event.uuid,
+          storageGB,
+          eventName,
+        },
+      },
+    });
   };
 
   const shareUrl = typeof window !== "undefined" ? window.location.href : "";
@@ -279,10 +295,8 @@ const Gallery = () => {
               </div>
 
               <AnimatePresence>
-                {(isProcessing || isApplyingWatermark) && (
-                  <ProcessingIndicator
-                    progress={isProcessing ? processingProgress : 50}
-                  />
+                {isProcessing && (
+                  <ProcessingIndicator progress={processingProgress} />
                 )}
               </AnimatePresence>
 
@@ -402,19 +416,7 @@ const Gallery = () => {
               )}
 
               <AnimatePresence>
-                {uploadState === "uploading" && (
-                  <UploadProgress progress={uploadProgress} />
-                )}
-              </AnimatePresence>
-
-              <AnimatePresence>
-                {(uploadState === "success" || uploadState === "error") && (
-                  <UploadStatus
-                    state={uploadState}
-                    fileCount={galleryFiles.length}
-                    onReset={resetUpload}
-                  />
-                )}
+                {isUploading && <UploadProgress progress={uploadProgress} />}
               </AnimatePresence>
             </motion.div>
           )}
