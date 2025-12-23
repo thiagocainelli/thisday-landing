@@ -3,6 +3,12 @@ export interface CheckoutDto {
   email: string;
   phone?: string;
   document?: string;
+  zipCode?: string;
+  address?: string;
+  district?: string;
+  addressNumber?: string;
+  city?: string;
+  state?: string;
   eventName: string;
   eventDescription?: string;
   eventType?: string;

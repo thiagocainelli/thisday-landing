@@ -18,6 +18,7 @@ import {
   CheckCircle2,
   Mail,
   MessageCircle,
+  FileText,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -67,8 +68,11 @@ import {
   CheckoutAdditionalStorageResponseDto,
   CheckoutResponseDto,
 } from "@/types/checkout.dto";
+import { applyCpfMask, removeCpfMask } from "@/utils/cpfMask";
+import { applyCepMask, removeCepMask } from "@/utils/cepMask";
+import { getAddressByCep } from "@/services/viacep.service";
 
-type PaymentMethod = "pix" | "credit";
+type PaymentMethod = "pix" | "credit" | "boleto";
 
 interface CheckoutData {
   eventData: EventFormPublicData;
@@ -104,6 +108,14 @@ const Checkout = () => {
   const [focusedField, setFocusedField] = useState<
     "cardNumber" | "cardName" | "cardExpiry" | "cardCvv" | null
   >(null);
+
+  const [cpf, setCpf] = useState("");
+  const [cep, setCep] = useState("");
+  const [address, setAddress] = useState("");
+  const [district, setDistrict] = useState("");
+  const [addressNumber, setAddressNumber] = useState("");
+  const [city, setCity] = useState("");
+  const [stateUf, setStateUf] = useState("");
 
   const isAdditionalStorageCheckout =
     searchParams.get("type") === "additionalStorage";
@@ -285,6 +297,16 @@ const Checkout = () => {
   };
 
   const onCardSubmit = async (data: CardFormData) => {
+    const document = removeCpfMask(cpf);
+    if (!document) {
+      toast({
+        title: "CPF obrigatório",
+        description: "Informe o CPF do comprador para continuar.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (isAdditionalStorageCheckout) {
       if (!additionalStoragePurchase) return;
       await additionalStorageMutation.mutateAsync({
@@ -307,6 +329,13 @@ const Checkout = () => {
         name: checkoutData.eventData.fullName,
         email: checkoutData.eventData.email,
         phone: removePhoneMask(checkoutData.eventData.phone),
+        document,
+        zipCode: removeCepMask(cep) || undefined,
+        address: address || undefined,
+        district: district || undefined,
+        addressNumber: addressNumber || undefined,
+        city: city || undefined,
+        state: stateUf || undefined,
         eventName: checkoutData.eventData.eventName,
         eventDescription: checkoutData.eventData.eventDescription,
         eventType: checkoutData.eventData.eventType,
@@ -324,12 +353,24 @@ const Checkout = () => {
   };
 
   const onPixSubmit = async () => {
+    const method = paymentMethod;
+
+    const document = removeCpfMask(cpf);
+    if (!document) {
+      toast({
+        title: "CPF obrigatório",
+        description: "Informe o CPF do comprador para continuar.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (isAdditionalStorageCheckout) {
       if (!additionalStoragePurchase) return;
       await additionalStorageMutation.mutateAsync({
         eventUuid: additionalStoragePurchase.eventUuid,
         storageGB: additionalStoragePurchase.storageGB,
-        paymentMethod: "pix",
+        paymentMethod: method,
       });
     } else {
       if (!checkoutData) return;
@@ -341,13 +382,20 @@ const Checkout = () => {
         name: checkoutData.eventData.fullName,
         email: checkoutData.eventData.email,
         phone: removePhoneMask(checkoutData.eventData.phone),
+        document,
+        zipCode: removeCepMask(cep) || undefined,
+        address: address || undefined,
+        district: district || undefined,
+        addressNumber: addressNumber || undefined,
+        city: city || undefined,
+        state: stateUf || undefined,
         eventName: checkoutData.eventData.eventName,
         eventDescription: checkoutData.eventData.eventDescription,
         eventType: checkoutData.eventData.eventType,
         eventStartDate: eventDate,
         eventEndDate: endDate,
         planUuid: checkoutData.planUuid,
-        paymentMethod: "pix",
+        paymentMethod: method,
       });
     }
   };
@@ -400,265 +448,400 @@ const Checkout = () => {
             transition={{ duration: 0.5 }}
             className="grid md:grid-cols-3 gap-8"
           >
-            {/* Formulário de Pagamento */}
-            <div className="md:col-span-2 space-y-6">
-              {/* Método de Pagamento */}
+            {/* Dados do Comprador */}
+            <div className="space-y-6 md:col-span-2">
               <Card>
                 <CardHeader>
-                  <CardTitle>Método de pagamento</CardTitle>
-                  <CardDescription>Escolha como deseja pagar</CardDescription>
+                  <CardTitle>Dados do comprador</CardTitle>
+                  <CardDescription>
+                    Informe seus dados para emissão do pagamento
+                  </CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <RadioGroup
-                    value={paymentMethod}
-                    onValueChange={(value) =>
-                      setPaymentMethod(value as PaymentMethod)
-                    }
-                    className="space-y-4"
-                  >
-                    <div>
-                      <RadioGroupItem
-                        value="pix"
-                        id="pix"
-                        className="peer sr-only"
-                      />
-                      <Label
-                        htmlFor="pix"
-                        className="flex items-center gap-4 rounded-lg border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
-                      >
-                        <QrCode className="h-6 w-6 text-primary" />
-                        <div className="flex-1">
-                          <p className="font-semibold">Pix</p>
-                          <p className="text-sm text-muted-foreground">
-                            Aprovação imediata
-                          </p>
-                        </div>
-                        {paymentMethod === "pix" && (
-                          <Check className="h-5 w-5 text-primary" />
-                        )}
-                      </Label>
-                    </div>
+                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="cpf">CPF</Label>
+                    <Input
+                      id="cpf"
+                      placeholder="000.000.000-00"
+                      value={cpf}
+                      onChange={(e) => setCpf(applyCpfMask(e.target.value))}
+                    />
+                  </div>
 
-                    <div>
-                      <RadioGroupItem
-                        value="credit"
-                        id="credit"
-                        className="peer sr-only"
-                      />
-                      <Label
-                        htmlFor="credit"
-                        className="flex items-center gap-4 rounded-lg border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
-                      >
-                        <CreditCard className="h-6 w-6 text-primary" />
-                        <div className="flex-1">
-                          <p className="font-semibold">Cartão de crédito</p>
-                          <p className="text-sm text-muted-foreground">
-                            Parcele em até 10x
-                          </p>
-                        </div>
-                        {paymentMethod === "credit" && (
-                          <Check className="h-5 w-5 text-primary" />
-                        )}
-                      </Label>
-                    </div>
-                  </RadioGroup>
+                  <div className="space-y-2">
+                    <Label htmlFor="cep">CEP</Label>
+                    <Input
+                      id="cep"
+                      placeholder="00000-000"
+                      value={cep}
+                      onChange={(e) => setCep(applyCepMask(e.target.value))}
+                      onBlur={async () => {
+                        try {
+                          const digits = removeCepMask(cep);
+                          if (digits.length !== 8) return;
+                          const data = await getAddressByCep(digits);
+                          setAddress(data.logradouro || "");
+                          setDistrict(data.bairro || "");
+                          setCity(data.localidade || "");
+                          setStateUf(data.uf || "");
+                        } catch (error) {
+                          toast({
+                            title: "Erro ao buscar CEP",
+                            description:
+                              (error as Error).message ||
+                              "Não foi possível buscar o endereço",
+                            variant: "destructive",
+                          });
+                        }
+                      }}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="address">Endereço</Label>
+                    <Input
+                      id="address"
+                      placeholder="Rua, avenida, etc."
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="district">Bairro</Label>
+                    <Input
+                      id="district"
+                      value={district}
+                      onChange={(e) => setDistrict(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="addressNumber">Número</Label>
+                    <Input
+                      id="addressNumber"
+                      value={addressNumber}
+                      onChange={(e) => setAddressNumber(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="city">Cidade</Label>
+                    <Input
+                      id="city"
+                      value={city}
+                      onChange={(e) => setCity(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="stateUf">Estado</Label>
+                    <Input
+                      id="stateUf"
+                      placeholder="UF"
+                      value={stateUf}
+                      onChange={(e) => setStateUf(e.target.value.toUpperCase())}
+                      maxLength={2}
+                    />
+                  </div>
                 </CardContent>
               </Card>
 
-              {/* Formulário de Cartão */}
-              {paymentMethod === "credit" && (
+              {/* Formulário de Pagamento */}
+              <div className="space-y-6">
+                {/* Método de Pagamento */}
                 <Card>
                   <CardHeader>
-                    <CardTitle>Dados do cartão</CardTitle>
+                    <CardTitle>Método de pagamento</CardTitle>
+                    <CardDescription>Escolha como deseja pagar</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    {/* Cartão 3D */}
-                    <CreditCard3D
-                      cardNumber={cardNumber}
-                      cardName={cardName}
-                      cardExpiry={cardExpiry}
-                      cardCvv={cardCvv}
-                      focusedField={focusedField}
-                    />
-
-                    <form
-                      onSubmit={handleSubmit(onCardSubmit)}
+                    <RadioGroup
+                      value={paymentMethod}
+                      onValueChange={(value) =>
+                        setPaymentMethod(value as PaymentMethod)
+                      }
                       className="space-y-4"
                     >
-                      <div className="space-y-2">
-                        <Label htmlFor="cardNumber">Número do cartão</Label>
-                        <Input
-                          id="cardNumber"
-                          placeholder="0000 0000 0000 0000"
-                          maxLength={19}
-                          {...register("cardNumber", {
-                            onChange: (e) => {
-                              const value = e.target.value.replace(/\s/g, "");
-                              const formatted =
-                                value.match(/.{1,4}/g)?.join(" ") || value;
-                              setValue("cardNumber", formatted, {
-                                shouldValidate: true,
-                              });
-                            },
-                          })}
-                          className={
-                            errors.cardNumber ? "border-destructive" : ""
-                          }
-                          onFocus={() => setFocusedField("cardNumber")}
-                          onBlur={() => setFocusedField(null)}
+                      <div>
+                        <RadioGroupItem
+                          value="pix"
+                          id="pix"
+                          className="peer sr-only"
                         />
-                        {errors.cardNumber && (
-                          <p className="text-sm text-destructive">
-                            {errors.cardNumber.message}
-                          </p>
-                        )}
+                        <Label
+                          htmlFor="pix"
+                          className="flex items-center gap-4 rounded-lg border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
+                        >
+                          <QrCode className="h-6 w-6 text-primary" />
+                          <div className="flex-1">
+                            <p className="font-semibold">Pix</p>
+                            <p className="text-sm text-muted-foreground">
+                              Aprovação imediata
+                            </p>
+                          </div>
+                          {paymentMethod === "pix" && (
+                            <Check className="h-5 w-5 text-primary" />
+                          )}
+                        </Label>
                       </div>
 
-                      <div className="space-y-2">
-                        <Label htmlFor="cardName">Nome no cartão</Label>
-                        <Input
-                          id="cardName"
-                          placeholder="NOME COMPLETO"
-                          {...register("cardName")}
-                          className={
-                            errors.cardName ? "border-destructive" : ""
-                          }
-                          onFocus={() => setFocusedField("cardName")}
-                          onBlur={() => setFocusedField(null)}
+                      <div>
+                        <RadioGroupItem
+                          value="credit"
+                          id="credit"
+                          className="peer sr-only"
                         />
-                        {errors.cardName && (
-                          <p className="text-sm text-destructive">
-                            {errors.cardName.message}
-                          </p>
-                        )}
+                        <Label
+                          htmlFor="credit"
+                          className="flex items-center gap-4 rounded-lg border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
+                        >
+                          <CreditCard className="h-6 w-6 text-primary" />
+                          <div className="flex-1">
+                            <p className="font-semibold">Cartão de crédito</p>
+                            <p className="text-sm text-muted-foreground">
+                              Parcele em até 10x
+                            </p>
+                          </div>
+                          {paymentMethod === "credit" && (
+                            <Check className="h-5 w-5 text-primary" />
+                          )}
+                        </Label>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <RadioGroupItem
+                          value="boleto"
+                          id="boleto"
+                          className="peer sr-only"
+                        />
+                        <Label
+                          htmlFor="boleto"
+                          className="flex items-center gap-4 rounded-lg border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
+                        >
+                          <FileText className="h-6 w-6 text-primary" />
+                          <div className="flex-1">
+                            <p className="font-semibold">Boleto bancário</p>
+                            <p className="text-sm text-muted-foreground">
+                              Linha digitável para pagamento
+                            </p>
+                          </div>
+                          {paymentMethod === "boleto" && (
+                            <Check className="h-5 w-5 text-primary" />
+                          )}
+                        </Label>
+                      </div>
+                    </RadioGroup>
+                  </CardContent>
+                </Card>
+
+                {/* Formulário de Cartão */}
+                {paymentMethod === "credit" && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Dados do cartão</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      {/* Cartão 3D */}
+                      <CreditCard3D
+                        cardNumber={cardNumber}
+                        cardName={cardName}
+                        cardExpiry={cardExpiry}
+                        cardCvv={cardCvv}
+                        focusedField={focusedField}
+                      />
+
+                      <form
+                        onSubmit={handleSubmit(onCardSubmit)}
+                        className="space-y-4"
+                      >
                         <div className="space-y-2">
-                          <Label htmlFor="cardExpiry">Validade</Label>
+                          <Label htmlFor="cardNumber">Número do cartão</Label>
                           <Input
-                            id="cardExpiry"
-                            placeholder="MM/AA"
-                            maxLength={5}
-                            {...register("cardExpiry", {
+                            id="cardNumber"
+                            placeholder="0000 0000 0000 0000"
+                            maxLength={19}
+                            {...register("cardNumber", {
                               onChange: (e) => {
-                                let value = e.target.value.replace(/\D/g, "");
-                                if (value.length >= 2) {
-                                  value =
-                                    value.slice(0, 2) + "/" + value.slice(2, 4);
-                                }
-                                setValue("cardExpiry", value, {
+                                const value = e.target.value.replace(/\s/g, "");
+                                const formatted =
+                                  value.match(/.{1,4}/g)?.join(" ") || value;
+                                setValue("cardNumber", formatted, {
                                   shouldValidate: true,
                                 });
                               },
                             })}
                             className={
-                              errors.cardExpiry ? "border-destructive" : ""
+                              errors.cardNumber ? "border-destructive" : ""
                             }
-                            onFocus={() => setFocusedField("cardExpiry")}
+                            onFocus={() => setFocusedField("cardNumber")}
                             onBlur={() => setFocusedField(null)}
                           />
-                          {errors.cardExpiry && (
+                          {errors.cardNumber && (
                             <p className="text-sm text-destructive">
-                              {errors.cardExpiry.message}
+                              {errors.cardNumber.message}
                             </p>
                           )}
                         </div>
 
                         <div className="space-y-2">
-                          <Label htmlFor="cardCvv">CVV</Label>
+                          <Label htmlFor="cardName">Nome no cartão</Label>
                           <Input
-                            id="cardCvv"
-                            placeholder="123"
-                            maxLength={4}
-                            {...register("cardCvv")}
+                            id="cardName"
+                            placeholder="NOME COMPLETO"
+                            {...register("cardName")}
                             className={
-                              errors.cardCvv ? "border-destructive" : ""
+                              errors.cardName ? "border-destructive" : ""
                             }
-                            onFocus={() => setFocusedField("cardCvv")}
+                            onFocus={() => setFocusedField("cardName")}
                             onBlur={() => setFocusedField(null)}
                           />
-                          {errors.cardCvv && (
+                          {errors.cardName && (
                             <p className="text-sm text-destructive">
-                              {errors.cardCvv.message}
+                              {errors.cardName.message}
                             </p>
                           )}
                         </div>
-                      </div>
 
-                      <div className="space-y-2">
-                        <Label htmlFor="installments">Parcelas</Label>
-                        <Select
-                          value={installments}
-                          onValueChange={setInstallments}
-                        >
-                          <SelectTrigger id="installments">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {Array.from(
-                              {
-                                length: settings?.payment.maxInstallments ?? 10,
-                              },
-                              (_, i) => {
-                                const count = i + 1;
-                                const value = calculateInstallmentValue(count);
-                                const total = value * count;
-                                const hasInterest =
-                                  count >
-                                  (settings?.payment.freeInstallments ?? 3);
-                                return (
-                                  <SelectItem
-                                    key={count}
-                                    value={count.toString()}
-                                  >
-                                    {count}x de{" "}
-                                    {value.toLocaleString("pt-BR", {
-                                      style: "currency",
-                                      currency: "BRL",
-                                    })}
-                                    {hasInterest && " (c/ juros)"} ={" "}
-                                    {total.toLocaleString("pt-BR", {
-                                      style: "currency",
-                                      currency: "BRL",
-                                    })}
-                                  </SelectItem>
-                                );
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="cardExpiry">Validade</Label>
+                            <Input
+                              id="cardExpiry"
+                              placeholder="MM/AA"
+                              maxLength={5}
+                              {...register("cardExpiry", {
+                                onChange: (e) => {
+                                  let value = e.target.value.replace(/\D/g, "");
+                                  if (value.length >= 2) {
+                                    value =
+                                      value.slice(0, 2) +
+                                      "/" +
+                                      value.slice(2, 4);
+                                  }
+                                  setValue("cardExpiry", value, {
+                                    shouldValidate: true,
+                                  });
+                                },
+                              })}
+                              className={
+                                errors.cardExpiry ? "border-destructive" : ""
                               }
+                              onFocus={() => setFocusedField("cardExpiry")}
+                              onBlur={() => setFocusedField(null)}
+                            />
+                            {errors.cardExpiry && (
+                              <p className="text-sm text-destructive">
+                                {errors.cardExpiry.message}
+                              </p>
                             )}
-                          </SelectContent>
-                        </Select>
-                      </div>
+                          </div>
 
-                      <Button
-                        type="submit"
-                        variant="hero"
-                        size="lg"
-                        className="w-full"
-                        disabled={isSubmitting || isSubmittingCheckout}
-                      >
-                        {isSubmitting || isSubmittingCheckout
-                          ? "Processando..."
-                          : "Finalizar pagamento"}
-                      </Button>
-                    </form>
-                  </CardContent>
-                </Card>
-              )}
+                          <div className="space-y-2">
+                            <Label htmlFor="cardCvv">CVV</Label>
+                            <Input
+                              id="cardCvv"
+                              placeholder="123"
+                              maxLength={4}
+                              {...register("cardCvv")}
+                              className={
+                                errors.cardCvv ? "border-destructive" : ""
+                              }
+                              onFocus={() => setFocusedField("cardCvv")}
+                              onBlur={() => setFocusedField(null)}
+                            />
+                            {errors.cardCvv && (
+                              <p className="text-sm text-destructive">
+                                {errors.cardCvv.message}
+                              </p>
+                            )}
+                          </div>
+                        </div>
 
-              {/* Botão Pix */}
-              {paymentMethod === "pix" && (
-                <Button
-                  onClick={onPixSubmit}
-                  variant="hero"
-                  size="lg"
-                  className="w-full"
-                  disabled={isSubmittingCheckout}
-                >
-                  {isSubmittingCheckout ? "Processando..." : "Gerar código Pix"}
-                  <QrCode className="ml-2 h-4 w-4" />
-                </Button>
-              )}
+                        <div className="space-y-2">
+                          <Label htmlFor="installments">Parcelas</Label>
+                          <Select
+                            value={installments}
+                            onValueChange={setInstallments}
+                          >
+                            <SelectTrigger id="installments">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {Array.from(
+                                {
+                                  length:
+                                    settings?.payment.maxInstallments ?? 10,
+                                },
+                                (_, i) => {
+                                  const count = i + 1;
+                                  const value =
+                                    calculateInstallmentValue(count);
+                                  const total = value * count;
+                                  const hasInterest =
+                                    count >
+                                    (settings?.payment.freeInstallments ?? 3);
+                                  return (
+                                    <SelectItem
+                                      key={count}
+                                      value={count.toString()}
+                                    >
+                                      {count}x de{" "}
+                                      {value.toLocaleString("pt-BR", {
+                                        style: "currency",
+                                        currency: "BRL",
+                                      })}
+                                      {hasInterest && " (c/ juros)"} ={" "}
+                                      {total.toLocaleString("pt-BR", {
+                                        style: "currency",
+                                        currency: "BRL",
+                                      })}
+                                    </SelectItem>
+                                  );
+                                }
+                              )}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <Button
+                          type="submit"
+                          variant="hero"
+                          size="lg"
+                          className="w-full"
+                          disabled={isSubmitting || isSubmittingCheckout}
+                        >
+                          {isSubmitting || isSubmittingCheckout
+                            ? "Processando..."
+                            : "Finalizar pagamento"}
+                        </Button>
+                      </form>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Botão Pix / Boleto */}
+                {(paymentMethod === "pix" || paymentMethod === "boleto") && (
+                  <Button
+                    onClick={onPixSubmit}
+                    variant="hero"
+                    size="lg"
+                    className="w-full"
+                    disabled={isSubmittingCheckout}
+                  >
+                    {isSubmittingCheckout
+                      ? "Processando..."
+                      : paymentMethod === "pix"
+                      ? "Gerar código Pix"
+                      : "Gerar boleto bancário"}
+                    {paymentMethod === "pix" ? (
+                      <QrCode className="ml-2 h-4 w-4" />
+                    ) : (
+                      <FileText className="ml-2 h-4 w-4" />
+                    )}
+                  </Button>
+                )}
+              </div>
             </div>
 
             {/* Resumo Lateral */}
@@ -820,9 +1003,15 @@ const Checkout = () => {
         <Dialog open={isPixModalOpen} onOpenChange={setIsPixModalOpen}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>Pagamento via Pix</DialogTitle>
+              <DialogTitle>
+                {paymentMethod === "pix"
+                  ? "Pagamento via Pix"
+                  : "Pagamento via boleto"}
+              </DialogTitle>
               <DialogDescription>
-                Escaneie o QR Code ou copie o código para pagar
+                {paymentMethod === "pix"
+                  ? "Escaneie o QR Code ou copie o código para pagar"
+                  : "Use o código abaixo para pagar seu boleto no internet banking ou aplicativo do banco"}
               </DialogDescription>
             </DialogHeader>
 
@@ -838,17 +1027,23 @@ const Checkout = () => {
                 </div>
 
                 {/* QR Code */}
-                <div className="flex justify-center p-4 bg-shareday-white rounded-lg border border-border">
-                  <div className="w-full max-w-[200px] aspect-square bg-shareday-white flex items-center justify-center border-2 border-dashed border-muted-foreground/20 rounded-lg">
-                    <QrCode className="h-24 w-24 text-muted-foreground/30" />
-                    {/* Em produção, aqui seria uma imagem real do QR Code */}
+                {paymentMethod === "pix" && (
+                  <div className="flex justify-center p-4 bg-shareday-white rounded-lg border border-border">
+                    <div className="w-full max-w-[200px] aspect-square bg-shareday-white flex items-center justify-center border-2 border-dashed border-muted-foreground/20 rounded-lg">
+                      <QrCode className="h-24 w-24 text-muted-foreground/30" />
+                      {/* Em produção, aqui seria uma imagem real do QR Code */}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
 
-              {/* Código Pix */}
+              {/* Código Pix / Linha digitável */}
               <div className="space-y-2">
-                <Label>Código Pix (copiar e colar)</Label>
+                <Label>
+                  {paymentMethod === "pix"
+                    ? "Código Pix (copiar e colar)"
+                    : "Linha digitável do boleto"}
+                </Label>
                 <div className="flex gap-2">
                   <Input
                     value={pixCode}
