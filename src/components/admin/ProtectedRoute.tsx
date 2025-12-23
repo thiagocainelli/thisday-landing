@@ -1,4 +1,6 @@
 import { Navigate, useLocation } from "react-router-dom";
+import { useAuthContext } from "@/contexts/AuthContext";
+import PageLoader from "@/components/ui/PageLoader";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -6,9 +8,13 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const location = useLocation();
-  const authToken = localStorage.getItem("authToken");
+  const { isAuthenticated, isLoading } = useAuthContext();
 
-  if (!authToken) {
+  if (isLoading) {
+    return <PageLoader />;
+  }
+
+  if (!isAuthenticated) {
     return <Navigate to="/admin/login" state={{ from: location }} replace />;
   }
 

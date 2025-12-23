@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
 import {
   login,
   forgotPassword,
@@ -36,7 +37,7 @@ export const useLogin = () => {
     onError: (error: unknown) => {
       const { description } = getToastErrorMessage(
         error,
-        "Credenciais inválidas",
+        "Credenciais inválidas"
       );
       toast({
         title: "Erro no login",
@@ -61,7 +62,7 @@ export const useForgotPassword = () => {
     onError: (error: unknown) => {
       const { description } = getToastErrorMessage(
         error,
-        "Não foi possível enviar o email",
+        "Não foi possível enviar o email"
       );
       toast({
         title: "Erro",
@@ -89,7 +90,7 @@ export const useResetPassword = () => {
     onError: (error: unknown) => {
       const { description } = getToastErrorMessage(
         error,
-        "Não foi possível redefinir a senha",
+        "Não foi possível redefinir a senha"
       );
       toast({
         title: "Erro",
@@ -101,11 +102,14 @@ export const useResetPassword = () => {
 };
 
 export const useVerifyToken = () => {
+  const accessToken = Cookies.get("accessToken");
+
   return useQuery<ReadUserDto>({
     queryKey: ["auth", "user"],
     queryFn: verifyToken,
     retry: false,
     staleTime: 5 * 60 * 1000,
+    enabled: Boolean(accessToken),
   });
 };
 

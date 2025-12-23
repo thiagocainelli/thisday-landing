@@ -50,6 +50,13 @@ class ApiClient {
       (response) => response,
       async (error: AxiosError) => {
         if (error.response?.status === 401) {
+          const requestUrl = error.config?.url || "";
+          const isLoginEndpoint = requestUrl.includes("/login");
+
+          if (isLoginEndpoint) {
+            return Promise.reject(error);
+          }
+
           const refreshed = await this.handleTokenRefresh();
 
           if (refreshed && error.config) {

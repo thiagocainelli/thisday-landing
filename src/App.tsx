@@ -8,6 +8,7 @@ import useScrollToTop from "./hooks/useScrollToTop";
 import { routes } from "./routes";
 import PageLoader from "./components/ui/PageLoader";
 import { queryClient } from "@/lib/react-query.config";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 const ScrollToTop = () => {
   useScrollToTop();
@@ -21,16 +22,18 @@ const AppRoutes = () => {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <ScrollToTop />
-        <Suspense fallback={<PageLoader />}>
-          <AppRoutes />
-        </Suspense>
-      </BrowserRouter>
-    </TooltipProvider>
+    <AuthProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <ScrollToTop />
+          <Suspense fallback={<PageLoader />}>
+            <AppRoutes />
+          </Suspense>
+        </BrowserRouter>
+      </TooltipProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 

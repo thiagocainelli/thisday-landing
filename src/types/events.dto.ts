@@ -1,3 +1,10 @@
+export interface CreateCustomerEventDto {
+  name: string;
+  email: string;
+  phoneNumber: string;
+  document: string;
+}
+
 export interface CreateEventsDto {
   name: string;
   description?: string;
@@ -8,7 +15,8 @@ export interface CreateEventsDto {
   shareCode: string;
   qrCodeUrl?: string;
   storageFolder?: string;
-  customerUuid: string;
+  customerUuid?: string;
+  customer?: CreateCustomerEventDto;
   planUuid?: string;
   storageLimitGB?: number;
 }

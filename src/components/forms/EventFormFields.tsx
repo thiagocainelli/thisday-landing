@@ -13,11 +13,13 @@ import { EVENT_TYPES } from "@/constants/eventTypes";
 import NameField from "./NameField";
 import EmailField from "./EmailField";
 import PhoneField from "./PhoneField";
+import DocumentField from "./DocumentField";
 
 export interface EventFormFieldsData {
   fullName: string;
   email: string;
   phone: string;
+  document: string;
   eventName: string;
   eventDate: string;
   eventType: string;
@@ -76,6 +78,15 @@ const EventFormFields = ({
           name="phone"
           label="Telefone"
           error={errors.phone?.message}
+          disabled={disabled}
+          required={true}
+        />
+
+        <DocumentField
+          control={control as Control<EventFormFieldsData>}
+          name="document"
+          label="CPF/CNPJ"
+          error={errors.document?.message}
           disabled={disabled}
           required={true}
         />
@@ -161,7 +172,7 @@ const EventFormFields = ({
 
         {showPlanSelection && (
           <div className="space-y-2">
-            <Label htmlFor="planId">Plano *</Label>
+            <Label htmlFor="planId">Plano </Label>
             <Select
               value={planId}
               onValueChange={onPlanChange}

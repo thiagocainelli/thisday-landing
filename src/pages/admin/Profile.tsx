@@ -22,6 +22,7 @@ import { getLoadingButtonLabel } from "@/utils/formUtils";
 import { useUpdateUserPassword } from "@/hooks/useUsers";
 import { useAuth } from "@/hooks/useAuth";
 import { z } from "zod";
+import { useAuthContext } from "@/contexts/AuthContext";
 
 const changePasswordSchema = z
   .object({
@@ -44,7 +45,7 @@ const Profile = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [showPasswordForm, setShowPasswordForm] = useState(false);
-  const { user: authUser } = useAuth();
+  const { user: authUser } = useAuthContext();
   const { mutate: updatePassword, isPending: isChangingPassword } =
     useUpdateUserPassword();
 

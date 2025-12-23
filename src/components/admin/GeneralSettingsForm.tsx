@@ -1,4 +1,4 @@
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -18,6 +18,7 @@ import { useSettings, useUpdateSettings } from "@/hooks/useSettings";
 import { getLoadingButtonLabel } from "@/utils/formUtils";
 import EmailField from "@/components/forms/EmailField";
 import { Building2, Mail, Phone } from "lucide-react";
+import { applyPhoneMask } from "@/utils/phoneMask";
 
 interface GeneralSettingsFormProps {
   onSuccess?: () => void;
@@ -109,11 +110,23 @@ const GeneralSettingsForm = ({ onSuccess }: GeneralSettingsFormProps) => {
               <Phone className="h-4 w-4" />
               Telefone de Contato
             </Label>
-            <Input
-              id="contactPhone"
-              {...register("contactPhone")}
-              disabled={isPending}
-              placeholder="(11) 98765-4321"
+            <Controller
+              name="contactPhone"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  id="contactPhone"
+                  type="text"
+                  value={field.value ? applyPhoneMask(field.value) : ""}
+                  onChange={(e) => {
+                    const maskedValue = applyPhoneMask(e.target.value);
+                    field.onChange(maskedValue);
+                  }}
+                  onBlur={field.onBlur}
+                  disabled={isPending}
+                  placeholder="(11) 98765-4321"
+                />
+              )}
             />
             {errors.contactPhone && (
               <p className="text-sm text-destructive">

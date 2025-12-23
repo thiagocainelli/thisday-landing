@@ -79,47 +79,73 @@ const Settings = () => {
         onValueChange={setActiveTab}
         className="space-y-6"
       >
-        <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-9">
-          <TabsTrigger value="payment" className="flex items-center gap-2">
-            <CreditCard className="h-4 w-4" />
-            <span className="hidden sm:inline">Pagamento</span>
-          </TabsTrigger>
-          <TabsTrigger value="general" className="flex items-center gap-2">
-            <Building2 className="h-4 w-4" />
-            <span className="hidden sm:inline">Geral</span>
-          </TabsTrigger>
-          <TabsTrigger value="upload" className="flex items-center gap-2">
-            <Upload className="h-4 w-4" />
-            <span className="hidden sm:inline">Upload</span>
-          </TabsTrigger>
-          <TabsTrigger
-            value="notifications"
-            className="flex items-center gap-2"
-          >
-            <Bell className="h-4 w-4" />
-            <span className="hidden sm:inline">Notificações</span>
-          </TabsTrigger>
-          <TabsTrigger value="events" className="flex items-center gap-2">
-            <Calendar className="h-4 w-4" />
-            <span className="hidden sm:inline">Eventos</span>
-          </TabsTrigger>
-          <TabsTrigger value="email" className="flex items-center gap-2">
-            <Mail className="h-4 w-4" />
-            <span className="hidden sm:inline">Email</span>
-          </TabsTrigger>
-          <TabsTrigger value="security" className="flex items-center gap-2">
-            <Shield className="h-4 w-4" />
-            <span className="hidden sm:inline">Segurança</span>
-          </TabsTrigger>
-          <TabsTrigger value="integrations" className="flex items-center gap-2">
-            <Link2 className="h-4 w-4" />
-            <span className="hidden sm:inline">Integrações</span>
-          </TabsTrigger>
-          <TabsTrigger value="business" className="flex items-center gap-2">
-            <DollarSign className="h-4 w-4" />
-            <span className="hidden sm:inline">Regras</span>
-          </TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto px-6 bg-muted rounded-lg">
+          <TabsList className="flex justify-between w-full h-auto p-1">
+            <TabsTrigger
+              value="payment"
+              className="flex items-center gap-1.5 sm:gap-2 whitespace-nowrap px-3 sm:px-4"
+            >
+              <CreditCard className="h-4 w-4 shrink-0" />
+              <span className="text-xs sm:text-sm">Pagamento</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="general"
+              className="flex items-center gap-1.5 sm:gap-2 whitespace-nowrap px-3 sm:px-4"
+            >
+              <Building2 className="h-4 w-4 shrink-0" />
+              <span className="text-xs sm:text-sm">Geral</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="upload"
+              className="flex items-center gap-1.5 sm:gap-2 whitespace-nowrap px-3 sm:px-4"
+            >
+              <Upload className="h-4 w-4 shrink-0" />
+              <span className="text-xs sm:text-sm">Upload</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="notifications"
+              className="flex items-center gap-1.5 sm:gap-2 whitespace-nowrap px-3 sm:px-4"
+            >
+              <Bell className="h-4 w-4 shrink-0" />
+              <span className="text-xs sm:text-sm">Notificações</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="events"
+              className="flex items-center gap-1.5 sm:gap-2 whitespace-nowrap px-3 sm:px-4"
+            >
+              <Calendar className="h-4 w-4 shrink-0" />
+              <span className="text-xs sm:text-sm">Eventos</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="email"
+              className="flex items-center gap-1.5 sm:gap-2 whitespace-nowrap px-3 sm:px-4"
+            >
+              <Mail className="h-4 w-4 shrink-0" />
+              <span className="text-xs sm:text-sm">Email</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="security"
+              className="flex items-center gap-1.5 sm:gap-2 whitespace-nowrap px-3 sm:px-4"
+            >
+              <Shield className="h-4 w-4 shrink-0" />
+              <span className="text-xs sm:text-sm">Segurança</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="integrations"
+              className="flex items-center gap-1.5 sm:gap-2 whitespace-nowrap px-3 sm:px-4"
+            >
+              <Link2 className="h-4 w-4 shrink-0" />
+              <span className="text-xs sm:text-sm">Integrações</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="business"
+              className="flex items-center gap-1.5 sm:gap-2 whitespace-nowrap px-3 sm:px-4"
+            >
+              <DollarSign className="h-4 w-4 shrink-0" />
+              <span className="text-xs sm:text-sm">Regras</span>
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         <motion.div
           key={activeTab}

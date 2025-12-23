@@ -25,6 +25,7 @@ import { getGreeting } from "@/utils/greetingUtils";
 import useCurrentTime from "@/hooks/useCurrentTime";
 import useWeather from "@/hooks/useWeather";
 import logoLight from "@/assets/logo_light_without_bg.png";
+import { useAuthContext } from "@/contexts/AuthContext";
 
 const menuItems = [
   {
@@ -94,7 +95,7 @@ const AdminLayout = () => {
     navigate("/admin/login");
   };
 
-  const authUser = JSON.parse(localStorage.getItem("authUser") || "{}");
+  const { user: authUser } = useAuthContext();
   const greeting = getGreeting();
   const currentTime = useCurrentTime();
   const {
@@ -123,7 +124,12 @@ const AdminLayout = () => {
         <div className="flex h-full flex-col">
           {/* Header */}
           <div className="flex h-16 items-center justify-between border-b border-slate-200/60 dark:border-slate-800/60 px-6 bg-gradient-to-r from-primary/5 via-primary/3 to-transparent dark:from-primary/10 dark:via-primary/5">
-            <img src={logoLight} alt="Logo" className="w-32" />
+            <img
+              onClick={() => navigate("/admin/dashboard")}
+              src={logoLight}
+              alt="Logo"
+              className="w-32 cursor-pointer"
+            />
             <Button
               variant="ghost"
               size="icon"

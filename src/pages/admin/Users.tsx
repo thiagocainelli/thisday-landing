@@ -92,11 +92,11 @@ const Users = () => {
       render: (item: ReadUserDto) => getRoleLabel(item.type),
     },
     {
-      key: "isActive",
+      key: "active",
       header: "Status",
       render: (item: ReadUserDto) => (
         <StatusBadge
-          status={getStatusFromBoolean(item.isActive)}
+          status={getStatusFromBoolean(item.active)}
           variant="user"
         />
       ),
@@ -185,7 +185,7 @@ const Users = () => {
                 label="Status"
                 value={
                   <StatusBadge
-                    status={getStatusFromBoolean(selectedUser.isActive)}
+                    status={getStatusFromBoolean(selectedUser.active)}
                     variant="user"
                   />
                 }

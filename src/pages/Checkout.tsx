@@ -71,6 +71,7 @@ import {
 import { applyCpfMask, removeCpfMask } from "@/utils/cpfMask";
 import { applyCepMask, removeCepMask } from "@/utils/cepMask";
 import { getAddressByCep } from "@/services/viacep.service";
+import { removeCnpjMask } from "@/utils/cnpjMask";
 
 type PaymentMethod = "pix" | "credit" | "boleto";
 
@@ -297,16 +298,6 @@ const Checkout = () => {
   };
 
   const onCardSubmit = async (data: CardFormData) => {
-    const document = removeCpfMask(cpf);
-    if (!document) {
-      toast({
-        title: "CPF obrigatório",
-        description: "Informe o CPF do comprador para continuar.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     if (isAdditionalStorageCheckout) {
       if (!additionalStoragePurchase) return;
       await additionalStorageMutation.mutateAsync({
@@ -329,7 +320,13 @@ const Checkout = () => {
         name: checkoutData.eventData.fullName,
         email: checkoutData.eventData.email,
         phone: removePhoneMask(checkoutData.eventData.phone),
-        document,
+        document: checkoutData.eventData.document
+          ? checkoutData.eventData.document.length === 14
+            ? removeCpfMask(checkoutData.eventData.document)
+            : checkoutData.eventData.document.length === 18
+            ? removeCnpjMask(checkoutData.eventData.document)
+            : checkoutData.eventData.document
+          : undefined,
         zipCode: removeCepMask(cep) || undefined,
         address: address || undefined,
         district: district || undefined,
@@ -355,16 +352,6 @@ const Checkout = () => {
   const onPixSubmit = async () => {
     const method = paymentMethod;
 
-    const document = removeCpfMask(cpf);
-    if (!document) {
-      toast({
-        title: "CPF obrigatório",
-        description: "Informe o CPF do comprador para continuar.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     if (isAdditionalStorageCheckout) {
       if (!additionalStoragePurchase) return;
       await additionalStorageMutation.mutateAsync({
@@ -382,7 +369,13 @@ const Checkout = () => {
         name: checkoutData.eventData.fullName,
         email: checkoutData.eventData.email,
         phone: removePhoneMask(checkoutData.eventData.phone),
-        document,
+        document: checkoutData.eventData.document
+          ? checkoutData.eventData.document.length === 14
+            ? removeCpfMask(checkoutData.eventData.document)
+            : checkoutData.eventData.document.length === 18
+            ? removeCnpjMask(checkoutData.eventData.document)
+            : checkoutData.eventData.document
+          : undefined,
         zipCode: removeCepMask(cep) || undefined,
         address: address || undefined,
         district: district || undefined,
@@ -452,22 +445,12 @@ const Checkout = () => {
             <div className="space-y-6 md:col-span-2">
               <Card>
                 <CardHeader>
-                  <CardTitle>Dados do comprador</CardTitle>
+                  <CardTitle>Endereço de cobrança</CardTitle>
                   <CardDescription>
-                    Informe seus dados para emissão do pagamento
+                    Informe seu endereço de cobrança para emissão do pagamento
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="cpf">CPF</Label>
-                    <Input
-                      id="cpf"
-                      placeholder="000.000.000-00"
-                      value={cpf}
-                      onChange={(e) => setCpf(applyCpfMask(e.target.value))}
-                    />
-                  </div>
-
                   <div className="space-y-2">
                     <Label htmlFor="cep">CEP</Label>
                     <Input
@@ -1141,7 +1124,7 @@ const Checkout = () => {
                         Enviamos todas as informações do seu evento, incluindo o
                         QR Code, para{" "}
                         <span className="font-medium text-foreground">
-                          {checkoutData?.eventData.email ||
+                          {checkoutData?.eventData?.email ||
                             (checkoutResponse &&
                               "user" in checkoutResponse &&
                               checkoutResponse.user?.email)}
@@ -1159,7 +1142,7 @@ const Checkout = () => {
                       <p className="text-xs text-muted-foreground break-words">
                         Também enviamos um link rápido via WhatsApp para{" "}
                         <span className="font-medium text-foreground">
-                          {applyPhoneMask(checkoutData?.eventData.phone || "")}
+                          {applyPhoneMask(checkoutData?.eventData?.phone || "")}
                         </span>
                       </p>
                     </div>

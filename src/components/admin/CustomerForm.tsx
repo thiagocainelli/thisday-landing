@@ -13,7 +13,7 @@ import { CreateCustomersDto, UpdateCustomersDto } from "@/types/customers.dto";
 import PhoneField from "@/components/forms/PhoneField";
 import NameField from "@/components/forms/NameField";
 import EmailField from "@/components/forms/EmailField";
-import FormFieldWrapper from "@/components/forms/FormFieldWrapper";
+import DocumentField from "@/components/forms/DocumentField";
 import {
   customerSchema,
   type CustomerFormData,
@@ -22,6 +22,8 @@ import { getSubmitButtonLabel } from "@/utils/formUtils";
 import { useToast } from "@/hooks/useToast";
 import { register as registerUser } from "@/services/auth.service";
 import { UserTypeEnum } from "@/types/enums";
+import { applyCpfMask, removeCpfMask } from "@/utils/cpfMask";
+import { applyCnpjMask, removeCnpjMask } from "@/utils/cnpjMask";
 
 interface CustomerFormProps {
   customerId?: string;
@@ -52,12 +54,18 @@ const CustomerForm = ({
   useEffect(() => {
     if (customer) {
       reset({
-        name: "",
-        email: "",
+        name: customer.userName ?? "",
+        email: customer.userEmail ?? "",
         phoneNumber: customer.phoneNumber
           ? applyPhoneMask(customer.phoneNumber)
           : "",
-        document: customer.document || "",
+        document: customer.document
+          ? customer.document.length === 11
+            ? applyCpfMask(customer.document)
+            : customer.document.length === 14
+            ? applyCnpjMask(customer.document)
+            : customer.document
+          : "",
       });
     }
   }, [customer, reset]);
@@ -65,29 +73,35 @@ const CustomerForm = ({
   const onSubmit = async (data: CustomerFormData) => {
     if (customerId) {
       const updateData: UpdateCustomersDto = {
+        name: data.name,
+        email: data.email,
         phoneNumber: data.phoneNumber
           ? removePhoneMask(data.phoneNumber)
           : undefined,
-        document: data.document,
+        document: data.document
+          ? data.document.length === 14
+            ? removeCpfMask(data.document)
+            : data.document.length === 18
+            ? removeCnpjMask(data.document)
+            : data.document
+          : undefined,
       };
       updateCustomer({ uuid: customerId, data: updateData }, { onSuccess });
     } else {
       try {
-        const randomPassword = Math.random().toString(36).slice(-12) + "A1!";
-
-        const registerResponse = await registerUser({
+        const createData: CreateCustomersDto = {
           name: data.name,
           email: data.email,
-          password: randomPassword,
-          type: UserTypeEnum.CUSTOMER,
-        });
-
-        const createData: CreateCustomersDto = {
           phoneNumber: data.phoneNumber
             ? removePhoneMask(data.phoneNumber)
             : undefined,
-          document: data.document,
-          userUuid: registerResponse.uuid,
+          document: data.document
+            ? data.document.length === 14
+              ? removeCpfMask(data.document)
+              : data.document.length === 18
+              ? removeCnpjMask(data.document)
+              : data.document
+            : undefined,
         };
         createCustomer(createData, { onSuccess });
       } catch (error: unknown) {
@@ -109,28 +123,24 @@ const CustomerForm = ({
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {!customerId && (
-          <>
-            <NameField
-              control={control}
-              name="name"
-              label="Nome Completo"
-              placeholder="Nome completo do cliente"
-              error={errors.name?.message}
-              disabled={isPending}
-              required={true}
-            />
+        <NameField
+          control={control}
+          name="name"
+          label="Nome Completo"
+          placeholder="Nome completo do cliente"
+          error={errors.name?.message}
+          disabled={isPending}
+          required={true}
+        />
 
-            <EmailField
-              control={control}
-              name="email"
-              label="E-mail"
-              error={errors.email?.message}
-              disabled={isPending}
-              required={true}
-            />
-          </>
-        )}
+        <EmailField
+          control={control}
+          name="email"
+          label="E-mail"
+          error={errors.email?.message}
+          disabled={isPending}
+          required={true}
+        />
 
         <PhoneField
           control={control}
@@ -141,18 +151,14 @@ const CustomerForm = ({
           required={false}
         />
 
-        <FormFieldWrapper
+        <DocumentField
+          control={control}
+          name="document"
           label="Documento (CPF/CNPJ)"
-          htmlFor="document"
+          error={errors.document?.message}
+          disabled={isPending}
           required={false}
-        >
-          <Input
-            id="document"
-            {...register("document")}
-            disabled={isPending}
-            placeholder="000.000.000-00"
-          />
-        </FormFieldWrapper>
+        />
       </div>
 
       <div className="flex justify-end gap-2">

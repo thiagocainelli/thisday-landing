@@ -1,11 +1,15 @@
 export interface CreateCustomersDto {
+  name?: string;
+  email?: string;
   phoneNumber?: string;
   document?: string;
   subscriptionStatus?: string;
-  userUuid: string;
+  userUuid?: string;
 }
 
 export interface UpdateCustomersDto {
+  name?: string;
+  email?: string;
   phoneNumber?: string;
   document?: string;
   subscriptionStatus?: string;
@@ -19,6 +23,8 @@ export interface ReadCustomersDto {
   createdAt: Date;
   updatedAt: Date;
   userUuid: string;
+  userName: string;
+  userEmail: string;
 }
 
 export interface ListCustomersDto {

@@ -31,7 +31,7 @@ npm install
 # Inicie o servidor de desenvolvimento
 npm run dev
 
-# Acesse http://localhost:8080
+# Acesse http://localhost:3000
 ```
 
 ## 📜 Scripts Disponíveis

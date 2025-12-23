@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import TablePagination from "@/components/admin/TablePagination";
 import SelectionToolbar from "@/components/admin/SelectionToolbar";
 import { cn } from "@/lib/utils";
+import { Inbox } from "lucide-react";
 
 interface Column<T> {
   key: keyof T | string;
@@ -143,8 +144,14 @@ function DataTable<T extends { id?: string; uuid?: string }>({
 
   if (data.length === 0) {
     return (
-      <div className="text-center py-12 text-muted-foreground rounded-md border">
-        <p>{emptyMessage}</p>
+      <div className="flex flex-col items-center justify-center py-20 px-6 rounded-lg border-2 border-dashed border-muted bg-muted/30">
+        <div className="rounded-full bg-muted p-5 mb-5 shadow-sm">
+          <Inbox className="h-10 w-10 text-muted-foreground" />
+        </div>
+        <h3 className="text-xl font-semibold text-foreground mb-3 text-center">
+          {emptyMessage}
+        </h3>
+        <div className="h-1 w-16 bg-primary/20 rounded-full"></div>
       </div>
     );
   }

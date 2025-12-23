@@ -19,6 +19,9 @@ import ViewDialog from "@/components/admin/ViewDialog";
 import ActionButtons from "@/components/admin/ActionButtons";
 import DetailField from "@/components/admin/DetailField";
 import AdminBreadcrumb from "@/components/admin/AdminBreadcrumb";
+import { applyPhoneMask } from "@/utils/phoneMask";
+import { applyCpfMask } from "@/utils/cpfMask";
+import { applyCnpjMask } from "@/utils/cnpjMask";
 
 const Customers = () => {
   const [searchValue, setSearchValue] = useState("");
@@ -80,18 +83,32 @@ const Customers = () => {
 
   const columns = [
     {
+      key: "name",
+      header: "Nome",
+      render: (item: ReadCustomersDto) => item.userName ?? "-",
+    },
+    {
+      key: "email",
+      header: "E-mail",
+      render: (item: ReadCustomersDto) => item.userEmail ?? "-",
+    },
+    {
       key: "phoneNumber",
       header: "Telefone",
-      render: (item: ReadCustomersDto) => item.phoneNumber || "-",
+      render: (item: ReadCustomersDto) =>
+        item.phoneNumber ? applyPhoneMask(item.phoneNumber) : "-",
     },
     {
       key: "document",
       header: "Documento",
-      render: (item: ReadCustomersDto) => item.document || "-",
-    },
-    {
-      key: "subscriptionStatus",
-      header: "Status Assinatura",
+      render: (item: ReadCustomersDto) =>
+        item.document
+          ? item.document.length === 11
+            ? applyCpfMask(item.document)
+            : item.document.length === 14
+            ? applyCnpjMask(item.document)
+            : item.document
+          : "-",
     },
     {
       key: "createdAt",
@@ -170,17 +187,34 @@ const Customers = () => {
           <div className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
               <DetailField
+                label="Nome"
+                value={selectedCustomer.userName ?? "-"}
+              />
+              <DetailField
+                label="E-mail"
+                value={selectedCustomer.userEmail ?? "-"}
+              />
+              <DetailField
                 label="Telefone"
-                value={selectedCustomer.phoneNumber || "-"}
+                value={
+                  selectedCustomer.phoneNumber
+                    ? applyPhoneMask(selectedCustomer.phoneNumber)
+                    : "-"
+                }
               />
               <DetailField
                 label="Documento"
-                value={selectedCustomer.document || "-"}
+                value={
+                  selectedCustomer.document
+                    ? selectedCustomer.document.length === 11
+                      ? applyCpfMask(selectedCustomer.document)
+                      : selectedCustomer.document.length === 14
+                      ? applyCnpjMask(selectedCustomer.document)
+                      : selectedCustomer.document
+                    : "-"
+                }
               />
-              <DetailField
-                label="Status da Assinatura"
-                value={selectedCustomer.subscriptionStatus}
-              />
+
               <DetailField
                 label="UUID do Cliente"
                 value={selectedCustomer.uuid}

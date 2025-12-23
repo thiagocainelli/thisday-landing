@@ -9,10 +9,10 @@ import { Switch } from "@/components/ui/switch";
 import PriceInput from "@/components/ui/PriceInput";
 import { X } from "lucide-react";
 import { useCreatePlan, useUpdatePlan, usePlan } from "@/hooks/usePlans";
-import { CreatePlanDto, UpdatePlanDto } from "@/types/plans.dto";
 import { planSchema, type PlanFormData } from "@/schemas/plan.schema";
 import { getSubmitButtonLabel } from "@/utils/formUtils";
 import { cn } from "@/lib/utils";
+import { CreatePlansDto } from "@/types/plans.dto";
 
 interface PlanFormProps {
   planId?: string;
@@ -24,7 +24,6 @@ const PlanForm = ({ planId, onSuccess, onCancel }: PlanFormProps) => {
   const { data: plan } = usePlan(planId);
   const { mutate: createPlan, isPending: isCreating } = useCreatePlan();
   const { mutate: updatePlan, isPending: isUpdating } = useUpdatePlan();
-  const [newFeature, setNewFeature] = useState("");
 
   const {
     register,
@@ -37,50 +36,32 @@ const PlanForm = ({ planId, onSuccess, onCancel }: PlanFormProps) => {
     resolver: zodResolver(planSchema),
     defaultValues: {
       name: "",
-      storage: 0,
-      duration: 0,
+      capacityGB: 0,
+      durationDays: 0,
       price: 0,
       description: "",
-      features: [] as string[],
-      isActive: true,
+      active: true,
     },
-  });
-
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: "features" as never,
   });
 
   useEffect(() => {
     if (plan) {
       reset({
         name: plan.name,
-        storage: plan.storage,
-        duration: plan.duration,
+        capacityGB: plan.capacityGB,
+        durationDays: plan.durationDays,
         price: plan.price,
         description: plan.description,
-        features: plan.features,
-        isActive: plan.isActive,
+        active: plan.active,
       });
     }
   }, [plan, reset]);
 
-  const addFeature = () => {
-    if (newFeature.trim()) {
-      append(newFeature.trim());
-      setNewFeature("");
-    }
-  };
-
   const onSubmit = (data: PlanFormData) => {
     if (planId) {
-      const updateData: UpdatePlanDto = {
-        id: planId,
-        ...data,
-      };
-      updatePlan(updateData, { onSuccess });
+      updatePlan({ uuid: planId, data }, { onSuccess });
     } else {
-      const createData: CreatePlanDto = data as CreatePlanDto;
+      const createData: CreatePlansDto = data as CreatePlansDto;
       createPlan(createData, { onSuccess });
     }
   };
@@ -104,20 +85,22 @@ const PlanForm = ({ planId, onSuccess, onCancel }: PlanFormProps) => {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="storage">Armazenamento (GB) *</Label>
+          <Label htmlFor="capacityGB">Armazenamento (GB) *</Label>
           <Input
-            id="storage"
+            id="capacityGB"
             type="number"
             min="1"
-            {...register("storage", { valueAsNumber: true })}
-            className={cn(errors.storage && "border-destructive")}
+            {...register("capacityGB", { valueAsNumber: true })}
+            className={cn(errors.capacityGB && "border-destructive")}
             disabled={isPending}
           />
           <p className="text-xs text-muted-foreground">
             Armazenamento disponível em GB (ex: 50, 100, 500, 1000)
           </p>
-          {errors.storage && (
-            <p className="text-sm text-destructive">{errors.storage.message}</p>
+          {errors.capacityGB && (
+            <p className="text-sm text-destructive">
+              {errors.capacityGB.message}
+            </p>
           )}
         </div>
 
@@ -126,13 +109,13 @@ const PlanForm = ({ planId, onSuccess, onCancel }: PlanFormProps) => {
           <Input
             id="duration"
             type="number"
-            {...register("duration", { valueAsNumber: true })}
-            className={cn(errors.duration && "border-destructive")}
+            {...register("durationDays", { valueAsNumber: true })}
+            className={cn(errors.durationDays && "border-destructive")}
             disabled={isPending}
           />
-          {errors.duration && (
+          {errors.durationDays && (
             <p className="text-sm text-destructive">
-              {errors.duration.message}
+              {errors.durationDays.message}
             </p>
           )}
         </div>
@@ -169,63 +152,22 @@ const PlanForm = ({ planId, onSuccess, onCancel }: PlanFormProps) => {
           />
         </div>
 
-        <div className="space-y-2 col-span-2">
-          <Label>Funcionalidades *</Label>
-          <div className="space-y-2">
-            <div className="flex gap-2">
-              <Input
-                value={newFeature}
-                onChange={(e) => setNewFeature(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    addFeature();
-                  }
-                }}
-                placeholder="Adicionar funcionalidade"
-                disabled={isPending}
-              />
-              <Button type="button" onClick={addFeature} disabled={isPending}>
-                Adicionar
-              </Button>
-            </div>
-            <div className="space-y-1">
-              {fields.map((field, index) => (
-                <div key={field.id} className="flex items-center gap-2">
-                  <Input
-                    {...register(`features.${index}` as const)}
-                    disabled={isPending}
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => remove(index)}
-                    disabled={isPending}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
-            </div>
-            {errors.features && (
-              <p className="text-sm text-destructive">
-                {errors.features.message ||
-                  "Adicione pelo menos uma funcionalidade"}
-              </p>
-            )}
-          </div>
-        </div>
-
         <div className="space-y-2">
-          <Label htmlFor="isActive">Status</Label>
+          <Label htmlFor="active">Status</Label>
           <div className="flex items-center space-x-2">
-            <Switch
-              id="isActive"
-              {...register("isActive")}
-              disabled={isPending}
+            <Controller
+              name="active"
+              control={control}
+              render={({ field }) => (
+                <Switch
+                  id="active"
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                  disabled={isPending}
+                />
+              )}
             />
-            <Label htmlFor="isActive" className="cursor-pointer">
+            <Label htmlFor="active" className="cursor-pointer">
               Ativo
             </Label>
           </div>

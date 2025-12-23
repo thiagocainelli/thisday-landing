@@ -6,7 +6,7 @@ export interface CreateUserDto {
   password: string;
   type: UserTypeEnum;
   profileImageUrl?: string;
-  isActive: boolean;
+  active: boolean;
 }
 
 export interface UpdateUserDto {
@@ -14,7 +14,7 @@ export interface UpdateUserDto {
   email?: string;
   password?: string;
   type?: UserTypeEnum;
-  isActive?: boolean;
+  active?: boolean;
 }
 
 export interface UpdateUserPasswordDto {
@@ -30,7 +30,7 @@ export interface ReadUserDto {
   email: string;
   type: UserTypeEnum;
   profileImageUrl: string;
-  isActive: boolean;
+  active: boolean;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date;
@@ -42,7 +42,7 @@ export interface ReadUserListDto {
   email: string;
   type: UserTypeEnum;
   profileImageUrl: string;
-  isActive: boolean;
+  active: boolean;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date;

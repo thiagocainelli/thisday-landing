@@ -53,7 +53,7 @@ const UserForm = ({ userId, onSuccess, onCancel }: UserFormProps) => {
         name: user.name,
         email: user.email,
         type: user.type as UserTypeEnum,
-        isActive: user.isActive,
+        isActive: user.active,
       });
     }
   }, [user, reset]);
@@ -64,7 +64,7 @@ const UserForm = ({ userId, onSuccess, onCancel }: UserFormProps) => {
         name: data.name,
         email: data.email,
         type: data.type as UserTypeEnum,
-        isActive: data.isActive,
+        active: data.isActive,
         ...(data.password && { password: data.password }),
       };
       updateUser({ uuid: userId, data: updateData }, { onSuccess });
@@ -77,7 +77,7 @@ const UserForm = ({ userId, onSuccess, onCancel }: UserFormProps) => {
         email: data.email,
         password: data.password,
         type: data.type as UserTypeEnum,
-        isActive: data.isActive,
+        active: data.isActive,
       };
       createUser(createData, { onSuccess });
     }

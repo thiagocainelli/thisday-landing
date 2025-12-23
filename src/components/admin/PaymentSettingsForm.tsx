@@ -18,6 +18,7 @@ import { useSettings, useUpdateSettings } from "@/hooks/useSettings";
 import { useToast } from "@/hooks/useToast";
 import { getLoadingButtonLabel } from "@/utils/formUtils";
 import { CreditCard, Percent, Calendar, HardDrive } from "lucide-react";
+import PriceField from "@/components/forms/PriceField";
 
 interface PaymentSettingsFormProps {
   onSuccess?: () => void;
@@ -30,6 +31,7 @@ const PaymentSettingsForm = ({ onSuccess }: PaymentSettingsFormProps) => {
 
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors },
     reset,
@@ -163,30 +165,19 @@ const PaymentSettingsForm = ({ onSuccess }: PaymentSettingsFormProps) => {
             )}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="pricePerGB" className="flex items-center gap-2">
-              <HardDrive className="h-4 w-4" />
-              Preço por GB de Armazenamento (R$)
-            </Label>
-            <Input
-              id="pricePerGB"
-              type="number"
-              step="0.1"
-              min="0.1"
-              max="100"
-              {...register("pricePerGB", { valueAsNumber: true })}
-              disabled={isPending}
-            />
-            <p className="text-xs text-muted-foreground">
-              Preço cobrado por cada GB de armazenamento adicional (R$ 0,10 - R$
-              100,00)
-            </p>
-            {errors.pricePerGB && (
-              <p className="text-sm text-destructive">
-                {errors.pricePerGB.message}
-              </p>
-            )}
-          </div>
+          <PriceField
+            control={control}
+            name="pricePerGB"
+            label="Preço por GB de Armazenamento (R$)"
+            error={errors.pricePerGB?.message}
+            disabled={isPending}
+            required={false}
+            placeholder="R$ 0,00"
+          />
+          <p className="text-xs text-muted-foreground -mt-4">
+            Preço cobrado por cada GB de armazenamento adicional (R$ 0,10 - R$
+            100,00)
+          </p>
 
           <div className="flex justify-end gap-2">
             <Button type="submit" variant="hero" disabled={isPending}>

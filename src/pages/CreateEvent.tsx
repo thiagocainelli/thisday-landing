@@ -1,9 +1,17 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useForm, Control, FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Check, ArrowRight, FileText, Shield, AlertCircle } from "lucide-react";
+import {
+  Check,
+  ArrowRight,
+  FileText,
+  Shield,
+  AlertCircle,
+  Package,
+  Info,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -50,6 +58,8 @@ const CreateEvent = () => {
   const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
   const [pendingEventData, setPendingEventData] =
     useState<EventFormData | null>(null);
+  const formCardRef = useRef<HTMLDivElement>(null);
+  const previousPlanUuidRef = useRef<string | null>(null);
 
   // Buscar planos da API
   const { data: plansData, isLoading: isLoadingPlans } = usePlans({
@@ -58,23 +68,58 @@ const CreateEvent = () => {
     search: undefined,
   });
 
-  const plans = plansData?.data;
+  const activePlans = plansData?.data?.filter((plan) => plan.active);
+  const hasInitializedPlanRef = useRef(false);
 
-  // Pré-selecionar plano se vier da query string
+  // Pré-selecionar plano se vier da query string (apenas uma vez)
   useEffect(() => {
-    const planParam = searchParams.get("plan");
-    if (planParam && plans.length > 0) {
-      // Tentar encontrar plano por nome ou UUID
-      const plan = plans.find(
-        (p) =>
-          p.name.toLowerCase() === planParam.toLowerCase() ||
-          p.uuid === planParam
-      );
-      if (plan) {
-        setSelectedPlanUuid(plan.uuid);
+    if (!hasInitializedPlanRef.current && activePlans?.length > 0) {
+      const planParam = searchParams.get("plan");
+      if (planParam) {
+        // Tentar encontrar plano por nome ou UUID
+        const plan = activePlans.find(
+          (p) =>
+            p.name.toLowerCase() === planParam.toLowerCase() ||
+            p.uuid === planParam
+        );
+        if (plan) {
+          setSelectedPlanUuid(plan.uuid);
+        }
       }
+      hasInitializedPlanRef.current = true;
     }
-  }, [searchParams, plans]);
+  }, [searchParams, activePlans]);
+
+  // Focar e scrollar para o primeiro campo quando um plano for selecionado
+  useEffect(() => {
+    // Só faz scroll/focus se o plano mudou de null para um valor (usuário selecionou)
+    if (
+      selectedPlanUuid &&
+      previousPlanUuidRef.current !== selectedPlanUuid &&
+      formCardRef.current
+    ) {
+      // Pequeno delay para garantir que o DOM esteja atualizado
+      setTimeout(() => {
+        formCardRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+
+        // Focar no primeiro input após o scroll
+        setTimeout(() => {
+          const firstInput = document.getElementById(
+            "fullName"
+          ) as HTMLInputElement;
+          if (firstInput) {
+            firstInput.focus();
+          }
+        }, 300);
+      }, 100);
+    }
+
+    // Atualizar a referência do plano anterior
+    previousPlanUuidRef.current = selectedPlanUuid;
+  }, [selectedPlanUuid]);
 
   const {
     handleSubmit,
@@ -94,7 +139,7 @@ const CreateEvent = () => {
       return;
     }
 
-    const plan = plans.find((p) => p.uuid === selectedPlanUuid);
+    const plan = activePlans.find((p) => p.uuid === selectedPlanUuid);
     if (!plan) {
       toast({
         title: "Plano não encontrado",
@@ -112,15 +157,15 @@ const CreateEvent = () => {
   const handleConfirmTerms = () => {
     if (!pendingEventData || !selectedPlanUuid) return;
 
-    const plan = plans.find((p) => p.uuid === selectedPlanUuid);
+    const plan = activePlans.find((p) => p.uuid === selectedPlanUuid);
     if (!plan) return;
 
     // Navegar para checkout com dados na URL ou state
     // Por enquanto, vamos passar via state do navigate
     const checkoutData = {
-      ...pendingEventData,
       planUuid: selectedPlanUuid,
       plan,
+      eventData: { ...pendingEventData },
     };
 
     navigate("/checkout", {
@@ -128,7 +173,8 @@ const CreateEvent = () => {
     });
   };
 
-  const selectedPlanData = plans.find((p) => p.uuid === selectedPlanUuid);
+  const selectedPlanData =
+    activePlans?.find((p) => p.uuid === selectedPlanUuid) || null;
 
   return (
     <>
@@ -167,9 +213,18 @@ const CreateEvent = () => {
                       <div className="text-center py-8 text-muted-foreground">
                         Carregando planos...
                       </div>
-                    ) : plans.length === 0 ? (
-                      <div className="text-center py-8 text-muted-foreground">
-                        Nenhum plano disponível
+                    ) : activePlans.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center py-12 px-4">
+                        <div className="rounded-full bg-muted p-4 mb-4">
+                          <Package className="h-8 w-8 text-muted-foreground" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-foreground mb-2">
+                          Nenhum plano disponível
+                        </h3>
+                        <p className="text-sm text-muted-foreground text-center max-w-md">
+                          Não há planos ativos disponíveis no momento. Entre em
+                          contato conosco para mais informações.
+                        </p>
                       </div>
                     ) : (
                       <RadioGroup
@@ -177,49 +232,54 @@ const CreateEvent = () => {
                         onValueChange={setSelectedPlanUuid}
                         className="grid grid-cols-1 md:grid-cols-3 gap-4"
                       >
-                        {plans
-                          .filter((p) => p.active)
-                          .map((plan) => (
-                            <div key={plan.uuid}>
-                              <RadioGroupItem
-                                value={plan.uuid}
-                                id={plan.uuid}
-                                className="peer sr-only"
-                              />
-                              <Label
-                                htmlFor={plan.uuid}
-                                className="flex flex-col items-center justify-between rounded-lg border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
-                              >
-                                <div className="flex items-center gap-2 mb-2">
-                                  <span className="text-lg font-semibold">
-                                    {plan.name}
-                                  </span>
-                                  {selectedPlanUuid === plan.uuid && (
-                                    <Check className="h-4 w-4 text-primary" />
-                                  )}
+                        {activePlans.map((plan) => (
+                          <div key={plan.uuid}>
+                            <RadioGroupItem
+                              value={plan.uuid}
+                              id={plan.uuid}
+                              className="peer sr-only"
+                            />
+                            <Label
+                              htmlFor={plan.uuid}
+                              className="flex flex-col items-center justify-between rounded-lg border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
+                            >
+                              <div className="flex items-center gap-2 mb-2">
+                                <span className="text-lg font-semibold">
+                                  {plan.name}
+                                </span>
+                                {selectedPlanUuid === plan.uuid && (
+                                  <Check className="h-4 w-4 text-primary" />
+                                )}
+                              </div>
+                              <div className="text-center">
+                                <div className="text-2xl font-bold text-foreground mb-1">
+                                  {formatCurrencyBRL(plan.price)}
                                 </div>
-                                <div className="text-center">
-                                  <div className="text-2xl font-bold text-foreground mb-1">
-                                    {formatCurrencyBRL(plan.price)}
-                                  </div>
-                                  <div className="text-sm text-muted-foreground">
-                                    {formatStorage(plan.capacityGB)} de
-                                    armazenamento
-                                  </div>
-                                  <div className="text-sm text-muted-foreground">
-                                    {plan.durationDays} dias
-                                  </div>
+                                <div className="text-sm text-muted-foreground">
+                                  {formatStorage(plan.capacityGB)} de
+                                  armazenamento
                                 </div>
-                              </Label>
-                            </div>
-                          ))}
+                                <div className="text-sm text-muted-foreground">
+                                  {plan.durationDays} dias
+                                </div>
+
+                                {plan.description && (
+                                  <div className="text-sm text-muted-foreground mt-5 flex items-start gap-2">
+                                    <Info className="min-h-4 min-w-4 text-muted-foreground" />
+                                    {plan.description}
+                                  </div>
+                                )}
+                              </div>
+                            </Label>
+                          </div>
+                        ))}
                       </RadioGroup>
                     )}
                   </CardContent>
                 </Card>
 
                 {/* Dados do Evento */}
-                <Card>
+                <Card ref={formCardRef}>
                   <CardHeader>
                     <CardTitle>Dados do evento</CardTitle>
                     <CardDescription>

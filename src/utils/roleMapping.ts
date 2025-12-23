@@ -1,7 +1,8 @@
+import { UserTypeEnum } from "@/types/enums";
+
 export const roleMap: Record<string, string> = {
-  admin: "Administrador",
-  manager: "Gerente",
-  support: "Suporte",
+  [UserTypeEnum.ADMIN]: "Administrador",
+  [UserTypeEnum.CUSTOMER]: "Cliente",
 };
 
 export const getRoleLabel = (role: string): string => {

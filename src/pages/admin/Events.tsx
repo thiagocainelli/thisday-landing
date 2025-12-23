@@ -83,12 +83,12 @@ const Events = () => {
     {
       key: "startDate",
       header: "Data Início",
-      render: (item: ReadEventsDto) => formatDateBR(item.startDate.toString()),
+      render: (item: ReadEventsDto) => formatDateBR(item.startDate),
     },
     {
       key: "endDate",
       header: "Data Fim",
-      render: (item: ReadEventsDto) => formatDateBR(item.endDate.toString()),
+      render: (item: ReadEventsDto) => formatDateBR(item.endDate),
     },
     {
       key: "status",
@@ -100,6 +100,11 @@ const Events = () => {
     {
       key: "shareCode",
       header: "Código",
+    },
+    {
+      key: "createdAt",
+      header: "Criado em",
+      render: (item: ReadEventsDto) => formatDateBR(item.createdAt),
     },
     {
       key: "actions",
@@ -192,11 +197,11 @@ const Events = () => {
               />
               <DetailField
                 label="Data de Início"
-                value={formatDateBR(selectedEvent.startDate.toString())}
+                value={formatDateBR(selectedEvent.startDate)}
               />
               <DetailField
                 label="Data de Término"
-                value={formatDateBR(selectedEvent.endDate.toString())}
+                value={formatDateBR(selectedEvent.endDate)}
               />
               <DetailField
                 label="Status"
@@ -214,7 +219,7 @@ const Events = () => {
               />
               <DetailField
                 label="Criado em"
-                value={formatDateBR(selectedEvent.createdAt.toString())}
+                value={formatDateBR(selectedEvent.createdAt)}
               />
             </div>
           </div>
